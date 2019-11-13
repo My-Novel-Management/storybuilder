@@ -1,0 +1,20 @@
+# .coveragerc to control coverage.py
+[run]
+source = builder
+omit =
+    # projects
+    old_*
+    # markdown
+    *.md
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    test_case.fail
