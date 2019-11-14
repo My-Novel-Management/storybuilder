@@ -8,6 +8,7 @@ import test_basedata
 import test_basesubject
 import test_chara
 import test_episode
+import test_it
 import test_story
 import test_world
 import test_chapter
@@ -35,6 +36,7 @@ def suite():
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
         # data type
+        unittest.makeSuite(test_it.ItTest),
         unittest.makeSuite(test_story.StoryTest),
         ## stage
         unittest.makeSuite(test_stage.StageTest),

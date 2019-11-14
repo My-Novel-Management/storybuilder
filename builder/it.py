@@ -8,6 +8,8 @@ from .basedata import BaseData
 class It(BaseData):
     """For a pronoun class.
     """
+    __NAME__ = "__it__"
+
     def __init__(self):
-        super().__init__("__it__")
+        super().__init__(It.__NAME__)
 
