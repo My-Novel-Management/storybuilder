@@ -6,6 +6,7 @@ import test_assertion
 import test_basecontainer
 import test_basedata
 import test_basesubject
+import test_chara
 import test_episode
 import test_world
 import test_chapter
@@ -41,6 +42,7 @@ def suite():
         unittest.makeSuite(test_time.TimeTest),
         ## person
         unittest.makeSuite(test_person.PersonTest),
+        unittest.makeSuite(test_chara.CharaTest),
         ## action
         unittest.makeSuite(test_action.ActionTest),
         ## description
