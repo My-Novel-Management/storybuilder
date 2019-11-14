@@ -9,7 +9,14 @@ from .person import Person
 from .stage import Stage
 from .day import Day
 from .time import Time
-from .action import Action
+from .action import Action, TagAction
+from .combaction import CombAction
+from .basesubject import NoSubject
+
+
+## type define
+AllActions = (Action, TagAction, CombAction)
+Someone = (Person, NoSubject)
 
 
 class ScenarioType(Enum):
@@ -34,10 +41,10 @@ class Scene(BaseContainer):
         super().__init__(title, Action.DEF_PRIORITY)
         self._outline = assertion.is_str(outline)
         self._actions = Scene._validatedActions(*args)
-        self._camera = assertion.is_instance(camera, Person) if camera else NoData()
-        self._stage = assertion.is_instance(stage, Stage) if stage else NoData()
-        self._day = assertion.is_instance(day, Day) if day else NoData()
-        self._time = assertion.is_instance(time, Time) if time else NoData()
+        self._camera = NoData() if not camera or isinstance(camera, NoData) else assertion.is_instance(camera, Someone)
+        self._stage = NoData() if not stage or isinstance(stage, NoData) else assertion.is_instance(stage, Stage)
+        self._day = NoData() if not day or isinstance(day, NoData) else assertion.is_instance(day, Day)
+        self._time = NoData() if not time or isinstance(time, NoData) else assertion.is_instance(time, Time)
 
     def inherited(self, *acts):
         return Scene(self.title, self.outline,
@@ -66,7 +73,7 @@ class Scene(BaseContainer):
     @property
     def title(self): return self._title
 
-    def setCamera(self, camera: [Person, NoData]):
+    def setCamera(self, camera: [Someone, NoData]):
         """
         Args:
             XXX (:obj:`Chara`): a stage camera.
@@ -108,9 +115,5 @@ class Scene(BaseContainer):
 
     # privates
     def _validatedActions(*args):
-        from .combaction import CombAction
-        for a in args:
-            if not isinstance(a, (Action, CombAction)):
-                raise AssertionError("Must be data type of 'Action'!", a)
-        return args
+        return args if [assertion.is_instance(v, AllActions) for v in args] else ()
 
