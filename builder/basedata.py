@@ -17,6 +17,8 @@ class BaseData(object):
 class NoData(BaseData):
     """Nothing data.
     """
+    __NAME__ = "__none__"
+
     def __init__(self):
-        super().__init__("__none__")
+        super().__init__(NoData.__NAME__)
 

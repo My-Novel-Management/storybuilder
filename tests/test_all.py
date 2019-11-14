@@ -4,6 +4,7 @@
 import unittest
 import test_assertion
 import test_basecontainer
+import test_basedata
 import test_world
 import test_chapter
 import test_scene
@@ -23,6 +24,8 @@ def suite():
     suite.addTests((
         # base type
         unittest.makeSuite(test_basecontainer.BaseContainerTest),
+        unittest.makeSuite(test_basedata.BaseDataTest),
+        unittest.makeSuite(test_basedata.NoDataTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
         # data type
