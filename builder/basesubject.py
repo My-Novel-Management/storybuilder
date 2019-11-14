@@ -15,5 +15,6 @@ class BaseSubject(BaseData):
 class NoSubject(BaseSubject):
     """Nothing data.
     """
+    __NAME__ = "__noone__"
     def __init__(self):
-        super().__init__("__noone__")
+        super().__init__(NoSubject.__NAME__)
