@@ -6,6 +6,7 @@ import test_assertion
 import test_basecontainer
 import test_basedata
 import test_basesubject
+import test_episode
 import test_world
 import test_chapter
 import test_scene
@@ -47,6 +48,7 @@ def suite():
         # container type
         ## chapter
         unittest.makeSuite(test_chapter.ChapterTest),
+        unittest.makeSuite(test_episode.EpisodeTest),
         unittest.makeSuite(test_scene.SceneTest),
         # world
         unittest.makeSuite(test_world.UtilityDictTest),

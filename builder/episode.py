@@ -26,7 +26,4 @@ class Episode(BaseContainer):
 
     # private
     def _validatedScenes(*args):
-        for a in args:
-            if not isinstance(a, Scene):
-                raise AssertionError("Must be data type of 'Scene'!")
-        return args
+        return args if [assertion.is_instance(v, Scene) for v in args] else ()
