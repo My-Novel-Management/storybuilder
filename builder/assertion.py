@@ -11,7 +11,7 @@ from typing import Any
 _ERR_INVALID_TYPE = "{} must be {}"
 
 
-# public methods
+## public methods
 def is_between(val, max: int, min: int) -> bool:
     assert val <= max and val >= min, f"{val} must be between {max} to {min}"
     return val
@@ -38,7 +38,7 @@ def is_int(val) -> int:
 
 
 def is_int_or_str(val) -> [int, str]:
-    assert isinstance(val, int) or isinstance(val, str), _ERR_INVALID_TYPE.format(_typename_of(val), "int or str")
+    assert isinstance(val, (int, str)), _ERR_INVALID_TYPE.format(_typename_of(val), "int or str")
     return val
 
 
@@ -54,7 +54,7 @@ def is_str(val) -> str:
 
 
 def is_subclass(val, cls) -> Any:
-    assert issubclass(val, cls), _ERR_INVALID_TYPE.format(_typename_of(val), f"subclass of {type(cls)}")
+    assert issubclass(type(val), cls), _ERR_INVALID_TYPE.format(_typename_of(val), f"subclass of {type(cls)}")
     return val
 
 

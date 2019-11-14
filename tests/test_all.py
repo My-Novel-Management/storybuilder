@@ -2,6 +2,7 @@
 """Test suite for all tests
 """
 import unittest
+import test_assertion
 import test_world
 import test_chapter
 import test_scene
@@ -19,6 +20,8 @@ def suite():
     suite = unittest.TestSuite()
 
     suite.addTests((
+        # utility
+        unittest.makeSuite(test_assertion.MethodsTest),
         # data type
         ## stage
         unittest.makeSuite(test_stage.StageTest),
