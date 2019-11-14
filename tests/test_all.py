@@ -3,6 +3,7 @@
 """
 import unittest
 import test_assertion
+import test_basecontainer
 import test_world
 import test_chapter
 import test_scene
@@ -20,6 +21,8 @@ def suite():
     suite = unittest.TestSuite()
 
     suite.addTests((
+        # base type
+        unittest.makeSuite(test_basecontainer.BaseContainerTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
         # data type

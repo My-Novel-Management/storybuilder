@@ -2,6 +2,7 @@
 """Define base container type class.
 """
 from . import assertion
+from . import __MAX_PRIORYTY__, __MIN_PRIORITY__
 
 
 class BaseContainer(object):
@@ -18,12 +19,10 @@ class BaseContainer(object):
     def priority(self): return self._priority
 
     def setPriority(self, pri: int):
-        # TODO: min max check
-        self._priority = pri
+        self._priority = assertion.is_between(pri, __MAX_PRIORYTY__, __MIN_PRIORITY__)
         return self
 
     def omit(self):
-        from .action import Action
-        self._priority = Action.MIN_PRIORITY
+        self._priority = __MIN_PRIORITY__
         return self
 
