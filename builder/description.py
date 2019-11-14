@@ -17,8 +17,9 @@ class DescType(Enum):
 class Description(BaseData):
     """Data type of a description.
     """
+    __NAME__ = "__desc__"
     def __init__(self, *args, desc_type: DescType=DescType.DESC):
-        super().__init__("__desc__")
+        super().__init__(Description.__NAME__)
         self._descs = Description._validatedStrings(args)
         self._desc_type = assertion.is_instance(desc_type, DescType)
 
@@ -30,13 +31,7 @@ class Description(BaseData):
 
     # privates
     def _validatedStrings(args):
-        if args:
-            if isinstance(args, str):
-                return (args,)
-            else:
-                return tuple(assertion.is_list(args))
-        else:
-            return ()
+        return args if [assertion.is_str(v) for v in args] else ()
 
 
 class NoDesc(Description):

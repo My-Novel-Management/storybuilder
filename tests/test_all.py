@@ -56,6 +56,7 @@ def suite():
         unittest.makeSuite(test_action.ActionTest),
         ## description
         unittest.makeSuite(test_description.DescriptionTest),
+        unittest.makeSuite(test_description.NoDescTest),
         # container type
         ## chapter
         unittest.makeSuite(test_chapter.ChapterTest),
