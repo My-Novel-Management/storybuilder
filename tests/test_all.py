@@ -22,6 +22,7 @@ import test_person
 import test_action
 import test_description
 import test_combaction
+import test_flag
 
 
 def suite():
@@ -40,6 +41,9 @@ def suite():
         unittest.makeSuite(test_assertion.MethodsTest),
         unittest.makeSuite(test_strutils.MethodsTest),
         # data type
+        unittest.makeSuite(test_flag.FlagTest),
+        unittest.makeSuite(test_flag.NoFlagTest),
+        unittest.makeSuite(test_flag.NoDeflagTest),
         unittest.makeSuite(test_it.ItTest),
         unittest.makeSuite(test_item.ItemTest),
         unittest.makeSuite(test_story.StoryTest),
