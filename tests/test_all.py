@@ -21,6 +21,7 @@ import test_time
 import test_person
 import test_action
 import test_description
+import test_combaction
 
 
 def suite():
@@ -63,6 +64,8 @@ def suite():
         # world
         unittest.makeSuite(test_world.UtilityDictTest),
         unittest.makeSuite(test_world.WorldTest),
+        ## container
+        unittest.makeSuite(test_combaction.CombActionTest),
         ))
 
     return suite
