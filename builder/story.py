@@ -11,6 +11,7 @@ class Story(BaseContainer):
     """
     def __init__(self, title: str, *args):
         from .action import Action
+        # TODO: あとで__DEF_PRIORITY__を利用する
         super().__init__(title, Action.DEF_PRIORITY)
         self._chapters = Story._validatedChapters(*args)
 
@@ -22,8 +23,5 @@ class Story(BaseContainer):
 
     # private
     def _validatedChapters(*args):
-        for a in args:
-            if not isinstance(a, Chapter):
-                raise AssertionError("Must be data type of 'Chapter'")
-        return args
+        return args if [assertion.is_instance(v, Chapter) for v in args] else ()
 
