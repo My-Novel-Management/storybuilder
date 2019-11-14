@@ -11,6 +11,7 @@ import test_episode
 import test_it
 import test_item
 import test_story
+import test_strutils
 import test_world
 import test_chapter
 import test_scene
@@ -36,6 +37,7 @@ def suite():
         unittest.makeSuite(test_basesubject.NoSubjectTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
+        unittest.makeSuite(test_strutils.MethodsTest),
         # data type
         unittest.makeSuite(test_it.ItTest),
         unittest.makeSuite(test_item.ItemTest),
