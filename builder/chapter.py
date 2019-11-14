@@ -22,8 +22,5 @@ class Chapter(BaseContainer):
 
     # privates
     def _validatedEpisodes(*args):
-        for a in args:
-            if not isinstance(a, Episode):
-                raise AssertionError("Must be data type of 'Episode'!")
-        return args
+        return args if [assertion.is_instance(v, Episode) for v in args] else ()
 

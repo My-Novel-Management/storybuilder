@@ -15,19 +15,41 @@ class ChapterTest(unittest.TestCase):
         print_test_title(_FILENAME, "Chapter class")
 
     def test_attributes(self):
-        c = ch.Chapter("test title")
-        self.assertTrue(isinstance(c, ch.Chapter))
-        self.assertEqual(c.title, "test title")
-
-    @unittest.skip("wip")
-    def test_method_add(self):
+        from builder.episode import Episode
         data = [
-                ((ch.Scene("s1"),), 1),
-                ((ch.Scene("s1"), ch.Scene("s2")), 2),
+                ("test", (Episode("test", "a test"),), False),
+                ("test", (), False),
+                (1, (Episode("test", "a test"),), True),
+                ("test", ("test", "a test"), True),
                 ]
+        for title, eps, isfail in data:
+            with self.subTest():
+                if not isfail:
+                    tmp = ch.Chapter(title, *eps)
+                    self.assertIsInstance(tmp, ch.Chapter)
+                    self.assertEqual(tmp.episodes, eps)
+                else:
+                    with self.assertRaises(AssertionError):
+                        tmp = ch.Chapter(title, *eps)
+                        self.assertIsInstance(tmp, ch.Chapter)
+                        self.assertEqual(tmp.episodes, eps)
 
-        for scenes, num in data:
-            with self.subTest(scenes=scenes, num=num):
-                c = ch.Chapter("test chapter")
-                res = c.add(*scenes)
-                self.assertEqual(len(res.scenes), num)
+    def test_inherited(self):
+        from builder.episode import Episode
+        data = [
+                ((Episode("1", "a test"), Episode("2", "an apple")), False),
+                ((), False),
+                ([1,2,3], True),
+                ]
+        for eps, isfail in data:
+            with self.subTest():
+                tmp = ch.Chapter("test", Episode("test", "a test"))
+                if not isfail:
+                    tmp1 = tmp.inherited(*eps)
+                    self.assertIsInstance(tmp1, ch.Chapter)
+                    self.assertEqual(tmp1.episodes, eps)
+                else:
+                    with self.assertRaises(AssertionError):
+                        tmp1 = tmp.inherited(*eps)
+                        self.assertIsInstance(tmp1, ch.Chapter)
+                        self.assertEqual(tmp1.episodes, eps)
