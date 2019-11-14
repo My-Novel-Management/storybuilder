@@ -8,9 +8,9 @@ from .basedata import BaseData
 class Item(BaseData):
     """Data type of an item.
     """
-    DEF_NOTE = "なし"
+    __NOTE__ = "なし"
 
-    def __init__(self, name: str, note: str=DEF_NOTE):
+    def __init__(self, name: str, note: str=__NOTE__):
         """
         Args:
             name (str): an item name.
