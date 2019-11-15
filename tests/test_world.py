@@ -3,7 +3,8 @@
 """
 import unittest
 from testutils import print_test_title
-from builder import world as wd
+from builder.world import UtilityDict, World
+from builder.person import Person
 
 
 _FILENAME = "world.py"
@@ -16,10 +17,14 @@ class UtilityDictTest(unittest.TestCase):
         print_test_title(_FILENAME, "UtilityDict class")
 
     def test_attributes(self):
-        tmp = wd.UtilityDict()
-        tmp["test"] = "apple"
-        self.assertTrue(hasattr(tmp, "test"))
+        tmp = UtilityDict()
+        self.assertIsInstance(tmp, UtilityDict)
 
+    def test_setitem(self):
+        tmp = UtilityDict()
+        tmp.__setitem__("test", "apple")
+        self.assertTrue(hasattr(tmp, "test"))
+        self.assertEqual(tmp.test, "apple")
 
 class WorldTest(unittest.TestCase):
 
@@ -27,46 +32,231 @@ class WorldTest(unittest.TestCase):
     def setUpClass(cls):
         print_test_title(_FILENAME, "World class")
 
-    def test_instance(self):
-        w = wd.World()
-        self.assertIsInstance(w, wd.World)
+    def setUp(self):
+        self.taro = Person("Taro", "", 17, "male", "student")
 
     def test_attributes(self):
-        w = wd.World()
-        self.assertTrue(hasattr(w, "day"))
-        self.assertTrue(hasattr(w, "item"))
-        self.assertTrue(hasattr(w, "stage"))
-        self.assertTrue(hasattr(w, "time"))
-        self.assertTrue(hasattr(w, "word"))
-        self.assertIsInstance(w.day, wd.UtilityDict)
-        self.assertIsInstance(w.item, wd.UtilityDict)
-        self.assertIsInstance(w.stage, wd.UtilityDict)
-        self.assertIsInstance(w.time, wd.UtilityDict)
-        self.assertIsInstance(w.word, wd.UtilityDict)
+        tmp = World()
+        self.assertIsInstance(tmp, World)
+        self.assertIsInstance(tmp.day, UtilityDict)
+        self.assertIsInstance(tmp.item, UtilityDict)
+        self.assertIsInstance(tmp.stage, UtilityDict)
+        self.assertIsInstance(tmp.time, UtilityDict)
+        self.assertIsInstance(tmp.word, UtilityDict)
 
-    def test_method_chapter(self):
-        w = wd.World()
-        res = w.chapter("test chapter")
-        self.assertIsInstance(res, wd.Chapter)
+    @unittest.skip("referenced chapter-test")
+    def test_chapter(self):
+        pass
 
-    def test_method_append_day(self):
-        w = wd.World()
+    @unittest.skip("referenced episode-test")
+    def test_episode(self):
+        pass
+
+    @unittest.skip("referenced scene-test")
+    def test_scene(self):
+        pass
+
+    @unittest.skip("referenced story-test")
+    def test_story(self):
+        pass
+
+    def test_appendOne(self):
+        from builder.stage import Stage
         data = [
-                ("day1", "test day", 10, 1, 2019),
+                ("test", Stage("apple"), UtilityDict(), Stage, False),
+                ("test", ("apple",), UtilityDict(), Stage, False),
                 ]
-        for tag, name, mon, day, year in data:
-            with self.subTest(tag=tag, name=name, mon=mon, day=day, year=year):
-                res = w.append_day(tag, (name, mon, day, year))
-                self.assertTrue(hasattr(w.day, tag))
-                self.assertIsInstance(w.day[tag], wd.Day)
+        def _checkcode(k, v, dct, dtype):
+            tmp = World()
+            tmp._appendOne(k, v, dct, dtype)
+            self.assertTrue(hasattr(dct, k))
+            self.assertIsInstance(dct[k], dtype)
+        for k, v, dct, dtype, isfail in data:
+            with self.subTest():
+                if not isfail:
+                    _checkcode(k, v, dct, dtype)
+                else:
+                    with self.assertRaises(AssertionError):
+                        _checkcode(k, v, dct, dtype)
 
-    def test_method_append_item(self):
-        w = wd.World()
+    @unittest.skip("referenced appendOne test")
+    def test_append_chara(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_day(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_item(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_person(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_stage(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_time(self):
+        pass
+
+    @unittest.skip("referenced appendOne test")
+    def test_append_word(self):
+        pass
+
+    def test_setItemsFrom(self):
+        from builder.stage import Stage
         data = [
-                ("item1", "test1", "testing"),
+                ([("test", "a test"),],
+                    False),
+                ([("apple", "an apple"), ("orange", "a orange")],
+                    False),
                 ]
-        for tag, name, note in data:
-            with self.subTest(tag=tag, name=name, note=note):
-                res = w.append_item(tag, (name, note))
-                self.assertTrue(hasattr(w.item, tag))
-                self.assertIsInstance(w.item[tag], wd.Item)
+        def _checkcode(data):
+            tmp = World()
+            tmp._setItemsFrom(data, tmp.append_stage)
+            for v in data:
+                self.assertTrue(hasattr(tmp.stage, v[0]))
+                self.assertIsInstance(tmp.stage[v[0]], Stage)
+        for v, isfail in data:
+            with self.subTest():
+                if not isfail:
+                    _checkcode(v)
+                else:
+                    with self.assertRaises(AssertionError):
+                        _checkcode(v)
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_days(self):
+        pass
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_items(self):
+        pass
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_persons(self):
+        pass
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_stages(self):
+        pass
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_times(self):
+        pass
+
+    @unittest.skip("referenced setItemsFrom test")
+    def test_set_words(self):
+        pass
+
+    @unittest.skip("integration test")
+    def test_set_db(self):
+        pass
+
+    @unittest.skip("referenced combaction test")
+    def test_combine(self):
+        pass
+
+    def test_act(self):
+        from builder.action import Action, ActType
+        data = [
+                (self.taro, "test", False),
+                ]
+        def _checkcode(subject, outline):
+            tmp = World()
+            tmp1 = tmp.act(subject, outline)
+            self.assertIsInstance(tmp1, Action)
+            self.assertEqual(tmp1.subject, subject)
+            self.assertEqual(tmp1.outline, outline)
+            self.assertEqual(tmp1.act_type, ActType.ACT)
+        for subject, outline, isfail in data:
+            with self.subTest():
+                if not isfail:
+                    _checkcode(subject, outline)
+                else:
+                    with self.assertRaises(AssertionError):
+                        _checkcode(subject, outline)
+
+    @unittest.skip("almost same test_act")
+    def test_be(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_come(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_go(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_have(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_hear(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_look(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_move(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_talk(self):
+        pass
+
+    @unittest.skip("almost same test_act")
+    def test_think(self):
+        pass
+
+    def test_comment(self):
+        from builder.action import TagAction, TagType
+        data = [
+                ("test", False),
+                ]
+        def _checkcode(info):
+            tmp = World()
+            tmp1 = tmp.comment(info)
+            self.assertIsInstance(tmp1, TagAction)
+            self.assertEqual(tmp1.info, info)
+            self.assertEqual(tmp1.tag_type, TagType.COMMENT)
+        for info, isfail in data:
+            with self.subTest():
+                if not isfail:
+                    _checkcode(info)
+                else:
+                    with self.assertRaises(AssertionError):
+                        _checkcode(info)
+
+    @unittest.skip("almost same test_comment")
+    def test_br(self):
+        pass
+
+    @unittest.skip("almost same test_comment")
+    def test_hr(self):
+        pass
+
+    @unittest.skip("almost same test_comment")
+    def test_symbol(self):
+        pass
+
+    @unittest.skip("almost same test_comment")
+    def test_title(self):
+        pass
+
+    @unittest.skip("almost same test_comment")
+    def test_layer(self):
+        pass
+
+    @unittest.skip("on integration test")
+    def test_build(self):
+        pass
+

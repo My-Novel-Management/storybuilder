@@ -19,6 +19,7 @@ from .word import Word
 from . import action as ac
 from .flag import Flag
 from .combaction import CombAction
+from . import __DEF_PRIORITY__
 
 
 class UtilityDict(dict):
@@ -31,25 +32,22 @@ class UtilityDict(dict):
 class World(UtilityDict):
     """World class.
     """
-    DEF_PRIORITY = ac.Action.DEF_PRIORITY
-    MAX_PRIORITY = ac.Action.MAX_PRIORITY
-    MIN_PRIORITY = ac.Action.MIN_PRIORITY
     MECAB_NEWDICT1 = "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
     MECAB_NEWDICT2 = "-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd"
+    DEF_PRIORITY = __DEF_PRIORITY__
 
-    def __init__(self, mecabdict: int=0):
+    def __init__(self, mecabdict: [int, str]=0):
         super().__init__()
         self.day = UtilityDict()
         self.item = UtilityDict()
         self.stage = UtilityDict()
         self.time = UtilityDict()
         self.word = UtilityDict()
-        # TODO: priorityを先か後で調整できるようにする
-        self._priority = World.DEF_PRIORITY
-        self._mecabdict = "" if mecabdict <= 0 else (World.MECAB_NEWDICT1 if mecabdict ==1 else World.MECAB_NEWDICT2)
+        self._mecabdict = mecabdict if isinstance(mecabdict, str) else("" if mecabdict <= 0 else (World.MECAB_NEWDICT1 if mecabdict ==1 else World.MECAB_NEWDICT2))
 
     @property
     def mecabdict(self): return self._mecabdict
+
 
     # creations
     def chapter(self, *args, **kwargs):
@@ -95,43 +93,29 @@ class World(UtilityDict):
         return self._appendOne(key, val, self.word, Word)
 
     def set_charas(self, charas: list):
-        for v in assertion.is_list(charas):
-            self.append_chara(v[0], v[1:])
-        return self
+        return self._setItemsFrom(charas, self.append_chara)
 
     def set_days(self, days: list):
-        for v in assertion.is_list(days):
-            self.append_day(v[0], v[1:])
-        return self
+        return self._setItemsFrom(days, self.append_day)
 
     def set_items(self, items: list):
-        for v in assertion.is_list(items):
-            self.append_item(v[0], v[1:])
-        return self
+        return self._setItemsFrom(items, self.append_item)
 
     def set_persons(self, persons: list):
-        for v in assertion.is_list(persons):
-            self.append_person(v[0], v[1:])
-        return self
+        return self._setItemsFrom(persons, self.append_person)
 
     def set_stages(self, stages: list):
-        for v in assertion.is_list(stages):
-            self.append_stage(v[0], v[1:])
-        return self
+        return self._setItemsFrom(stages, self.append_stage)
 
     def set_times(self, times: list):
-        for v in assertion.is_list(times):
-            self.append_time(v[0], v[1:])
-        return self
+        return self._setItemsFrom(times, self.append_time)
 
     def set_words(self, words: list):
-        for v in assertion.is_list(words):
-            self.append_word(v[0], v[1:])
-        return self
+        return self._setItemsFrom(words, self.append_word)
 
     def set_db(self, persons: list, charas: list,
             stages: list, days: list, times: list,
-            items: list, words: list):
+            items: list, words: list): # pragma: no cover
         if persons:
             self.set_persons(persons)
         if charas:
@@ -149,15 +133,7 @@ class World(UtilityDict):
         return self
 
     # controls
-    def elapsed(self, time: Time, hour: int=0, min: int=0):
-        '''To elapse a time.
-        '''
-        return Time(hour=hour + time.hour, min=min + time.min)
-
-    def passed(self, base: Day, mon: int=0, day: int=0, year: int=0):
-        '''To pass a day.
-        '''
-        return Day(mon=mon + base.mon, day=day + base.day, year=year + base.year)
+    # TODO: elapsed day and time control
 
     # actions
     def combine(self, *args):
@@ -223,7 +199,7 @@ class World(UtilityDict):
         return ac.TagAction(info, tag_type=ac.TagType.SET_LAYER)
 
     # build
-    def build(self, val: Story):
+    def build(self, val: Story): # pragma: no cover
         '''To build this story world.
         '''
         from .buildtool import Build
@@ -242,3 +218,8 @@ class World(UtilityDict):
 
     def _dataFrom(self, val: Any, datatype: BaseData):
         return val if isinstance(val, datatype) else datatype(*val)
+
+    def _setItemsFrom(self, data: list, f):
+        for v in assertion.is_list(data):
+            f(v[0], v[1:])
+        return self
