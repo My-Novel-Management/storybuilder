@@ -9,7 +9,8 @@ from .item import Item
 class Stage(BaseData):
     """Data type of a stage.
     """
-    def __init__(self, name: str, note: str="nothing"):
+    __NOTE__ = "nothing"
+    def __init__(self, name: str, note: str=__NOTE__):
         super().__init__(name)
         self._note = assertion.is_str(note)
         self._items = ()
@@ -28,10 +29,13 @@ class Stage(BaseData):
         self._items = self._items + Stage._validatedItems(*args)
         return self
 
+    def inherited(self, name: str, note: str=None):
+        # TODO: parent and child
+        return Stage(
+                name if name != self.name else self.name,
+                note if note and note != self.note else self.note)
+
     # privates
     def _validatedItems(*args):
-        for a in args:
-            if not isinstance(a, Item):
-                raise AssertionError("Must be data type 'Item'!")
-        return args
+        return args if [assertion.is_instance(v, Item) for v in args] else ()
 
