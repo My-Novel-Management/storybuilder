@@ -23,6 +23,7 @@ import test_action
 import test_description
 import test_combaction
 import test_flag
+import test_formatter
 import test_utils
 import test_who
 import test_word
@@ -42,6 +43,7 @@ def suite():
         unittest.makeSuite(test_basesubject.NoSubjectTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
+        unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_strutils.MethodsTest),
         unittest.makeSuite(test_utils.MethodsTest),
         # data type

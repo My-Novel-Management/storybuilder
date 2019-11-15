@@ -9,7 +9,7 @@ class Formatter(object):
     """
 
     # methods
-    def asDescription(self, data: list, format_type: str):
+    def asDescription(self, data: list, format_type: str) -> list:
         if format_type in ("estar",):
             return _descriptionsAsEstar(data)
         elif format_type in ("smartphone", "phone", "smart"):
@@ -19,13 +19,14 @@ class Formatter(object):
         else:
             return data
 
-    def asLayer(self, data: list, is_outline: bool):
+    def asLayer(self, data: list, is_outline: bool) -> list:
         from .action import Action, TagAction, ActType
+        from .description import DescType
         tmp = []
-        datahead = data[0]
+        datahead = assertion.is_list(data)[0]
         layers = sorted(list(set([v[0] for v in data[1:]])))
         def _conv_talk(act: Action, base: str):
-            return f"_「{base}」_" if act.act_type is ActType.TALK else base
+            return f"_「{base}」_" if act.act_type is ActType.TALK or act.description.desc_type is DescType.DIALOGUE else base
         def _conv(act: [Action, TagAction], is_outline: bool):
             # TODO: tag
             if isinstance(act, TagAction):
@@ -47,9 +48,10 @@ class Formatter(object):
                 tmp.append(_convert(v, l, is_outline))
         return [datahead] + [v for v in tmp if v]
 
-    def asOutline(self, data: list):
+    def asOutline(self, data: list) -> list:
         tmp = []
-        for v in data:
+        for v in assertion.is_list(data):
+            assert len(v) == 2
             if "###" in v[0]:
                 tmp.append(f"{v[0]}\n\n\t{v[1]}")
             elif "#" in v[0]:
@@ -58,10 +60,11 @@ class Formatter(object):
                 tmp.append(f"- 「{v[0]}」: {v[1]}")
         return tmp
 
-    def asScenario(self, data: list):
+    def asScenario(self, data: list) -> list:
         from .scene import ScenarioType
         tmp = []
-        for v in data:
+        for v in assertion.is_list(data):
+            assert len(v) == 2
             if v[0] is ScenarioType.DIRECTION:
                 tmp.append("　　" + v[1])
             else:
