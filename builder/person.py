@@ -9,15 +9,12 @@ from .strutils import divided_by_splitter, str_to_dict_by_splitter
 class Person(BaseSubject):
     """Data type of person subject.
     """
-    DEF_CALLING = "me:私"
-    DEF_NOTE = "なし"
-    DEF_FEATURES = "hair:黒髪"
+    __CALLING__ = "me:私"
+    __NOTE__ = "nothing"
 
     def __init__(self, name: str, fullname: str, age: int, sex: str, job: str,
-            calling: [dict, str]=DEF_CALLING, note: str=DEF_NOTE,
-            features: [dict, str]=DEF_FEATURES):
+            calling: [dict, str]=__CALLING__, note: str=__NOTE__):
         super().__init__(name)
-        # TODO: 名前をフルとか分割して登録
         _fullname = fullname if fullname and isinstance(fullname, str) else name
         self._lastname, self._firstname = divided_by_splitter(_fullname)
         self._fullname = _fullname.replace(',', '')
@@ -27,7 +24,9 @@ class Person(BaseSubject):
         self._job = assertion.is_str(job)
         self._note = assertion.is_str(note)
         self._calling = Person._appendedBaseCalling(str_to_dict_by_splitter(calling), name)
-        self._features = str_to_dict_by_splitter(features)
+        # TODO: 髪色や髪型などはskinみたいなデータ型を作るか、itemを流用して
+        #       後付できるようにする
+        #       stageなどの設定と同じ
 
     @property
     def firstname(self): return self._firstname
@@ -56,9 +55,16 @@ class Person(BaseSubject):
     @property
     def calling(self): return self._calling
 
-    @property
-    def features(self): return self._features
-
+    def inherited(self, name: str, fullname: str=None, age: int=None, sex: str=None,
+            job: str=None, calling: [dict, str]=None, note: str=None):
+        return Person(name,
+                fullname if fullname else (f"{self.lastname},{self.firstname}" if self.lastname != self.firstname else ""),
+                assertion.is_int(age) if age else self.age,
+                assertion.is_str(sex) if sex else self.sex,
+                assertion.is_str(job) if job else self.job,
+                assertion.is_instance(calling, (str, dict)) if calling else self.calling,
+                assertion.is_str(note) if note else self.note
+                )
     # privets
     def _appendedBaseCalling(origin: dict, name: str):
         me = origin['me'] if 'me' in origin else '私'
