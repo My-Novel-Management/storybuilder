@@ -23,6 +23,7 @@ import test_action
 import test_description
 import test_combaction
 import test_flag
+import test_who
 
 
 def suite():
@@ -47,6 +48,9 @@ def suite():
         unittest.makeSuite(test_it.ItTest),
         unittest.makeSuite(test_item.ItemTest),
         unittest.makeSuite(test_story.StoryTest),
+        unittest.makeSuite(test_who.WhoTest),
+        unittest.makeSuite(test_who.WhenTest),
+        unittest.makeSuite(test_who.WhereTest),
         ## stage
         unittest.makeSuite(test_stage.StageTest),
         ## day

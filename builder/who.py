@@ -9,25 +9,25 @@ from .basedata import BaseData
 class Who(BaseSubject):
     """For a pronoun class.
     """
-    DEF_NAME = "__who__"
+    __NAME__ = "__who__"
 
     def __init__(self):
-        super().__init__(Who.DEF_NAME)
+        super().__init__(Who.__NAME__)
 
 
 class Where(BaseData):
     """For a pronoun class as a stage.
     """
-    DEF_NAME = "__where__"
+    __NAME__ = "__where__"
 
     def __init__(self):
-        super().__init__(Where.DEF_NAME)
+        super().__init__(Where.__NAME__)
 
 
 class When(BaseData):
     """For a pronoun class as time and day.
     """
-    DEF_NAME = "__when__"
+    __NAME__ = "__when__"
 
     def __init__(self):
-        super().__init__(When.DEF_NAME)
+        super().__init__(When.__NAME__)
