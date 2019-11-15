@@ -24,6 +24,7 @@ import test_description
 import test_combaction
 import test_flag
 import test_who
+import test_word
 
 
 def suite():
@@ -51,6 +52,7 @@ def suite():
         unittest.makeSuite(test_who.WhoTest),
         unittest.makeSuite(test_who.WhenTest),
         unittest.makeSuite(test_who.WhereTest),
+        unittest.makeSuite(test_word.WordTest),
         ## stage
         unittest.makeSuite(test_stage.StageTest),
         ## day
