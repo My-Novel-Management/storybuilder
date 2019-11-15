@@ -66,6 +66,7 @@ def suite():
         unittest.makeSuite(test_chara.CharaTest),
         ## action
         unittest.makeSuite(test_action.ActionTest),
+        unittest.makeSuite(test_action.TagActionTest),
         ## description
         unittest.makeSuite(test_description.DescriptionTest),
         unittest.makeSuite(test_description.NoDescTest),

@@ -10,6 +10,7 @@ from .basesubject import NoSubject
 from .person import Person
 from .chara import Chara
 from .who import Who
+from . import __DEF_PRIORITY__, __MAX_PRIORYTY__, __MIN_PRIORITY__
 
 
 class ActType(Enum):
@@ -47,11 +48,12 @@ class Action(BaseData):
     MIN_PRIORITY = 0
     DEF_LAYER = "__default__"
     MAIN_LAYER = "main"
+    __NAME__ = "__action__"
 
     def __init__(self, subject: [Person, Chara, None],
             outline: str="", act_type: ActType=ActType.ACT,
             layer: str=DEF_LAYER):
-        super().__init__("__action__")
+        super().__init__(Action.__NAME__)
         _subject_is_str = isinstance(subject, str)
         self._subject = Who() if _subject_is_str else Action._validatedSubject(subject)
         self._outline = assertion.is_str(subject if _subject_is_str else outline)
@@ -59,11 +61,12 @@ class Action(BaseData):
         self._description = NoDesc()
         self._flag = NoFlag()
         self._deflag = NoDeflag()
-        self._priority = Action.DEF_PRIORITY
+        self._priority = __DEF_PRIORITY__
         self._layer = assertion.is_str(layer)
 
     def inherited(self, subject=None, outline=None, desc=None):
-        return Action(subject if subject else self.subject,
+        return Action(
+                subject if subject else self.subject,
                 outline if outline else self.outline,
                 self.act_type) \
                     .flag(self.getFlag()).deflag(self.getDeflag()) \
@@ -91,8 +94,8 @@ class Action(BaseData):
     def layer(self): return self._layer
 
     def setPriority(self, pri: int):
-        self._priority = assertion.is_between(assertion.is_int(pri),
-                Action.MAX_PRIORITY, Action.MIN_PRIORITY)
+        self._priority = assertion.is_between(
+                assertion.is_int(pri), __MAX_PRIORYTY__, __MIN_PRIORITY__)
         return self
 
     def setLayer(self, layer: str):
@@ -100,6 +103,7 @@ class Action(BaseData):
         return self
 
     def flag(self, val: [str, NoFlag]):
+        # TODO: Flag がdeflagも兼ねているのでobjectのままset時に確認必要
         if isinstance(val, Flag):
             self._flag = val
         elif isinstance(val, str):
@@ -122,7 +126,7 @@ class Action(BaseData):
     def getDeflag(self): return self._deflag
 
     def omit(self):
-        self._priority = Action.MIN_PRIORITY
+        self._priority = __MIN_PRIORITY__
         return self
 
     # methods
@@ -188,4 +192,4 @@ class TagAction(Action):
     def tag_type(self): return self._tag_type
 
     def inherited(self):
-        return TagAction(self, self.info, self.subinfo, self.tag_type)
+        return TagAction(self.info, self.subinfo, self.tag_type)
