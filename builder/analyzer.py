@@ -22,10 +22,10 @@ from .utils import strOfDescription
 
 
 ## define type
-AllActions = [Action, CombAction, TagAction]
-BaseActions = [Action, TagAction]
-TargetPerson = [Person, Chara, NoSubject]
-AllFlags = [Flag, NoFlag, NoDeflag]
+AllActions = (Action, CombAction, TagAction)
+BaseActions = (Action, TagAction)
+TargetPerson = (Person, Chara, NoSubject)
+AllFlags = (Flag, NoFlag, NoDeflag)
 
 
 class Analyzer(object):
@@ -173,7 +173,7 @@ class Analyzer(object):
     def dialogue_infos(self, story: Story):
         def _conv(data: list, target: TargetPerson):
             return [f"{target.name}"] + [f"- {v}" for v in data if v]
-        charalist = list(set(_personsIn(story)))
+        charalist = _personsIn(story)
         dial_counts = [f"{v.name}: {_dialogueCountIn(story, v)}" for v in charalist]
         each_charas = list(chain.from_iterable(_conv(_dialoguesOfPersonIn(story, v), v) for v in charalist))
         return ["## Dialogue counts\n"] \
@@ -197,29 +197,27 @@ class Analyzer(object):
             tmp[ActType.THINK] * 4,
                 ]) * basement
 
-    def _descs_manupaper_counts(self, story: wd.Story, rows: int, columns: int):
-        return _manupapers_count(story, rows, columns)
-
 # privates (detail)
-def _personsIn(story: Story) -> list:
-    def _in_action(action: AllActions):
-        if isinstance(action, CombAction):
-            return list(chain.from_iterable(_in_action(v) for v in action.actions))
-        elif isinstance(action, TagAction):
-            return []
-        else:
-            return [action.subject]
+###
+def _acttypeCountsIn(story: Story, act_type: ActType) -> int:
+    def _in_scene(scene: Scene, act_type: ActType):
+        return sum(_acttypeCountsInAction(v, act_type) for v in scene.actions)
 
-    def _in_scene(scene: Scene):
-        return chain.from_iterable(_in_action(v) for v in scene.actions)
+    def _in_episode(episode: Episode, act_type: ActType):
+        return sum(_in_scene(v, act_type) for v in episode.scenes)
 
-    def _in_episode(episode: Episode):
-        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
+    def _in_chapter(chapter: Chapter, act_type: ActType):
+        return sum(_in_episode(v, act_type) for v in chapter.episodes)
 
-    def _in_chapter(chapter: Chapter):
-        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
+    return sum(_in_chapter(v, act_type) for v in story.chapters)
 
-    return list(chain.from_iterable(_in_chapter(v) for v in story.chapters))
+def _acttypeCountsInAction(action: AllActions, act_type: ActType) -> int:
+    if isinstance(action, CombAction):
+        return sum(_acttypeCountsInAction(v, act_type) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return 0
+    else:
+        return action.act_type is act_type
 
 def _descriptionCountIn(story: Story) -> int:
     def _in_episode(episode: Episode):
@@ -231,138 +229,15 @@ def _descriptionCountIn(story: Story) -> int:
     return sum(_in_chapter(v) for v in story.chapters)
 
 def _descriptionCountInScene(scene: Scene) -> int:
-    def _in_action(action: AllActions):
-        if isinstance(action, CombAction):
-            return sum(_in_action(v) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return 0
-        else:
-            return len("".join(action.description.descs))
-    return sum(_in_action(v) for v in scene.actions)
+    return sum(_descriptionCountInAction(v) for v in scene.actions)
 
-def _dialogueCountIn(story: Story, target: TargetPerson) -> int:
-    def _in_action(action: AllActions, target: TargetPerson):
-        if isinstance(action, CombAction):
-            return sum(_in_action(v, target) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return 0
-        else:
-            return action.act_type is ActType.TALK and action.subject is target
-
-    def _in_scene(scene: Scene, target: TargetPerson):
-        return sum(_in_action(v, target) for v in scene.actions)
-
-    def _in_episode(episode: Episode, target: TargetPerson):
-        return sum(_in_scene(v, target) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter, target: TargetPerson):
-        return sum(_in_episode(v, target) for v in chapter.episodes)
-
-    return sum(_in_chapter(v, target) for v in story.chapters)
-
-def _dialoguesOfPersonIn(story: Story, target: TargetPerson) -> list:
-    def _in_action(action: AllActions, target: TargetPerson):
-        if isinstance(action, CombAction):
-            return chain.from_iterable(_in_action(v, target) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return []
-        else:
-            return [strOfDescription(action)] if action.act_type is ActType.TALK and action.subject is target else []
-
-    def _in_scene(scene: Scene, target: TargetPerson):
-        return chain.from_iterable(_in_action(v, target) for v in scene.actions)
-
-    def _in_episode(episode: Episode, target: TargetPerson):
-        return chain.from_iterable(_in_scene(v, target) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter, target: TargetPerson):
-        return chain.from_iterable(_in_episode(v, target) for v in chapter.episodes)
-
-    return list(chain.from_iterable(_in_chapter(v, target) for v in story.chapters))
-
-def _flagsIn(story: Story) -> list:
-    def _is_flag_or_deflag(flag: AllFlags):
-        return not isinstance(flag, (NoFlag, NoDeflag)) or not isinstance(flag, (NoFlag, NoDeflag))
-
-    def _in_action(action: AllActions):
-        if isinstance(action, CombAction):
-            return chain.from_iterable(_in_action(v) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return []
-        else:
-            return [v for v in (action.getFlag(), action.getDeflag()) if _is_flag_or_deflag(v)]
-
-    def _in_scene(scene: Scene):
-        return chain.from_iterable(_in_action(v) for v in scene.actions)
-
-    def _in_episode(episode: Episode):
-        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter):
-        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
-
-    return list(chain.from_iterable(_in_chapter(v) for v in story.chapters))
-
-def _outlineCountsIn(story: Story):
-    def _in_episode(episode: Episode):
-        return sum(_outlineCountsInScene(v) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter):
-        return sum(_in_episode(v) for v in chapter.episodes)
-
-    return sum(_in_chapter(v) for v in story.chapters)
-
-def _outlineCountsInScene(scene: Scene):
-    def _in_action(action: AllActions):
-        if isinstance(action, CombAction):
-            return sum(_in_action(v) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return 0
-        else:
-            return len(action.outline)
-    return sum(_in_action(v) for v in scene.actions)
-
-def _outlineManupaperCountsIn(story: Story, rows: int, columns: int) -> tuple:
-    def _in_episode(episode: Episode, columns: int):
-        return sum(_outlineManupaperCountsInScene(v, columns) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter, columns: int):
-        return sum(_in_episode(v, columns) for v in chapter.episodes)
-
-    row_nums = sum(_in_chapter(v, columns) for v in story.chapters)
-    papers = row_nums / rows
-    return (papers, row_nums)
-
-def _outlineManupaperCountsInScene(scene: Scene, columns: int) -> int:
-    def _in_action(action: AllActions, columns: int):
-        if isinstance(action, CombAction):
-            return sum(int_ceiled(len(v.outline), columns) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return action.tag_type in (TagType.BR, TagType.SYMBOL)
-        else:
-            return int_ceiled(len(action.outline), columns)
-    # NOTE: +2 is title pillar
-    return sum(_in_action(v, columns) for v in scene.actions) + 2
-
-def _acttypeCountsIn(story: Story, act_type: ActType):
-    def _in_action(action: AllActions, act_type: ActType):
-        if isinstance(action, CombAction):
-            return sum(_in_action(v, act_type) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return 0
-        else:
-            return action.act_type is act_type
-
-    def _in_scene(scene: Scene, act_type: ActType):
-        return sum(_in_action(v, act_type) for v in scene.actions)
-
-    def _in_episode(episode: Episode, act_type: ActType):
-        return sum(_in_scene(v, act_type) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter, act_type: ActType):
-        return sum(_in_episode(v, act_type) for v in chapter.episodes)
-
-    return sum(_in_chapter(v, act_type) for v in story.chapters)
+def _descriptionCountInAction(action: AllActions) -> int:
+    if isinstance(action, CombAction):
+        return sum(_descriptionCountInAction(v) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return 0
+    else:
+        return len(strOfDescription(action))
 
 def _descriptionManupaperCountsIn(story: Story, rows: int, columns: int) -> tuple:
     def _in_episode(episode: Episode, columns: int):
@@ -376,15 +251,145 @@ def _descriptionManupaperCountsIn(story: Story, rows: int, columns: int) -> tupl
     return (papers, row_nums)
 
 def _descriptionManupaperCountsInScene(scene: Scene, columns: int) -> int:
-    def _in_action(action: AllActions, columns: int):
-        if isinstance(action, CombAction):
-            return sum(int_ceiled(len(strOfDescription(v)), columns) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return action.tag_type in (TagType.BR, TagType.SYMBOL)
-        else:
-            return int_ceiled(len(strOfDescription(action)), columns)
-    return sum(_in_action(v, columns) for v in scene.actions)
+    return sum(_descriptionManupaperCountsInAction(v, columns) for v in scene.actions)
 
-# math utility
+def _descriptionManupaperCountsInAction(action: AllActions, columns: int) -> int:
+    if isinstance(action, CombAction):
+        return sum(int_ceiled(len(strOfDescription(v)), columns) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return action.tag_type in (TagType.BR, TagType.SYMBOL)
+    else:
+        return int_ceiled(len(strOfDescription(action)), columns)
+
+def _dialogueCountIn(story: Story, target: TargetPerson) -> int:
+    def _in_scene(scene: Scene, target: TargetPerson):
+        return sum(_dialogueCountInAction(v, target) for v in scene.actions)
+
+    def _in_episode(episode: Episode, target: TargetPerson):
+        return sum(_in_scene(v, target) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter, target: TargetPerson):
+        return sum(_in_episode(v, target) for v in chapter.episodes)
+
+    return sum(_in_chapter(v, target) for v in story.chapters)
+
+def _dialogueCountInAction(action: AllActions, target: TargetPerson) -> int:
+    if isinstance(action, CombAction):
+        return sum(_dialogueCountInAction(v, target) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return 0
+    else:
+        return action.act_type is ActType.TALK and action.subject is target
+
+def _dialoguesOfPersonIn(story: Story, target: TargetPerson) -> list:
+    def _in_scene(scene: Scene, target: TargetPerson):
+        return chain.from_iterable(_dialoguesOfPersonInAction(v, target) for v in scene.actions)
+
+    def _in_episode(episode: Episode, target: TargetPerson):
+        return chain.from_iterable(_in_scene(v, target) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter, target: TargetPerson):
+        return chain.from_iterable(_in_episode(v, target) for v in chapter.episodes)
+
+    return list(chain.from_iterable(_in_chapter(v, target) for v in story.chapters))
+
+def _dialoguesOfPersonInAction(action: AllActions, target: TargetPerson) -> list:
+    def _isTalk(action: Action):
+        return action.act_type is ActType.TALK or action.description.desc_type is DescType.DIALOGUE
+    if isinstance(action, CombAction):
+        return chain.from_iterable(
+                _dialoguesOfPersonInAction(v, target) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        return [strOfDescription(action)] if _isTalk(action) and action.subject is target else []
+
+def _flagsIn(story: Story) -> list:
+    def _in_scene(scene: Scene):
+        return chain.from_iterable(_flagsInAction(v) for v in scene.actions)
+
+    def _in_episode(episode: Episode):
+        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter):
+        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
+
+    return list(chain.from_iterable(_in_chapter(v) for v in story.chapters))
+
+def _flagsInAction(action: AllActions) -> list:
+    def _is_flag_or_deflag(flag: AllFlags):
+        return not isinstance(flag, (NoFlag, NoDeflag)) or not isinstance(flag, (NoFlag, NoDeflag))
+    if isinstance(action, CombAction):
+        return chain.from_iterable(_flagsInAction(v) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        return [v for v in (action.getFlag(), action.getDeflag()) if _is_flag_or_deflag(v)]
+
+def _outlineCountsIn(story: Story) -> int:
+    def _in_episode(episode: Episode):
+        return sum(_outlineCountsInScene(v) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter):
+        return sum(_in_episode(v) for v in chapter.episodes)
+
+    return sum(_in_chapter(v) for v in story.chapters)
+
+def _outlineCountsInScene(scene: Scene) -> int:
+    return sum(_outlineCountsInAction(v) for v in scene.actions)
+
+def _outlineCountsInAction(action: AllActions) -> int:
+        if isinstance(action, CombAction):
+            return sum(_outlineCountsInAction(v) for v in action.actions)
+        elif isinstance(action, TagAction):
+            return 0
+        else:
+            return len(action.outline)
+
+def _outlineManupaperCountsIn(story: Story, rows: int, columns: int) -> tuple:
+    def _in_episode(episode: Episode, columns: int):
+        return sum(_outlineManupaperCountsInScene(v, columns) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter, columns: int):
+        return sum(_in_episode(v, columns) for v in chapter.episodes)
+
+    row_nums = sum(_in_chapter(v, columns) for v in story.chapters)
+    papers = row_nums / rows
+    return (papers, row_nums)
+
+def _outlineManupaperCountsInScene(scene: Scene, columns: int) -> int:
+    # NOTE: +2 is title pillar
+    return sum(_outlineManupaperCountsInAction(v, columns) for v in scene.actions) + 2
+
+def _outlineManupaperCountsInAction(action: AllActions, columns: int) -> int:
+    if isinstance(action, CombAction):
+        return sum(int_ceiled(len(v.outline), columns) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return action.tag_type in (TagType.BR, TagType.SYMBOL)
+    else:
+        return int_ceiled(len(action.outline), columns)
+
+def _personsIn(story: Story) -> list:
+    def _in_scene(scene: Scene):
+        return chain.from_iterable(_personsInAction(v) for v in scene.actions)
+
+    def _in_episode(episode: Episode):
+        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
+
+    def _in_chapter(chapter: Chapter):
+        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
+
+    return list(set(
+        list(chain.from_iterable(_in_chapter(v) for v in story.chapters))))
+
+def _personsInAction(action: AllActions) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_personsInAction(v) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        return [action.subject]
+
+## math utility
 def int_ceiled(a: [int, float], b: [int, float]) -> int:
-    return -(-a // b)
+    return -(-assertion.is_int(a) // assertion.is_int(b))

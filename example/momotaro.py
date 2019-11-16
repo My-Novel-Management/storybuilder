@@ -5,7 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append('builder')
-from builder import world as wd
+from builder.world import World
 import momotaro_config as cnf
 
 ################################################################
@@ -34,7 +34,7 @@ import momotaro_config as cnf
 ## scenes
 """Scene は Action の塊。
 """
-def sc_washing(w: wd.World):
+def sc_washing(w: World):
     s = w.scene("洗濯に", "おばあさんは洗濯に出かけて巨大な桃を見つけた")
     s.setCamera(w.granma)
     s.setStage(w.stage.river).setDay(w.day.getpeach).setTime(w.time.morning)
@@ -50,7 +50,7 @@ def sc_washing(w: wd.World):
         )
     return s
 
-def sc_birth(w: wd.World):
+def sc_birth(w: World):
     s = w.scene("誕生", "桃太郎が生まれる")
     s.setCamera(w.granma)
     s.setStage(w.stage.home).setDay(w.day.birth).setTime(w.time.afternoon)
@@ -70,7 +70,7 @@ def sc_birth(w: wd.World):
         )
     return s
 
-def sc_know_deamon(w: wd.World):
+def sc_know_deamon(w: World):
     s = w.scene("悪事を知る", "村の人が鬼に色々とられて困っていると聞く")
     s.setCamera(w.taro)
     s.setStage(w.stage.vila).setDay(w.day.rumor).setTime(w.time.afternoon)
@@ -85,7 +85,7 @@ def sc_know_deamon(w: wd.World):
         )
     return s
 
-def sc_talk_buster(w: wd.World):
+def sc_talk_buster(w: World):
     s = w.scene("鬼退治したい桃太郎", "鬼のことを両親に話して旅立ちの許可をもらう")
     s.setCamera(w.taro)
     s.setStage(w.stage.home).setDay(w.day.rumor).setTime(w.time.night)
@@ -102,11 +102,11 @@ def sc_talk_buster(w: wd.World):
         )
     return s
 
-def sc_dummyscene(w: wd.World):
+def sc_dummyscene(w: World):
     s = w.scene("ダミーシーン", "テスト用です")
     return s.omit()
 
-def sc_depature(w: wd.World):
+def sc_depature(w: World):
     s = w.scene("旅立ち", "鬼退治の旅に出る")
     s.setCamera(w.taro)
     s.setStage(w.stage.home).setDay(w.day.voyage).setTime(w.time.morning)
@@ -120,7 +120,7 @@ def sc_depature(w: wd.World):
         )
     return s
 
-def sc_meetdog(w: wd.World):
+def sc_meetdog(w: World):
     s = w.scene("犬と出会う", "道端で犬に出会い仲間にする")
     s.setCamera(w.taro)
     s.setStage(w.stage.onstreet).setDay(w.day.meetdog).setTime(w.time.afternoon)
@@ -134,7 +134,7 @@ def sc_meetdog(w: wd.World):
         )
     return s
 
-def sc_meetmonkey(w: wd.World):
+def sc_meetmonkey(w: World):
     s = w.scene("猿と出会う", "猿に出会い仲間にする")
     s.setCamera(w.taro)
     s.setStage(w.stage.onstreet).setDay(w.day.meetdog).setTime(w.time.afternoon)
@@ -147,7 +147,7 @@ def sc_meetmonkey(w: wd.World):
         )
     return s
 
-def sc_meetpheasant(w: wd.World):
+def sc_meetpheasant(w: World):
     s = w.scene("雉と出会う", "雉に出会い仲間にする")
     s.setCamera(w.taro)
     s.setStage(w.stage.onstreet).setDay(w.day.meetdog).setTime(w.time.afternoon)
@@ -160,7 +160,7 @@ def sc_meetpheasant(w: wd.World):
         )
     return s
 
-def sc_arrivedisland(w: wd.World):
+def sc_arrivedisland(w: World):
     s = w.scene("島に向かう", "鬼ヶ島に向かう")
     s.setCamera(w.taro)
     s.setStage(w.stage.onship).setDay(w.day.rideship).setTime(w.time.afternoon)
@@ -169,7 +169,7 @@ def sc_arrivedisland(w: wd.World):
         )
     return s
 
-def sc_gotoisland(w: wd.World):
+def sc_gotoisland(w: World):
     s = w.scene("鬼ヶ島", "鬼ヶ島にて鬼退治する")
     s.setCamera(w.taro)
     s.setStage(w.stage.island).setDay(w.day.arrived).setTime(w.time.morning)
@@ -181,7 +181,7 @@ def sc_gotoisland(w: wd.World):
         )
     return s
 
-def sc_backhome(w: wd.World):
+def sc_backhome(w: World):
     s = w.scene("帰宅", "宝物を持って村に帰る")
     s.setCamera(w.taro)
     s.setStage(w.stage.vila).setDay(w.day.backhome).setTime(w.time.afternoon)
@@ -194,14 +194,14 @@ def sc_backhome(w: wd.World):
 ## episodes
 """Episode は Scene の塊。
 """
-def ep_intro(w: wd.World):
+def ep_intro(w: World):
     return w.episode("桃太郎誕生",
             "拾った桃から赤子が生まれ、桃太郎に成長する",
             sc_washing(w),
             sc_birth(w),
             )
 
-def ep_depature(w: wd.World):
+def ep_depature(w: World):
     return w.episode("鬼退治に出発",
             "桃太郎は鬼が悪さをしていると知り、鬼退治に出向く",
             sc_dummyscene(w),
@@ -210,7 +210,7 @@ def ep_depature(w: wd.World):
             sc_depature(w),
             )
 
-def ep_alley(w: wd.World):
+def ep_alley(w: World):
     return w.episode("味方ゲットだぜ",
             "旅の道中で家来を得る",
             sc_meetdog(w),
@@ -218,7 +218,7 @@ def ep_alley(w: wd.World):
             sc_meetpheasant(w),
             )
 
-def ep_bustered(w: wd.World):
+def ep_bustered(w: World):
     return w.episode("そして鬼退治",
             "鬼ヶ島に渡って鬼退治をする",
             sc_gotoisland(w),
@@ -228,7 +228,7 @@ def ep_bustered(w: wd.World):
 ## chapters
 """Chapter は Episode の塊。
 """
-def ch_main(w: wd.World):
+def ch_main(w: World):
     return w.chapter("main story",
             ep_intro(w),
             ep_depature(w),
@@ -236,12 +236,12 @@ def ch_main(w: wd.World):
             ep_bustered(w),
             )
 
-def ch_sub(w: wd.World):
+def ch_sub(w: World):
     return w.chapter("sub story",
             ).omit()
 
 ## setting
-def set_stages(w: wd.World):
+def set_stages(w: World):
     """Set stages.
     """
     return w
@@ -250,7 +250,7 @@ def set_stages(w: wd.World):
 def world():
     """Create a world.
     """
-    w = wd.World(2)
+    w = World(2)
     w.set_db(cnf.PERSONS, cnf.CHARAS,
             cnf.STAGES,
             cnf.DAYS, cnf.TIMES,
@@ -259,7 +259,7 @@ def world():
     set_stages(w)
     return w
 
-def story(w: wd.World):
+def story(w: World):
     return w.story("桃太郎",
             ch_main(w),
             ch_sub(w),

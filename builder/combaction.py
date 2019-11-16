@@ -12,7 +12,7 @@ class CombAction(BaseContainer):
     __NAME__ = "__comb__"
     def __init__(self, *args):
         super().__init__(CombAction.__NAME__, Action.DEF_PRIORITY)
-        self._actions = CombAction._validatedActions(*args)
+        self._actions = CombAction._validatedActions(args)
 
     @property
     def actions(self): return self._actions
@@ -21,5 +21,5 @@ class CombAction(BaseContainer):
         return CombAction(*args).setPriority(self.priority)
 
     # privates
-    def _validatedActions(*args):
+    def _validatedActions(args):
         return args if [assertion.is_instance(v, (Action, TagAction)) for v in args] else ()
