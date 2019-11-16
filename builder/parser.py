@@ -23,7 +23,7 @@ BaseActions = [Action, TagAction]
 Someone = [Person, NoSubject]
 
 
-class Parser(object):
+class Parser(object): # pragma: no coveer
     """Parser class.
     """
     def __init__(self, story: Story, words: dict, priority: int):
@@ -33,16 +33,16 @@ class Parser(object):
     def story(self): return self._story
 
     # methods
-    def description(self, is_comment: bool):
+    def description(self, is_comment: bool): # pragma: no cover
         return _descriptionsFrom(self.story, is_comment)
 
-    def layer(self):
+    def layer(self): # pragma: no cover
         return _actionLayersFrom(self.story)
 
-    def outline(self):
+    def outline(self): # pragma: no cover
         return _outlinesFrom(self.story)
 
-    def scenario(self, is_comment: bool):
+    def scenario(self, is_comment: bool): # pragma: no cover
         return _scenariosFrom(self.story, is_comment)
 
     # privates
@@ -64,14 +64,8 @@ class Parser(object):
 
 # privates
 def _actionLayersFrom(story: Story) -> list:
-    def _in_action(action: AllActions, head: str):
-        if isinstance(action, CombAction):
-            return [(v.layer, head, v) for v in action.actions]
-        else:
-            return [(action.layer, head, action)]
-
     def _in_scene(scene: Scene, head: str):
-        return chain.from_iterable(_in_action(v, f"{head}-{scene.title}") for v in scene.actions)
+        return chain.from_iterable(_actionLayersFromAction(v, f"{head}-{scene.title}") for v in scene.actions)
 
     def _in_episode(episode: Episode, head: str):
         return chain.from_iterable(_in_scene(v, f"{head}-{episode.title}") for v in episode.scenes)
@@ -82,19 +76,15 @@ def _actionLayersFrom(story: Story) -> list:
     return [(f"# {story.title}\n")] \
             + list(chain.from_iterable(_in_chapter(v) for v in story.chapters))
 
-def _descriptionConnectedFrom(story: Story) -> Story:
-    def _in_action(action: AllActions):
-        if isinstance(action, CombAction):
-            return action.inherited(*[_in_action(v) for v in action.actions])
-        elif isinstance(action, TagAction):
-            return action
-        elif isinstance(action.description, NoDesc):
-            return action
-        else:
-            return action.inherited(desc=str_duplicated_chopped("。".join(action.description.descs)))
+def _actionLayersFromAction(action: AllActions, head: str) -> list:
+    if isinstance(action, CombAction):
+        return [(v.layer, head, v) for v in action.actions]
+    else:
+        return [(action.layer, head, action)]
 
+def _descriptionConnectedFrom(story: Story) -> Story:
     def _in_scene(scene: Scene):
-        return scene.inherited(*[_in_action(v) for v in scene.actions])
+        return scene.inherited(*[_descriptionConnectedFromAction(v) for v in scene.actions])
 
     def _in_episode(episode: Episode):
         return episode.inherited(*[_in_scene(v) for v in episode.scenes])
@@ -104,27 +94,22 @@ def _descriptionConnectedFrom(story: Story) -> Story:
 
     return story.inherited(*[_in_chapter(v) for v in story.chapters])
 
-def _descriptionsFrom(story: Story, is_comment: bool) -> list:
-    def _in_action(action: AllActions, is_comment: bool):
-        if isinstance(action, CombAction):
-            return [str_duplicated_chopped(
-                duplicate_bracket_chop_and_replaceed(
-                extraspace_chopped("".join(chain.from_iterable(_in_action(v, is_comment) for v in action.actions)))))]
-        elif isinstance(action, TagAction):
-            return [_tagActionConverted(action, is_comment)]
-        else:
-            if isinstance(action.description, NoDesc):
-                return []
-            if action.description.desc_type is DescType.DIALOGUE:
-                return [str_duplicated_chopped(f"「{strOfDescription(action)}」")]
-            elif action.description.desc_type is DescType.COMPLEX:
-                return [strOfDescription(action)]
-            else:
-                return [str_duplicated_chopped(f"　{strOfDescription(action)}。")]
+def _descriptionConnectedFromAction(action: AllActions) -> Action:
+    if isinstance(action, CombAction):
+        return action.inherited(*[_descriptionConnectedFromAction(v) for v in action.actions])
+    elif isinstance(action, TagAction):
+        return action
+    elif isinstance(action.description, NoDesc):
+        return action
+    else:
+        return action.inherited(desc=str_duplicated_chopped(
+            strOfDescription(action, "。")))
 
+
+def _descriptionsFrom(story: Story, is_comment: bool) -> list:
     def _in_scene(scene: Scene, is_comment: bool):
         return [f"\n**{scene.title}**\n"] \
-                + list(chain.from_iterable(_in_action(v, is_comment) for v in scene.actions))
+                + list(chain.from_iterable(_descriptionsFromAction(v, is_comment) for v in scene.actions))
 
     def _in_episode(episode: Episode, is_comment: bool):
         return [f"\n### {episode.title}\n"] \
@@ -136,6 +121,25 @@ def _descriptionsFrom(story: Story, is_comment: bool) -> list:
 
     return [f"# {story.title}\n"] \
             + list(chain.from_iterable(_in_chapter(v, is_comment) for v in story.chapters))
+
+def _descriptionsFromAction(action: AllActions, is_comment: bool) -> list:
+    if isinstance(action, CombAction):
+        return [str_duplicated_chopped(
+            duplicate_bracket_chop_and_replaceed(
+                extraspace_chopped("".join(
+                    chain.from_iterable(
+                        _descriptionsFromAction(v, is_comment) for v in action.actions)))))]
+    elif isinstance(action, TagAction):
+        return [_tagActionConverted(action, is_comment)]
+    else:
+        if isinstance(action.description, NoDesc):
+            return []
+        if action.description.desc_type is DescType.DIALOGUE:
+            return [str_duplicated_chopped(f"「{strOfDescription(action)}」")]
+        elif action.description.desc_type is DescType.COMPLEX:
+            return [strOfDescription(action)]
+        else:
+            return [str_duplicated_chopped(f"　{strOfDescription(action)}。")]
 
 def _layerReplacedFrom(story: Story):
     def _in_episode(episode: Episode):
@@ -172,7 +176,8 @@ def _layerReplacedInScene(scene: Scene):
             tmp.append(_sel_layer(v, cur))
     return scene.inherited(*tmp)
 
-def _outlinesFrom(story: Story) -> list:
+def _outlinesFrom(story: Story) -> list: # pragma: no coveer
+    # TODO: action についても何かしらまとめる
     def _in_scene(scene: Scene):
         return [(f"- {scene.title}", f"{scene.outline}")]
 
@@ -221,26 +226,10 @@ def _pronounReplacedInScene(scene: Scene) -> Scene:
     return scene.inherited(*tmp)
 
 def _scenariosFrom(story: Story, is_comment: bool) -> list:
-    def _conv(action: Action):
-        if action.act_type is ActType.TALK:
-            return [(ScenarioType.DIALOGUE,
-                f"{action.subject.name}「{str_duplicated_chopped(action.outline)}」")]
-        else:
-            return [(ScenarioType.DIRECTION,
-                str_duplicated_chopped(f"{action.outline}。"))]
-
-    def _in_action(action: AllActions, is_comment: bool):
-        if isinstance(action, CombAction):
-            return chain.from_iterable(_in_action(v, is_comment) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return [(ScenarioType.TAG, _tagActionConverted(action, is_comment))]
-        else:
-            return _conv(action)
-
     def _in_scene(scene: Scene, is_comment: bool):
         return [(ScenarioType.TITLE, f"\n**{scene.title}**\n")] \
                 + [(ScenarioType.PILLAR, f"◯{scene.stage.name}（{scene.time.name}）")] \
-                + list(chain.from_iterable(_in_action(v, is_comment) for v in scene.actions))
+                + list(chain.from_iterable(_scenariosFromAction(v, is_comment) for v in scene.actions))
 
     def _in_episode(episode: Episode, is_comment: bool):
         return [(ScenarioType.TITLE, f"\n### {episode.title}\n")] \
@@ -253,28 +242,26 @@ def _scenariosFrom(story: Story, is_comment: bool) -> list:
     return [(ScenarioType.TITLE, f"# {story.title}\n")] \
             + list(chain.from_iterable(_in_chapter(v, is_comment) for v in story.chapters))
 
-def _storyFilteredFrom(story: Story, pri_filter: int) -> Story:
-    def _in_combaction(action: CombAction, pri_filter: int):
-        tmp = []
-        for v in action.actions:
-            if isinstance(v, TagAction):
-                tmp.append(v)
-            else:
-                if v.priority >= pri_filter:
-                    tmp.append(v)
-        return action.inherited(*tmp)
+def _scenariosFromAction(action: AllActions, is_comment: bool) -> list:
+    def _conv(action: Action):
+        if action.act_type is ActType.TALK:
+            return [(ScenarioType.DIALOGUE,
+                f"{action.subject.name}「{str_duplicated_chopped(action.outline)}」")]
+        else:
+            return [(ScenarioType.DIRECTION,
+                str_duplicated_chopped(f"{action.outline}。"))]
 
+    if isinstance(action, CombAction):
+        return chain.from_iterable(_scenariosFromAction(v, is_comment) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return [(ScenarioType.TAG, _tagActionConverted(action, is_comment))]
+    else:
+        return _conv(action)
+
+def _storyFilteredFrom(story: Story, pri_filter: int) -> Story:
     def _in_scene(scene: Scene, pri_filter: int):
-        tmp = []
-        for v in scene.actions:
-            if isinstance(v, CombAction):
-                tmp.append(_in_combaction(v, pri_filter))
-            elif isinstance(v, TagAction):
-                tmp.append(v)
-            else:
-                if v.priority >= pri_filter:
-                    tmp.append(v)
-        return scene.inherited(*tmp)
+        return scene.inherited(
+                *[v for v in [_storyFilteredInAction(v, pri_filter) for v in scene.actions] if v])
 
     def _in_episode(episode: Episode, pri_filter: int):
         return episode.inherited(*[_in_scene(v, pri_filter) for v in episode.scenes if v.priority >= pri_filter])
@@ -284,8 +271,17 @@ def _storyFilteredFrom(story: Story, pri_filter: int) -> Story:
 
     return story.inherited(*[_in_chapter(v, pri_filter) for v in story.chapters if v.priority >= pri_filter])
 
+def _storyFilteredInAction(action: AllActions, pri_filter: int) -> [AllActions, None]:
+    if isinstance(action, CombAction):
+        return action.inherited(
+                *[v for v in [_storyFilteredInAction(v, pri_filter) for v in action.actions] if v])
+    elif isinstance(action, TagAction):
+        return action
+    else:
+        return action if action.priority >= pri_filter else None
+
 def _tagActionConverted(action: TagAction, is_comment: bool) -> str:
-    if action.tag_type is TagType.COMMENT and is_comment:
+    if assertion.is_instance(action, TagAction).tag_type is TagType.COMMENT and is_comment:
         return f"<!--{action.info}-->"
     elif action.tag_type is TagType.BR:
         return "\n\n"
@@ -320,30 +316,33 @@ def _tagsReplacedFrom(story: Story, words: dict) -> Story:
     return story.inherited(*[_in_chapter(v, words) for v in story.chapters])
 
 def _tagReplacedInAction(act: Action, words: dict) -> Action:
-    is_nodesc = isinstance(act.description, NoDesc)
-    outline = act.outline
-    desc = NoDesc() if is_nodesc else strOfDescription(act)
+    def _in_outline(act: Action, words: dict):
+        return _tagReplacedInDocument(act.subject, act.outline, words, "outline")
+    def _in_description(act: Action, words: dict):
+        if isinstance(act.description, NoDesc):
+            return act.description
+        else:
+            return _tagReplacedInDocument(act.subject, strOfDescription(act), words, "description")
 
-    if hasattr(act.subject, "calling"):
-        outline = str_replaced_tag_by_dictionary(act.outline, act.subject.calling)
-        if not is_nodesc:
-            desc = str_replaced_tag_by_dictionary(desc, act.subject.calling)
+    return act.inherited(
+            outline=_in_outline(act, words),
+            desc=_in_description(act, words))
 
-    outline = str_replaced_tag_by_dictionary(outline, words)
-
-    if not is_nodesc:
-        desc = str_replaced_tag_by_dictionary(desc, words)
-
-    if _isInvalidatedTagReplaced(outline):
-        raise AssertionError("Cannot convert tags in:", outline)
-
-    if not is_nodesc and _isInvalidatedTagReplaced(desc):
-        raise AssertionError("Cannot convert tags in:", desc)
-
-    return act.inherited(outline=outline, desc=desc)
+def _tagReplacedInDocument(subject: Someone, target: str, words: dict, msg: str) -> str:
+    if not "$" in target:
+        return target
+    tmp = target
+    if hasattr(subject, "calling"):
+        tmp = str_replaced_tag_by_dictionary(tmp, subject.calling)
+    tmp = str_replaced_tag_by_dictionary(tmp, words)
+    if _isInvalidatedTagReplaced(tmp):
+        raise AssertionError(f"Cannot convert tags in {msg}: ", tmp)
+    return tmp
 
 
-## checker
+## utility
 def _isInvalidatedTagReplaced(target: str, prefix: str='$'):
     return prefix in target
 
+def _listExceptedNone(target: list) -> list:
+    return [v for v in target if v]

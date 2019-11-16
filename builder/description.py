@@ -20,7 +20,7 @@ class Description(BaseData):
     __NAME__ = "__desc__"
     def __init__(self, *args, desc_type: DescType=DescType.DESC):
         super().__init__(Description.__NAME__)
-        self._descs = Description._validatedStrings(args)
+        self._descs = Description._validatedStrings(*args)
         self._desc_type = assertion.is_instance(desc_type, DescType)
 
     @property
@@ -30,7 +30,7 @@ class Description(BaseData):
     def desc_type(self): return self._desc_type
 
     # privates
-    def _validatedStrings(args):
+    def _validatedStrings(*args):
         return args if [assertion.is_str(v) for v in args] else ()
 
 

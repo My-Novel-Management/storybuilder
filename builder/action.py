@@ -169,6 +169,8 @@ class Action(BaseData):
     def _setDescription(self, descs, desc_type: DescType):
         if isinstance(descs, Description):
             self._description = descs
+        elif isinstance(descs, str):
+            self._description = Description(descs, desc_type=desc_type)
         else:
             self._description = Description(*descs,
                     desc_type=desc_type)
