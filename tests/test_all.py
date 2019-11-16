@@ -27,6 +27,7 @@ import test_formatter
 import test_utils
 import test_who
 import test_word
+import test_analyzer
 
 
 def suite():
@@ -46,6 +47,8 @@ def suite():
         unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_strutils.MethodsTest),
         unittest.makeSuite(test_utils.MethodsTest),
+        # tools
+        unittest.makeSuite(test_analyzer.AnalyzerTest),
         # data type
         unittest.makeSuite(test_flag.FlagTest),
         unittest.makeSuite(test_flag.NoFlagTest),
