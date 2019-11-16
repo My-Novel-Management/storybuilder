@@ -29,6 +29,7 @@ import test_who
 import test_word
 import test_analyzer
 import test_parser
+import test_buildtool
 
 
 def suite():
@@ -50,6 +51,7 @@ def suite():
         unittest.makeSuite(test_utils.MethodsTest),
         # tools
         unittest.makeSuite(test_analyzer.AnalyzerTest),
+        unittest.makeSuite(test_buildtool.BuildTest),
         unittest.makeSuite(test_parser.ParserTest),
         # data type
         unittest.makeSuite(test_flag.FlagTest),

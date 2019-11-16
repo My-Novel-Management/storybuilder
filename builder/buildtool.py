@@ -6,32 +6,35 @@ import os
 import argparse
 import re
 from . import assertion
-from . import world as wd
+from .world import World
+from .story import Story
 from .parser import Parser
 from .strutils import dict_sorted
 from .analyzer import Analyzer
 from .formatter import Formatter
+from .chara import Chara
+from .person import Person
 
 
 class Build(object):
     """The story build tools.
     """
-    DEF_FILENAME = "story"
-    DEF_EXTENSION = "md" # NOTE: currently markdown only
-    DEF_BUILD_DIR = "build"
+    __FILENAME__ = "story"
+    __EXTENSION__ = "md" # NOTE: currently markdown only
+    __BUILD_DIR__ = "build"
 
-    def __init__(self, story: wd.Story, world: wd.World, opt_dic: str=""):
+    def __init__(self, story: Story, world: World, opt_dic: str=""):
         self._story = Build._validatedStory(story)
         self._words = Build._wordsFrom(world)
-        self._filename = Build.DEF_FILENAME
+        self._filename = Build.__FILENAME__
         self._options = _options_parsed()
-        self._extension = Build.DEF_EXTENSION
-        self._builddir = Build.DEF_BUILD_DIR
+        self._extension = Build.__EXTENSION__
+        self._builddir = Build.__BUILD_DIR__
         self._mecabdictdir = assertion.is_str(opt_dic)
         # TODO: build dir を指定（変更）できるように
 
     # methods
-    def output_story(self):
+    def output_story(self): # pragma: no cover
         is_succeeded = True
         options = self._options
         filename = self._filename # TODO: ファイル名指定できるようにする
@@ -110,7 +113,7 @@ class Build(object):
         return is_succeeded
 
     def to_analyzed_info(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool):
+            is_debug: bool): # pragma: no cover
         is_succeeded = True
         # NOTE: 解析結果
         freq = analyzer.frequency_words(parser.story)
@@ -123,7 +126,7 @@ class Build(object):
         return is_succeeded
 
     def to_description(self, parser: Parser, filename: str, formattype: str,
-            is_comment: bool, is_debug: bool):
+            is_comment: bool, is_debug: bool): # pragma: no cover
         is_succeeded = True
         res = Formatter().asDescription(parser.description(is_comment), formattype)
         if is_debug:
@@ -134,7 +137,7 @@ class Build(object):
         return is_succeeded
 
     def to_detail_info(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool):
+            is_debug: bool): # pragma: no cover
         is_succeeded = True
         # TODO: 最初にタイトルから章やシーンリスト
         # TODO: 文字数に続いて各シーンの簡易情報
@@ -162,7 +165,7 @@ class Build(object):
         return is_succeeded
 
     def to_dialogue_info(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool):
+            is_debug: bool): # pragma: no cover
         is_succeeded = True
         # NOTE: dialogue count and list
         info = analyzer.dialogue_infos(parser.story)
@@ -174,7 +177,7 @@ class Build(object):
                     self._builddir)
         return is_succeeded
 
-    def to_layer(self, parser:Parser, filename: str, is_debug: bool):
+    def to_layer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
         is_succeeded = True
         tmp = parser.layer()
         res = Formatter().asLayer(tmp, False)
@@ -190,7 +193,7 @@ class Build(object):
                     self._extension, self._builddir)
         return is_succeeded
 
-    def to_outline(self, parser: Parser, filename: str, is_debug: bool):
+    def to_outline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
         is_succeeded = True
         res = Formatter().asOutline(parser.outline())
         if is_debug:
@@ -200,7 +203,8 @@ class Build(object):
                     self._builddir)
         return is_succeeded
 
-    def to_scenario(self, parser: Parser, filename: str, is_comment: bool, is_debug: bool):
+    def to_scenario(self, parser: Parser, filename: str, is_comment: bool,
+            is_debug: bool): # pragma: no cover
         is_succeeded = True
         res = Formatter().asScenario(parser.scenario(is_comment))
         if is_debug:
@@ -210,32 +214,32 @@ class Build(object):
                     self._builddir)
         return is_succeeded
 
-    def to_total_info(self, parser: Parser, analyzer: Analyzer):
+    def to_total_info(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
         is_succeeded = True
         charcounts = analyzer.characters_count(parser.story)
         is_succeeded = Build._out_to_console(charcounts)
         return is_succeeded
 
     # private
-    def _validatedStory(story: wd.Story):
-        if isinstance(story, wd.Story):
+    def _validatedStory(story: Story):
+        if isinstance(story, Story):
             return story
         else:
             raise AssertionError("Must be data type of 'Story'!")
         return False
 
-    def _wordsFrom(world: wd.World):
+    def _wordsFrom(world: World):
         '''To create the world dictionary.
         '''
         tmp = {}
         # persons and charas
         tmp_persons = []
-        for k, v in assertion.is_instance(world, wd.World).items():
+        for k, v in assertion.is_instance(world, World).items():
             if k in ('stage', 'day', 'time', 'item', 'word'):
                 continue
-            if isinstance(v, wd.Chara):
+            if isinstance(v, Chara):
                 tmp_persons.append((k, v.name))
-            elif isinstance(v, wd.Person):
+            elif isinstance(v, Person):
                 tmp_persons.append((f"n_{k}", v.name))
                 tmp_persons.append((f"fn_{k}", v.firstname))
                 tmp_persons.append((f"ln_{k}", v.lastname))
@@ -246,14 +250,14 @@ class Build(object):
         tmp_words = [(f"w_{k}", v.name) for k,v in world.word.items()]
         return dict_sorted(dict(tmp_persons + tmp_stages + tmp_items + tmp_words))
 
-    def _out_to_console(data: list):
+    def _out_to_console(data: list): # pragma: no cover
         is_succeeded = True
         for v in data:
             print(v)
         return is_succeeded
 
     def _out_to_file(data: list, filename: str, suffix: str, extention: str,
-            builddir: str):
+            builddir: str): # pragma: no coveer
         is_succeeded = True
         if not os.path.isdir(builddir):
             os.makedirs(builddir)
@@ -292,13 +296,13 @@ def _options_parsed(): # pragma: no cover
     # TODO: advanced file name
     parser.add_argument('-f', '--file', help="advanced output the file name", type=str)
     # TODO: priority setting
-    parser.add_argument('--pri', help="output filtered by the priority", type=int, default=wd.World.DEF_PRIORITY)
+    parser.add_argument('--pri', help="output filtered by the priority", type=int, default=World.DEF_PRIORITY)
     parser.add_argument('--debug', help="with a debug mode", action='store_true')
     parser.add_argument('--format', help='output the format style', type=str)
     parser.add_argument('--comment', help='output with comment', action='store_true')
 
     # get result
-    args = parser.parse_args()
+    args = parser.parse_args(args=[])
 
     return (args)
 
