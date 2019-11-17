@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0] - 2019-11-17
 ### Added
 - action layer
 - using MeCab for analyzer
@@ -12,11 +14,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - collect word class
 - parser class
 - formatter class
+- test utility
+- build test on travis ci
 ### Changed
 - scene set at first time
 ### Fixed
 - scene and episode title
 - scenario symbole without maru
+
 
 ## [0.2.10] - 2019-11-13
 ### Note
@@ -183,7 +188,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.2.10...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nagisc007/storybuilder/releases/v0.3.0
 [0.2.10]: https://github.com/nagisc007/storybuilder/releases/v0.2.10
 [0.2.9]: https://github.com/nagisc007/storybuilder/releases/v0.2.9
 [0.2.1]: https://github.com/nagisc007/storybuilder/releases/v0.2.1
