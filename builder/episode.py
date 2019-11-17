@@ -4,14 +4,14 @@
 from . import assertion
 from .basecontainer import BaseContainer
 from .scene import Scene
-from .action import Action
+from . import __DEF_PRIORITY__
 
 
 class Episode(BaseContainer):
     """The container for scenes.
     """
     def __init__(self, title: str, outline: str, *args):
-        super().__init__(title, Action.DEF_PRIORITY)
+        super().__init__(title, __DEF_PRIORITY__)
         self._outline = assertion.is_str(outline)
         self._scenes = Episode._validatedScenes(*args)
 

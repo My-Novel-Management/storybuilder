@@ -4,6 +4,7 @@
 from . import assertion
 from .basecontainer import BaseContainer
 from .action import Action, TagAction
+from . import __DEF_PRIORITY__
 
 
 class CombAction(BaseContainer):
@@ -11,7 +12,7 @@ class CombAction(BaseContainer):
     """
     __NAME__ = "__comb__"
     def __init__(self, *args):
-        super().__init__(CombAction.__NAME__, Action.DEF_PRIORITY)
+        super().__init__(CombAction.__NAME__, __DEF_PRIORITY__)
         self._actions = CombAction._validatedActions(args)
 
     @property

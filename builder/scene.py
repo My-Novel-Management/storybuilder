@@ -12,6 +12,7 @@ from .time import Time
 from .action import Action, TagAction
 from .combaction import CombAction
 from .basesubject import NoSubject
+from . import __DEF_PRIORITY__
 
 
 ## type define
@@ -38,7 +39,7 @@ class Scene(BaseContainer):
             stage: [Stage, NoData]=None,
             day: [Day, NoData]=None,
             time: [Time, NoData]=None):
-        super().__init__(title, Action.DEF_PRIORITY)
+        super().__init__(title, __DEF_PRIORITY__)
         self._outline = assertion.is_str(outline)
         self._actions = Scene._validatedActions(*args)
         self._camera = NoData() if not camera or isinstance(camera, NoData) else assertion.is_instance(camera, Someone)

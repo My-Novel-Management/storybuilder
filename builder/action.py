@@ -43,9 +43,6 @@ class TagType(Enum):
 class Action(BaseData):
     """Data type of an action.
     """
-    DEF_PRIORITY = 5
-    MAX_PRIORITY = 10
-    MIN_PRIORITY = 0
     DEF_LAYER = "__default__"
     MAIN_LAYER = "main"
     __NAME__ = "__action__"

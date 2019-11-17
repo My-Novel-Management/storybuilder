@@ -14,6 +14,7 @@ from .analyzer import Analyzer
 from .formatter import Formatter
 from .chara import Chara
 from .person import Person
+from . import __DEF_PRIORITY__
 
 
 class Build(object):
@@ -296,7 +297,7 @@ def _options_parsed(): # pragma: no cover
     # TODO: advanced file name
     parser.add_argument('-f', '--file', help="advanced output the file name", type=str)
     # TODO: priority setting
-    parser.add_argument('--pri', help="output filtered by the priority", type=int, default=World.DEF_PRIORITY)
+    parser.add_argument('--pri', help="output filtered by the priority", type=int, default=__DEF_PRIORITY__)
     parser.add_argument('--debug', help="with a debug mode", action='store_true')
     parser.add_argument('--format', help='output the format style', type=str)
     parser.add_argument('--comment', help='output with comment', action='store_true')

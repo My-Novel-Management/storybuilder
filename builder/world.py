@@ -19,7 +19,6 @@ from .word import Word
 from . import action as ac
 from .flag import Flag
 from .combaction import CombAction
-from . import __DEF_PRIORITY__
 
 
 class UtilityDict(dict):
@@ -34,7 +33,6 @@ class World(UtilityDict):
     """
     MECAB_NEWDICT1 = "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
     MECAB_NEWDICT2 = "-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd"
-    DEF_PRIORITY = __DEF_PRIORITY__
 
     def __init__(self, mecabdict: [int, str]=0):
         super().__init__()
