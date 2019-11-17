@@ -250,7 +250,7 @@ def set_stages(w: World):
 def world():
     """Create a world.
     """
-    w = World(2)
+    w = World("")
     w.set_db(cnf.PERSONS, cnf.CHARAS,
             cnf.STAGES,
             cnf.DAYS, cnf.TIMES,

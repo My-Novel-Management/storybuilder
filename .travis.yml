@@ -9,6 +9,7 @@ install:
 
 script:
     - coverage run --rcfile=.coveragerc setup.py test
+    - python example/momotaro.py -osdi
 
 after_success:
     - coveralls

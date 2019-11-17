@@ -202,7 +202,7 @@ class World(UtilityDict):
         '''
         from .buildtool import Build
         bd = Build(val, self, self.mecabdict)
-        return bd.output_story()
+        return 0 if bd.output_story() else 1
 
     # private
     def _appendOne(self, key: str, val: Any, body: [UtilityDict, dict],
