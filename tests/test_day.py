@@ -2,7 +2,7 @@
 """Test: day.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import day as dy
 
 
@@ -17,14 +17,14 @@ class DayTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test day", 1, 1, 2000, 1,1,2000, False),
-                ("test day", 1, 1, None, 1,1,dy.Day.__YEAR__, False),
-                ("test day", 1, None, None, 1,dy.Day.__DAY__,dy.Day.__YEAR__, False),
-                ("test day", None, None, None, dy.Day.__MON__,dy.Day.__DAY__,dy.Day.__YEAR__, False),
-                ("test day", 1, 1, "2000", 1,1,2000, True),
-                ("test day", 1, "1", 2000, 1,1,2000, True),
-                ("test day", "1", 1, 2000, 1,1,2000, True),
-                (1, 1, 1, 2000, 1,1,2000, True),
+                (False, "test day", 1, 1, 2000, 1,1,2000,),
+                (False, "test day", 1, 1, None, 1,1,dy.Day.__YEAR__,),
+                (False, "test day", 1, None, None, 1,dy.Day.__DAY__,dy.Day.__YEAR__,),
+                (False, "test day", None, None, None, dy.Day.__MON__,dy.Day.__DAY__,dy.Day.__YEAR__,),
+                (True, "test day", 1, 1, "2000", 1,1,2000,),
+                (True, "test day", 1, "1", 2000, 1,1,2000,),
+                (True, "test day", "1", 1, 2000, 1,1,2000,),
+                (True, 1, 1, 1, 2000, 1,1,2000,),
                 ]
         def _create(name, mon, day, year):
             if year:
@@ -35,47 +35,29 @@ class DayTest(unittest.TestCase):
                 return dy.Day(name, mon)
             else:
                 return dy.Day(name)
-        for name, mon, day, year, exp_mon, exp_day, exp_year, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = _create(name, mon, day, year)
-                    self.assertIsInstance(tmp, dy.Day)
-                    self.assertEqual(tmp.name, name)
-                    self.assertEqual(tmp.mon, exp_mon)
-                    self.assertEqual(tmp.day, exp_day)
-                    self.assertEqual(tmp.year, exp_year)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = _create(name, mon, day, year)
-                        self.assertIsInstance(tmp, dy.Day)
-                        self.assertEqual(tmp.name, name)
-                        self.assertEqual(tmp.mon, exp_mon)
-                        self.assertEqual(tmp.day, exp_day)
-                        self.assertEqual(tmp.year, exp_year)
+        def _checkcode(name, mon1, day1, year1, mon2, day2, year2):
+            tmp = _create(name, mon1, day1, year1)
+            self.assertIsInstance(tmp, dy.Day)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.mon, mon2)
+            self.assertEqual(tmp.day, day2)
+            self.assertEqual(tmp.year, year2)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
     def test_inherited(self):
         data = [
-                (("apple",1,1,1,), ("apple",11,2,1001), False),
-                (("apple",1,1,), ("apple",11,2,1000), False),
-                (("apple",1,), ("apple",11,1,1000), False),
-                (("apple",), ("apple",10,1,1000), False),
-                (("apple","1",1,1,), ("apple",11,2,1001), True),
+                (False, ("apple",1,1,1,), ("apple",11,2,1001),),
+                (False, ("apple",1,1,), ("apple",11,2,1000),),
+                (False, ("apple",1,), ("apple",11,1,1000),),
+                (False, ("apple",), ("apple",10,1,1000),),
+                (True, ("apple","1",1,1,), ("apple",11,2,1001),),
                 ]
-        for vals, expect, isfail in data:
-            with self.subTest():
-                tmp = dy.Day("test", 10,1,1000)
-                if not isfail:
-                    tmp1 = tmp.inherited(*vals)
-                    self.assertIsInstance(tmp1, dy.Day)
-                    self.assertEqual(tmp1.name, expect[0])
-                    self.assertEqual(tmp1.mon, expect[1])
-                    self.assertEqual(tmp1.day, expect[2])
-                    self.assertEqual(tmp1.year, expect[3])
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp1 = tmp.inherited(*vals)
-                        self.assertIsInstance(tmp1, dy.Day)
-                        self.assertEqual(tmp1.name, expect[0])
-                        self.assertEqual(tmp1.mon, expect[1])
-                        self.assertEqual(tmp1.day, expect[2])
-                        self.assertEqual(tmp1.year, expect[3])
+        def _checkcode(vals, expect):
+            tmp = dy.Day("test", 10,1,1000)
+            tmp1 = tmp.inherited(*vals)
+            self.assertIsInstance(tmp1, dy.Day)
+            self.assertEqual(tmp1.name, expect[0])
+            self.assertEqual(tmp1.mon, expect[1])
+            self.assertEqual(tmp1.day, expect[2])
+            self.assertEqual(tmp1.year, expect[3])
+        validated_testing_withfail(self, "inherited", _checkcode, data)

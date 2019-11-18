@@ -2,7 +2,7 @@
 """Test: item.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import item as it
 
 
@@ -17,22 +17,15 @@ class ItemTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test", "a note", "a note", False),
-                ("test", None, it.Item.__NOTE__, False),
-                (1, "a note", "a note", True),
-                ("test", 1, 1, True),
+                (False, "test", "a note", "a note",),
+                (False, "test", None, it.Item.__NOTE__,),
+                (True, 1, "a note", "a note",),
+                (True, "test", 1, 1,),
                 ]
-        for name, note, expect, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = it.Item(name, note) if note else it.Item(name)
-                    self.assertIsInstance(tmp, it.Item)
-                    self.assertEqual(tmp.name, name)
-                    self.assertEqual(tmp.note, expect)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = it.Item(name, note) if note else it.Item(name)
-                        self.assertIsInstance(tmp, it.Item)
-                        self.assertEqual(tmp.name, name)
-                        self.assertEqual(tmp.note, expect)
+        def _checkcode(name, note, expect):
+            tmp = it.Item(name, note) if note else it.Item(name)
+            self.assertIsInstance(tmp, it.Item)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.note, expect)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 

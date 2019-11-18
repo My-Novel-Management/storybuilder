@@ -2,7 +2,7 @@
 """Test: scene.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import scene as sc
 from builder.action import Action
 from builder.person import Person
@@ -32,139 +32,88 @@ class SceneTest(unittest.TestCase):
         day1 = Day("day1", 10,1,2019)
         time1 = Time("morning", 8,0)
         data = [
-                ("test", "a test", (act1,),
-                    taro, room, day1, time1, False),
+                (False, "test", "a test", (act1,),
+                    taro, room, day1, time1,),
                 ]
-        for title, outline, acts, camera, stage, day, time, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = sc.Scene(title, outline, *acts,
-                            camera=camera, stage=stage,
-                            day=day, time=time)
-                    self.assertIsInstance(tmp, sc.Scene)
-                    self.assertEqual(tmp.title, title)
-                    self.assertEqual(tmp.outline, outline)
-                    self.assertEqual(tmp.camera, camera)
-                    self.assertEqual(tmp.stage, stage)
-                    self.assertEqual(tmp.day, day)
-                    self.assertEqual(tmp.time, time)
-                    self.assertEqual(tmp.actions, acts)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = sc.Scene(title, outline, args,
-                                camera=camera, stage=stage,
-                                day=day, time=time)
-                        self.assertIsInstance(tmp, sc.Scene)
-                        self.assertEqual(tmp.title, title)
-                        self.assertEqual(tmp.outline, outline)
-                        self.assertEqual(tmp.camera, camera)
-                        self.assertEqual(tmp.stage, stage)
-                        self.assertEqual(tmp.day, day)
-                        self.assertEqual(tmp.time, time)
-                        self.assertEqual(tmp.actions, acts)
+        def _checkcode(title, outline, acts, camera, stage, day, time):
+            tmp = sc.Scene(title, outline, *acts,
+                        camera=camera, stage=stage,
+                        day=day, time=time)
+            self.assertIsInstance(tmp, sc.Scene)
+            self.assertEqual(tmp.title, title)
+            self.assertEqual(tmp.outline, outline)
+            self.assertEqual(tmp.camera, camera)
+            self.assertEqual(tmp.stage, stage)
+            self.assertEqual(tmp.day, day)
+            self.assertEqual(tmp.time, time)
+            self.assertEqual(tmp.actions, acts)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
     def test_inherited(self):
         taro = Person("Taro", "", 10, "male", "student")
         act1 = Action(taro, "test")
         data = [
-                ("apple", "an apple", (act1,), False),
+                (False, "apple", "an apple", (act1,),),
                 ]
-        for title, outline, acts, isfail in data:
-            with self.subTest(title=title):
-                tmp = sc.Scene(title, outline)
-                if not isfail:
-                    tmp1 = tmp.inherited(*acts)
-                    self.assertIsInstance(tmp1, sc.Scene)
-                    self.assertEqual(tmp1.title, title)
-                    self.assertEqual(tmp1.outline, outline)
-                    self.assertEqual(tmp1.actions, acts)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp1 = tmp.inherited(*acts)
-                        self.assertIsInstance(tmp1, sc.Scene)
-                        self.assertEqual(tmp1.title, title)
-                        self.assertEqual(tmp1.outline, outline)
-                        self.assertEqual(tmp1.actions, acts)
+        def _checkcode(title, outline, acts):
+            tmp = sc.Scene(title, outline)
+            tmp1 = tmp.inherited(*acts)
+            self.assertIsInstance(tmp1, sc.Scene)
+            self.assertEqual(tmp1.title, title)
+            self.assertEqual(tmp1.outline, outline)
+            self.assertEqual(tmp1.actions, acts)
+        validated_testing_withfail(self, "inherited", _checkcode, data)
 
     def test_setCamera(self):
         data = [
-                (Person("hana", "", 17, "female", "girl"), False),
+                (False, Person("hana", "", 17, "female", "girl"),),
                 ]
-        for camera, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = self.scene1.setCamera(camera)
-                    self.assertIsInstance(tmp, sc.Scene)
-                    self.assertEqual(tmp.camera, camera)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = self.scene1.setCamera(camera)
-                        self.assertIsInstance(tmp, sc.Scene)
-                        self.assertEqual(tmp.camera, camera)
+        def _checkcode(camera):
+            tmp = self.scene1.setCamera(camera)
+            self.assertIsInstance(tmp, sc.Scene)
+            self.assertEqual(tmp.camera, camera)
+        validated_testing_withfail(self, "setCamera", _checkcode, data)
 
     def test_setStage(self):
         data = [
-                (Stage("room", "a test"), False),
+                (False, Stage("room", "a test"),),
                 ]
-        for stage, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = self.scene1.setStage(stage)
-                    self.assertIsInstance(tmp, sc.Scene)
-                    self.assertEqual(tmp.stage, stage)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = self.scene1.setStage(stage)
-                        self.assertIsInstance(tmp, sc.Scene)
-                        self.assertEqual(tmp.stage, stage)
+        def _checkcode(stage):
+            tmp = self.scene1.setStage(stage)
+            self.assertIsInstance(tmp, sc.Scene)
+            self.assertEqual(tmp.stage, stage)
+        validated_testing_withfail(self, "setStage", _checkcode, data)
 
     def test_setDay(self):
         data = [
-                (Day("test day", 5,9, 2020), False),
+                (False, Day("test day", 5,9, 2020),),
                 ]
-        for day, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = self.scene1.setDay(day)
-                    self.assertIsInstance(tmp, sc.Scene)
-                    self.assertEqual(tmp.day, day)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = self.scene1.setDay(day)
-                        self.assertIsInstance(tmp, sc.Scene)
-                        self.assertEqual(tmp.day, day)
+        def _checkcode(day):
+            tmp = self.scene1.setDay(day)
+            self.assertIsInstance(tmp, sc.Scene)
+            self.assertEqual(tmp.day, day)
+        validated_testing_withfail(self, "setDay", _checkcode, data)
 
     def test_setTime(self):
         data = [
-                (Time("night", 20,10, 2020), False),
+                (False, Time("night", 20,10, 2020),),
                 ]
-        for time, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = self.scene1.setTime(time)
-                    self.assertIsInstance(tmp, sc.Scene)
-                    self.assertEqual(tmp.time, time)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = self.scene1.setTime(time)
-                        self.assertIsInstance(tmp, sc.Scene)
-                        self.assertEqual(tmp.time, time)
+        def _checkcode(time):
+            tmp = self.scene1.setTime(time)
+            self.assertIsInstance(tmp, sc.Scene)
+            self.assertEqual(tmp.time, time)
+        validated_testing_withfail(self, "setTime", _checkcode, data)
 
     def test_add(self):
         act1 = Action(self.taro, "apple")
         act2 = Action(self.taro, "orange")
         data = [
-                ((act1,), (act1,), False),
-                ((act1, act2), (act1, act2), False),
-                ((self.taro,), (self.taro,), True),
+                (False, (act1,), (act1,),),
+                (False, (act1, act2), (act1, act2),),
+                (True, (self.taro,), (self.taro,),),
                 ]
-        for v, expect, isfail in data:
-            with self.subTest():
-                tmp = self.scene1.inherited()
-                if not isfail:
-                    tmp.add(*v)
-                    self.assertEqual(tmp.actions, expect)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp.add(*v)
-                        self.assertEqual(tmp.actions, expect)
+        def _checkcode(v, expect):
+            tmp = self.scene1.inherited()
+            tmp.add(*v)
+            self.assertEqual(tmp.actions, expect)
+        validated_testing_withfail(self, "add", _checkcode, data)

@@ -2,7 +2,7 @@
 """Test: flag.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder.flag import Flag, NoDeflag, NoFlag
 
 
@@ -17,23 +17,16 @@ class FlagTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test", False, False),
-                ("test", True, False),
-                (1, False, True),
+                (False, "test", False,),
+                (False, "test", True,),
+                (True, 1, False,),
                 ]
-        for info, isdeflag, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = Flag(info, isdeflag)
-                    self.assertIsInstance(tmp, Flag)
-                    self.assertEqual(tmp.info, info)
-                    self.assertEqual(tmp.isDeflag, isdeflag)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = Flag(info, isdeflag)
-                        self.assertIsInstance(tmp, Flag)
-                        self.assertEqual(tmp.info, info)
-                        self.assertEqual(tmp.isDeflag, isdeflag)
+        def _checkcode(info, isdeflag):
+            tmp = Flag(info, isdeflag)
+            self.assertIsInstance(tmp, Flag)
+            self.assertEqual(tmp.info, info)
+            self.assertEqual(tmp.isDeflag, isdeflag)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
 class NoFlagTest(unittest.TestCase):
 

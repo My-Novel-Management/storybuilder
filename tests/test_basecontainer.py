@@ -2,7 +2,7 @@
 """Test: basecontainer.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import basecontainer as bs
 
 
@@ -17,25 +17,22 @@ class BaseContainerTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
+                (False, "test", 1,),
                 ]
-        for title, pri in data:
-            with self.subTest():
-                tmp = bs.BaseContainer(title, pri)
-                self.assertIsInstance(tmp, bs.BaseContainer)
-                self.assertEqual(tmp.title, title)
-                self.assertEqual(tmp.priority, pri)
+        def _checkcode(title, pri):
+            tmp = bs.BaseContainer(title, pri)
+            self.assertIsInstance(tmp, bs.BaseContainer)
+            self.assertEqual(tmp.title, title)
+            self.assertEqual(tmp.priority, pri)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
     def test_setPriority(self):
         data = [
-                (5, 5, False),
-                (20, 20, True),
+                (False, 5, 5,),
+                (True, 20, 20,),
                 ]
-        for v, expect, isfail in data:
-            with self.subTest():
-                tmp = bs.BaseContainer("test", 1)
-                if not isfail:
-                    self.assertIsInstance(tmp.setPriority(v), bs.BaseContainer)
-                    self.assertEqual(v, expect)
-                else:
-                    with self.assertRaises(AssertionError):
-                        self.assertIsInstance(tmp.setPriority(v), bs.BaseContainer)
+        def _checkcode(v, expect):
+            tmp = bs.BaseContainer("test", 1)
+            self.assertIsInstance(tmp.setPriority(v), bs.BaseContainer)
+            self.assertEqual(v, expect)
+        validated_testing_withfail(self, "setPriority", _checkcode, data)

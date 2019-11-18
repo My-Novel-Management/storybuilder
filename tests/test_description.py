@@ -2,7 +2,7 @@
 """Test: description.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import description as ds
 
 
@@ -17,32 +17,25 @@ class DescriptionTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                (("test", "apple"), ds.DescType.DESC,
-                    ("test", "apple"), ds.DescType.DESC, False),
-                (("test",), ds.DescType.DESC,
-                    ("test",), ds.DescType.DESC, False),
-                (("test", "apple"), ds.DescType.DIALOGUE,
-                    ("test", "apple"), ds.DescType.DIALOGUE, False),
-                (("test", "apple"), ds.DescType.COMPLEX,
-                    ("test", "apple"), ds.DescType.COMPLEX, False),
-                (("test", "apple"), None,
-                    ("test", "apple"), ds.DescType.DESC, False),
-                ((1,2), ds.DescType.DESC,
-                    (1,2), ds.DescType.DESC, True),
+                (False, ("test", "apple"), ds.DescType.DESC,
+                    ("test", "apple"), ds.DescType.DESC,),
+                (False, ("test",), ds.DescType.DESC,
+                    ("test",), ds.DescType.DESC,),
+                (False, ("test", "apple"), ds.DescType.DIALOGUE,
+                    ("test", "apple"), ds.DescType.DIALOGUE,),
+                (False, ("test", "apple"), ds.DescType.COMPLEX,
+                    ("test", "apple"), ds.DescType.COMPLEX,),
+                (False, ("test", "apple"), None,
+                    ("test", "apple"), ds.DescType.DESC,),
+                (True, (1,2), ds.DescType.DESC,
+                    (1,2), ds.DescType.DESC,),
                 ]
-        for vals, dtype, expect, exp_type, isfail in data:
-            with self.subTest(vals=vals):
-                if not isfail:
-                    tmp = ds.Description(*vals, desc_type=dtype) if dtype else ds.Description(*vals)
-                    self.assertIsInstance(tmp, ds.Description)
-                    self.assertEqual(tmp.descs, expect)
-                    self.assertEqual(tmp.desc_type, exp_type)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = ds.Description(*vals, desc_type=dtype) if dtype else ds.Description(*vals)
-                        self.assertIsInstance(tmp, ds.Description)
-                        self.assertEqual(tmp.descs, expect)
-                        self.assertEqual(tmp.desc_type, exp_type)
+        def _checkcode(vals, dtype, expect, exp_type):
+            tmp = ds.Description(*vals, desc_type=dtype) if dtype else ds.Description(*vals)
+            self.assertIsInstance(tmp, ds.Description)
+            self.assertEqual(tmp.descs, expect)
+            self.assertEqual(tmp.desc_type, exp_type)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
     def test_attr_descs_when_single_string(self):
         tmp = ds.Description("testing")

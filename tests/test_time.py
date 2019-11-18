@@ -2,7 +2,7 @@
 """Test: time.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder.time import Time
 
 
@@ -17,16 +17,16 @@ class TimeTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test", 10, 5, 1,
-                    10, 5, 1, False),
-                ("test", 10, 5, None,
-                    10, 5, Time.__SEC__, False),
-                ("test", 10, None, None,
-                    10, Time.__MIN__, Time.__SEC__, False),
-                ("tets", None, None, None,
-                    Time.__HOUR__, Time.__MIN__, Time.__SEC__, False),
-                (1, 1,1,1,
-                    1,1,1, True),
+                (False, "test", 10, 5, 1,
+                    10, 5, 1,),
+                (False, "test", 10, 5, None,
+                    10, 5, Time.__SEC__,),
+                (False, "test", 10, None, None,
+                    10, Time.__MIN__, Time.__SEC__,),
+                (False, "tets", None, None, None,
+                    Time.__HOUR__, Time.__MIN__, Time.__SEC__,),
+                (True, 1, 1,1,1,
+                    1,1,1,),
                 ]
         def _create(name, hour, min, sec):
             if sec:
@@ -45,47 +45,35 @@ class TimeTest(unittest.TestCase):
             self.assertEqual(tmp.min, min2)
             self.assertEqual(tmp.sec, sec2)
             self.assertEqual(tmp.numsys, Time.__DEF_NUMSYS__)
-        for name, hour, min, sec, exp_hour, exp_min, exp_sec, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(name, hour, min, sec, exp_hour, exp_min, exp_sec)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(name, hour, min, sec, exp_hour, exp_min, exp_sec)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
     def test_setNumsys(self):
         base_hour, base_min, base_sec = 10, 5, 1
         data = [
-                (10, 10, False),
-                (-1, -1, True),
-                (1000, 1000, True),
+                (False, 10, 10,),
+                (True, -1, -1,),
+                (True, 1000, 1000,),
                 ]
         def _checkcode(v, expect):
             tmp = Time("test", base_hour, base_min, base_sec)
             self.assertEqual(tmp.numsys, Time.__DEF_NUMSYS__)
             tmp.setNumsys(v)
             self.assertEqual(tmp.numsys, expect)
-        for v, expect, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(v, expect)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(v, expect)
+        validated_testing_withfail(self, "setNumsys", _checkcode, data)
 
     def test_inherited(self):
         base_name, base_hour, base_min, base_sec = "test", 10, 5, 1
         data = [
-                ("apple", 1, 1, 1,
-                    "apple", base_hour+1, base_min+1, base_sec+1, False),
-                ("orange", 1, 1, None,
-                    "orange", base_hour+1, base_min+1, base_sec, False),
-                ("pain", 1, None, None,
-                    "pain", base_hour+1, base_min, base_sec, False),
-                ("banana", None, None, None,
-                    "banana", base_hour, base_min, base_sec, False),
-                (1, 1,1,1,
-                    1,1,1,1, True),
+                (False, "apple", 1, 1, 1,
+                    "apple", base_hour+1, base_min+1, base_sec+1,),
+                (False, "orange", 1, 1, None,
+                    "orange", base_hour+1, base_min+1, base_sec,),
+                (False, "pain", 1, None, None,
+                    "pain", base_hour+1, base_min, base_sec,),
+                (False, "banana", None, None, None,
+                    "banana", base_hour, base_min, base_sec,),
+                (True, 1, 1,1,1,
+                    1,1,1,1,),
                 ]
         def _create(time: Time, name, hour, min, sec):
             if sec:
@@ -104,10 +92,4 @@ class TimeTest(unittest.TestCase):
             self.assertEqual(tmp1.hour, hour2)
             self.assertEqual(tmp1.min, min2)
             self.assertEqual(tmp1.sec, sec2)
-        for name, hour, min, sec, exp_name, exp_hour, exp_min, exp_sec, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(name, hour, min, sec, exp_name, exp_hour, exp_min, exp_sec)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(name, hour, min, sec, exp_name, exp_hour, exp_min, exp_sec)
+        validated_testing_withfail(self, "inherited", _checkcode, data)

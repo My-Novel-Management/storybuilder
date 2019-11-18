@@ -2,7 +2,7 @@
 """Test: word.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder.word import Word
 
 
@@ -17,19 +17,13 @@ class WordTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test", "a test", "a test", False),
-                ("test", None, Word.__NOTE__, False),
-                (1, 1, 1, True),
+                (False, "test", "a test", "a test",),
+                (False, "test", None, Word.__NOTE__,),
+                (True, 1, 1, 1,),
                 ]
         def _checkcode(name, note, expect):
             tmp = Word(name, note) if note else Word(name)
             self.assertIsInstance(tmp, Word)
             self.assertEqual(tmp.name, name)
             self.assertEqual(tmp.note, expect)
-        for name, note, expect, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(name, note, expect)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(name, note, expect)
+        validated_testing_withfail(self, "attributes", _checkcode, data)

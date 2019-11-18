@@ -2,7 +2,7 @@
 """Test: world.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder.world import UtilityDict, World
 from builder.person import Person
 
@@ -63,21 +63,15 @@ class WorldTest(unittest.TestCase):
     def test_appendOne(self):
         from builder.stage import Stage
         data = [
-                ("test", Stage("apple"), UtilityDict(), Stage, False),
-                ("test", ("apple",), UtilityDict(), Stage, False),
+                (False, "test", Stage("apple"), UtilityDict(), Stage,),
+                (False, "test", ("apple",), UtilityDict(), Stage,),
                 ]
         def _checkcode(k, v, dct, dtype):
             tmp = World()
             tmp._appendOne(k, v, dct, dtype)
             self.assertTrue(hasattr(dct, k))
             self.assertIsInstance(dct[k], dtype)
-        for k, v, dct, dtype, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(k, v, dct, dtype)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(k, v, dct, dtype)
+        validated_testing_withfail(self, "appendOne", _checkcode, data)
 
     @unittest.skip("referenced appendOne test")
     def test_append_chara(self):
@@ -110,10 +104,8 @@ class WorldTest(unittest.TestCase):
     def test_setItemsFrom(self):
         from builder.stage import Stage
         data = [
-                ([("test", "a test"),],
-                    False),
-                ([("apple", "an apple"), ("orange", "a orange")],
-                    False),
+                (False, [("test", "a test"),],),
+                (False, [("apple", "an apple"), ("orange", "a orange")],),
                 ]
         def _checkcode(data):
             tmp = World()
@@ -121,13 +113,7 @@ class WorldTest(unittest.TestCase):
             for v in data:
                 self.assertTrue(hasattr(tmp.stage, v[0]))
                 self.assertIsInstance(tmp.stage[v[0]], Stage)
-        for v, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(v)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(v)
+        validated_testing_withfail(self, "setItemsFrom", _checkcode, data)
 
     @unittest.skip("referenced setItemsFrom test")
     def test_set_days(self):
@@ -164,7 +150,7 @@ class WorldTest(unittest.TestCase):
     def test_act(self):
         from builder.action import Action, ActType
         data = [
-                (self.taro, "test", False),
+                (False, self.taro, "test",),
                 ]
         def _checkcode(subject, outline):
             tmp = World()
@@ -173,13 +159,7 @@ class WorldTest(unittest.TestCase):
             self.assertEqual(tmp1.subject, subject)
             self.assertEqual(tmp1.outline, outline)
             self.assertEqual(tmp1.act_type, ActType.ACT)
-        for subject, outline, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(subject, outline)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(subject, outline)
+        validated_testing_withfail(self, "act", _checkcode, data)
 
     @unittest.skip("almost same test_act")
     def test_be(self):
@@ -220,7 +200,7 @@ class WorldTest(unittest.TestCase):
     def test_comment(self):
         from builder.action import TagAction, TagType
         data = [
-                ("test", False),
+                (False, "test",),
                 ]
         def _checkcode(info):
             tmp = World()
@@ -228,13 +208,7 @@ class WorldTest(unittest.TestCase):
             self.assertIsInstance(tmp1, TagAction)
             self.assertEqual(tmp1.info, info)
             self.assertEqual(tmp1.tag_type, TagType.COMMENT)
-        for info, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    _checkcode(info)
-                else:
-                    with self.assertRaises(AssertionError):
-                        _checkcode(info)
+        validated_testing_withfail(self, "comment", _checkcode, data)
 
     @unittest.skip("almost same test_comment")
     def test_br(self):

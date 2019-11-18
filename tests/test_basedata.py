@@ -2,7 +2,7 @@
 """Test: basedata.py
 """
 import unittest
-from testutils import print_test_title
+from testutils import print_test_title, validated_testing_withfail
 from builder import basedata as bs
 
 
@@ -17,18 +17,14 @@ class BaseDataTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                ("test", False),
-                (1, True),
+                (False, "test",),
+                (True, 1,),
                 ]
-        for name, isfail in data:
-            with self.subTest():
-                if not isfail:
-                    tmp = bs.BaseData(name)
-                    self.assertIsInstance(tmp, bs.BaseData)
-                    self.assertEqual(tmp.name, name)
-                else:
-                    with self.assertRaises(AssertionError):
-                        tmp = bs.BaseData(name)
+        def _checkcode(name):
+            tmp = bs.BaseData(name)
+            self.assertIsInstance(tmp, bs.BaseData)
+            self.assertEqual(tmp.name, name)
+        validated_testing_withfail(self, "attributes", _checkcode, data)
 
 class NoDataTest(unittest.TestCase):
 
