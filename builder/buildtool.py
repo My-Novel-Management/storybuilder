@@ -24,11 +24,12 @@ class Build(object):
     __EXTENSION__ = "md" # NOTE: currently markdown only
     __BUILD_DIR__ = "build"
 
-    def __init__(self, story: Story, world: World, opt_dic: str=""):
+    def __init__(self, story: Story, world: World, opt_dic: str="",
+            is_debug_test: bool=False):
         self._story = Build._validatedStory(story)
         self._words = Build._wordsFrom(world)
         self._filename = Build.__FILENAME__
-        self._options = _options_parsed()
+        self._options = _options_parsed(is_debug_test)
         self._extension = Build.__EXTENSION__
         self._builddir = Build.__BUILD_DIR__
         self._mecabdictdir = assertion.is_str(opt_dic)
@@ -46,7 +47,12 @@ class Build(object):
 
         parser = Parser(self._story, self._words, pri_filter)
         story_converted = parser.story
-        analyzer = Analyzer(self._mecabdictdir)
+        _mecabdir = self._mecabdictdir
+        if options.forcemecab:
+            _mecabdir = ""
+        elif options.mecab:
+            _mecabdir = options.mecab
+        analyzer = Analyzer(_mecabdir)
 
         if options.outline:
             is_succeeded = self.to_outline(parser, filename, is_debug)
@@ -272,7 +278,7 @@ class Build(object):
         return is_succeeded
 
 # privates
-def _options_parsed(): # pragma: no cover
+def _options_parsed(is_debug_test: bool): # pragma: no cover
     '''Get and setting a commandline option.
 
     Returns:
@@ -301,9 +307,11 @@ def _options_parsed(): # pragma: no cover
     parser.add_argument('--debug', help="with a debug mode", action='store_true')
     parser.add_argument('--format', help='output the format style', type=str)
     parser.add_argument('--comment', help='output with comment', action='store_true')
+    parser.add_argument('--mecab', help='force using the mecab dictionary directory', type=str)
+    parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')
 
     # get result
-    args = parser.parse_args(args=[])
+    args = parser.parse_args(args=[]) if is_debug_test else parser.parse_args()
 
     return (args)
 
