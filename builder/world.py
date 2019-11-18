@@ -42,6 +42,8 @@ class World(UtilityDict):
         self.time = UtilityDict()
         self.word = UtilityDict()
         self._mecabdict = mecabdict if isinstance(mecabdict, str) else("" if mecabdict <= 0 else (World.MECAB_NEWDICT1 if mecabdict ==1 else World.MECAB_NEWDICT2))
+        self._isConstractWords = False
+        self._words = {}
 
     @property
     def mecabdict(self): return self._mecabdict
@@ -49,7 +51,12 @@ class World(UtilityDict):
     @property
     def words(self):
         from .buildtool import Build
-        return Build.constractWords(self)
+        if self._isConstractWords:
+            return self._words
+        else:
+            self._isConstractWords = True
+            self._words = Build.constractWords(self)
+            return self._words
 
     # creations
     def chapter(self, *args, **kwargs):
@@ -205,7 +212,7 @@ class World(UtilityDict):
         '''To build this story world.
         '''
         from .buildtool import Build
-        bd = Build(val, self, self.mecabdict)
+        bd = Build(val, self.words, self.mecabdict)
         return 0 if bd.output_story() else 1
 
     # private

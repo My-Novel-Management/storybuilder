@@ -24,10 +24,10 @@ class Build(object):
     __EXTENSION__ = "md" # NOTE: currently markdown only
     __BUILD_DIR__ = "build"
 
-    def __init__(self, story: Story, world: World, opt_dic: str="",
+    def __init__(self, story: Story, world_dict: dict, opt_dic: str="",
             is_debug_test: bool=False):
         self._story = Build._validatedStory(story)
-        self._words = Build._wordsFrom(world)
+        self._words = assertion.is_dict(world_dict)
         self._filename = Build.__FILENAME__
         self._options = _options_parsed(is_debug_test)
         self._extension = Build.__EXTENSION__
