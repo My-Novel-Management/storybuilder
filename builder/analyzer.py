@@ -181,6 +181,9 @@ class Analyzer(object):
                 + ["\n## Dialogue each persons\n"] \
                 + each_charas
 
+    def containsWord(story: Story, target: str) -> bool:
+        return _containsWordIn(assertion.is_instance(story, Story), assertion.is_subclass(target))
+
     # privates (hook)
     def _descs_estimated_count(self, story: wd.Story, basement: int=DEF_BASEMENT):
         tmp = self.acttypesFrom(story)
@@ -218,6 +221,25 @@ def _acttypeCountsInAction(action: AllActions, act_type: ActType) -> int:
         return 0
     else:
         return action.act_type is act_type
+
+def _containsWordIn(story: Story, target: str) -> bool:
+    def _in_scene(scene: Scene, target: str):
+        return len([v for v in scene.actions if _containsWordInAction(v, target)]) > 0
+    def _in_episode(episode: Episode, target: str):
+        return len([v for v in episode.scenes if _in_scene(v, target)]) > 0
+    def _in_chapter(chapter: Chapter, target: str):
+        return len([v for v in chapter.episodes if _in_episode(v, target)]) > 0
+    return len([v for v in story.chapters if _in_chapter(v, target)]) > 0
+
+def _containsWordInAction(action: AllActions, target: str) -> bool:
+    if isinstance(action, CombAction):
+        return len([v for v in action.actions if _containsWordInAction(v, target)]) > 0
+    elif isinstance(action, TagAction):
+        return False
+    else:
+        return assertion.is_str(target) in action.subject.name \
+                or target in action.outline \
+                or target in strOfDescription(action)
 
 def _descriptionCountIn(story: Story) -> int:
     def _in_episode(episode: Episode):

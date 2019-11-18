@@ -5,6 +5,8 @@ import unittest
 from testutils import print_test_title, validated_testing_withfail
 from builder.analyzer import Analyzer, int_ceiled
 from builder.analyzer import _acttypeCountsInAction
+from builder.analyzer import _containsWordIn
+from builder.analyzer import _containsWordInAction
 from builder.analyzer import _descriptionCountInAction
 from builder.analyzer import _descriptionManupaperCountsInAction
 from builder.analyzer import _dialogueCountInAction
@@ -15,8 +17,12 @@ from builder.analyzer import _outlineManupaperCountsInAction
 from builder.analyzer import _personsInAction
 from builder.action import Action, ActType, TagAction, TagType
 from builder.person import Person
+from builder.chapter import Chapter
 from builder.combaction import CombAction
+from builder.episode import Episode
 from builder.flag import Flag
+from builder.scene import Scene
+from builder.story import Story
 
 
 _FILENAME = "analyzer.py"
@@ -49,6 +55,36 @@ class AnalyzerTest(unittest.TestCase):
         def _checkcode(v, atype, expect):
             self.assertEqual(_acttypeCountsInAction(v, atype), expect)
         validated_testing_withfail(self, "acttypeCountsInAction", _checkcode, data)
+
+    def test_containsWordIn(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test"))))),
+                    "test", True),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test"))))),
+                    "Hana", False),
+                ]
+        def _checkcode(v, t, expect):
+            self.assertEqual(_containsWordIn(v, t), expect)
+        validated_testing_withfail(self, "containsWordIn", _checkcode, data)
+
+    def test_containsWordInAction(self):
+        data = [
+                (False, Action(self.taro, "test"), "test", True),
+                (False, Action(self.taro, "test"), "te", True),
+                (False, Action(self.taro, "test"), "Taro", True),
+                (False, Action(self.taro, "test").d("apple"), "apple", True),
+                (False, Action(self.taro, "test").d("orange"), "俺", False),
+                (False, CombAction(Action(self.taro, "apple"), Action(self.taro, "orange")),
+                    "ple", True),
+                (False, TagAction("test"), "test", False),
+                ]
+        def _checkcode(v, t, expect):
+            self.assertEqual(_containsWordInAction(v, t), expect)
+        validated_testing_withfail(self, "containsWordInAction", _checkcode, data)
 
     def test_descriptionCountInAction(self):
         data = [
