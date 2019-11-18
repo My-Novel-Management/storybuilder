@@ -17,6 +17,7 @@ import test_combaction
 import test_day
 import test_description
 import test_episode
+import test_extractor
 import test_flag
 import test_formatter
 import test_it
@@ -48,6 +49,7 @@ def suite():
         unittest.makeSuite(test_basesubject.NoSubjectTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
+        unittest.makeSuite(test_extractor.ExtractorTest),
         unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_strutils.MethodsTest),
         unittest.makeSuite(test_utils.MethodsTest),
