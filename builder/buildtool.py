@@ -35,6 +35,10 @@ class Build(object):
         self._mecabdictdir = assertion.is_str(opt_dic)
         # TODO: build dir を指定（変更）できるように
 
+    @staticmethod
+    def constractWords(world: World): # pragma: no cover
+        return Build._wordsFrom(world)
+
     # methods
     def output_story(self): # pragma: no cover
         is_succeeded = True

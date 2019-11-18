@@ -44,6 +44,13 @@ class WorldTest(unittest.TestCase):
         self.assertIsInstance(tmp.time, UtilityDict)
         self.assertIsInstance(tmp.word, UtilityDict)
 
+    def test_words(self):
+        tmp = World()
+        tmp.append_person("taro", self.taro)
+        tmp1 = tmp.words
+        self.assertIsInstance(tmp1, dict)
+        self.assertTrue("n_taro" in tmp1)
+
     @unittest.skip("referenced chapter-test")
     def test_chapter(self):
         pass

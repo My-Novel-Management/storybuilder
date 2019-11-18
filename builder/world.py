@@ -46,6 +46,10 @@ class World(UtilityDict):
     @property
     def mecabdict(self): return self._mecabdict
 
+    @property
+    def words(self):
+        from .buildtool import Build
+        return Build.constractWords(self)
 
     # creations
     def chapter(self, *args, **kwargs):
