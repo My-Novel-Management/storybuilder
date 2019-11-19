@@ -181,7 +181,7 @@ class Analyzer(object):
                 + ["\n## Dialogue each persons\n"] \
                 + each_charas
 
-    def containsWord(story: Story, target: str) -> bool:
+    def containsWord(self, story: Story, target: str) -> bool:
         return _containsWordIn(assertion.is_instance(story, Story), assertion.is_subclass(target))
 
     # privates (hook)
