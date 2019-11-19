@@ -181,8 +181,11 @@ class Analyzer(object):
                 + ["\n## Dialogue each persons\n"] \
                 + each_charas
 
-    def containsWord(self, story: Story, target: str) -> bool:
-        return _containsWordIn(assertion.is_instance(story, Story), assertion.is_subclass(target))
+    def containsWord(self, story: Story, target: (str, list, tuple)) -> bool:
+        if isinstance(target, str):
+            return _containsWordIn(assertion.is_instance(story, Story), target)
+        else:
+            return not False in [_containsWordIn(story, v) for v in assertion.is_list(target)]
 
     # privates (hook)
     def _descs_estimated_count(self, story: wd.Story, basement: int=DEF_BASEMENT):

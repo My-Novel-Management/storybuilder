@@ -44,6 +44,28 @@ class AnalyzerTest(unittest.TestCase):
         self.assertIsInstance(tmp, Analyzer)
         self.assertIsInstance(tmp.tokenizer, Tagger)
 
+    ## methods
+    def test_containsWord(self):
+        az = Analyzer("")
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test"))))),
+                    "test", True),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test").d("apple"))))),
+                    ("test", "apple"), True),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test").d("apple"))))),
+                    ("test", "orrange"), False),
+                ]
+        def _checkcode(v, t, expect):
+            self.assertEqual(az.containsWord(v, t), expect)
+        validated_testing_withfail(self, "containsWord", _checkcode, data)
+
+    ## functions
     def test_acttypeCountsInAction(self):
         data = [
                 (False, Action(self.taro, act_type=ActType.ACT), ActType.ACT, 1,),
