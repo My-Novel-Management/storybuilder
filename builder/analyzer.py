@@ -109,6 +109,18 @@ class Analyzer(object):
                 ActType.LOOK, ActType.MOVE, ActType.TALK, ActType.THINK]
         return dict([(v, _acttypeCountsIn(story, v)) for v in acttypes])
 
+    def containsWord(self, story: Story, target: (str, list, tuple),
+            useAnd: bool=True) -> bool:
+        '''Check the word to contain a story.
+        '''
+        if isinstance(target, str):
+            return _containsWordIn(assertion.is_instance(story, Story), target)
+        else:
+            if useAnd:
+                return not False in [_containsWordIn(story, v) for v in assertion.is_list(target)]
+            else:
+                return True in [_containsWordIn(story, v) for v in assertion.is_list(target)]
+
     def flag_infos(self, story: Story):
         allflags = _flagsIn(story)
         flags = list(v for v in allflags if not v.isDeflag)
@@ -180,12 +192,6 @@ class Analyzer(object):
                 + dial_counts \
                 + ["\n## Dialogue each persons\n"] \
                 + each_charas
-
-    def containsWord(self, story: Story, target: (str, list, tuple)) -> bool:
-        if isinstance(target, str):
-            return _containsWordIn(assertion.is_instance(story, Story), target)
-        else:
-            return not False in [_containsWordIn(story, v) for v in assertion.is_list(target)]
 
     # privates (hook)
     def _descs_estimated_count(self, story: wd.Story, basement: int=DEF_BASEMENT):

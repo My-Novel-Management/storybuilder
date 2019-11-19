@@ -51,18 +51,22 @@ class AnalyzerTest(unittest.TestCase):
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro, "test"))))),
-                    "test", True),
+                    "test", True, True),
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro, "test").d("apple"))))),
-                    ("test", "apple"), True),
+                    ("test", "apple"), True, True),
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro, "test").d("apple"))))),
-                    ("test", "orrange"), False),
+                    ("test", "orrange"), True, False),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "test").d("apple"))))),
+                    ("test", "orrange"), False, True),
                 ]
-        def _checkcode(v, t, expect):
-            self.assertEqual(az.containsWord(v, t), expect)
+        def _checkcode(v, t, ctype, expect):
+            self.assertEqual(az.containsWord(v, t, ctype), expect)
         validated_testing_withfail(self, "containsWord", _checkcode, data)
 
     ## functions
