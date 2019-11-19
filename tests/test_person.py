@@ -15,6 +15,200 @@ class PersonTest(unittest.TestCase):
     def setUpClass(cls):
         print_test_title(_FILENAME, "Person class")
 
+    ## class methods
+    def test_Boy(self):
+        data = [
+                (False, "Taro", 10, "student", "me:ぼく",
+                    {"me":"ぼく","S":"Taro","M":"ぼく"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Boy(name, age, job, calling)
+            elif job:
+                return Person.Boy(name, age, job)
+            elif age:
+                return Person.Boy(name, age)
+            else:
+                return Person.Boy(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_CHILD__)
+            self.assertEqual(tmp.sex, Person.__MALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_CHILD__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "Boy", _checkcode, data)
+
+    def test_Girl(self):
+        data = [
+                (False, "Hana", 10, "student", "me:わたし",
+                    {"me":"わたし","S":"Hana","M":"わたし"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Girl(name, age, job, calling)
+            elif job:
+                return Person.Girl(name, age, job)
+            elif age:
+                return Person.Girl(name, age)
+            else:
+                return Person.Girl(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_CHILD__)
+            self.assertEqual(tmp.sex, Person.__FEMALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_CHILD__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "Girl", _checkcode, data)
+
+    def test_TeenBoy(self):
+        data = [
+                (False, "Taro", 10, "student", "me:ぼく",
+                    {"me":"ぼく","S":"Taro","M":"ぼく"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Boy(name, age, job, calling)
+            elif job:
+                return Person.Boy(name, age, job)
+            elif age:
+                return Person.Boy(name, age)
+            else:
+                return Person.Boy(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_TEEN__)
+            self.assertEqual(tmp.sex, Person.__MALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_TEEN__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "TeenBoy", _checkcode, data)
+
+    def test_TeenGirl(self):
+        data = [
+                (False, "Hana", 10, "student", "me:わたし",
+                    {"me":"わたし","S":"Hana","M":"わたし"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Girl(name, age, job, calling)
+            elif job:
+                return Person.Girl(name, age, job)
+            elif age:
+                return Person.Girl(name, age)
+            else:
+                return Person.Girl(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_TEEN__)
+            self.assertEqual(tmp.sex, Person.__FEMALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_TEEN__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "TeenGirl", _checkcode, data)
+
+    def test_Man(self):
+        data = [
+                (False, "Taro", 25, "会社員", "me:俺",
+                    {"me":"俺","S":"Taro","M":"俺"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Man(name, age, job, calling)
+            elif job:
+                return Person.Man(name, age, job)
+            elif age:
+                return Person.Man(name, age)
+            else:
+                return Person.Man(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE__)
+            self.assertEqual(tmp.sex, Person.__MALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "Man", _checkcode, data)
+
+    def test_Woman(self):
+        data = [
+                (False, "Hana", 25, "OL", "me:私",
+                    {"me":"私","S":"Hana","M":"私"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.Woman(name, age, job, calling)
+            elif job:
+                return Person.Woman(name, age, job)
+            elif age:
+                return Person.Woman(name, age)
+            else:
+                return Person.Woman(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE__)
+            self.assertEqual(tmp.sex, Person.__FEMALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "Woman", _checkcode, data)
+
+    def test_OldMan(self):
+        data = [
+                (False, "Taro", 65, "oldman", "me:わし",
+                    {"me":"わし","S":"Taro","M":"わし"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.OldMan(name, age, job, calling)
+            elif job:
+                return Person.OldMan(name, age, job)
+            elif age:
+                return Person.OldMan(name, age)
+            else:
+                return Person.OldMan(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_OLD__)
+            self.assertEqual(tmp.sex, Person.__MALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_OLD__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "OldMan", _checkcode, data)
+
+    def test_OldWoman(self):
+        data = [
+                (False, "Hana", 65, "花屋", "me:私",
+                    {"me":"私","S":"Hana","M":"私"}),
+                ]
+        def _creator(name, age, job, calling):
+            if calling:
+                return Person.OldWoman(name, age, job, calling)
+            elif job:
+                return Person.OldWoman(name, age, job)
+            elif age:
+                return Person.OldWoman(name, age)
+            else:
+                return Person.OldWoman(name)
+        def _checkcode(name, age, job, calling1, calling2):
+            tmp = _creator(name, age, job, calling1)
+            self.assertIsInstance(tmp, Person)
+            self.assertEqual(tmp.name, name)
+            self.assertEqual(tmp.age, age if age else Person.__AGE_OLD__)
+            self.assertEqual(tmp.sex, Person.__FEMALE__)
+            self.assertEqual(tmp.job, job if job else Person.__JOB_OLD__)
+            self.assertEqual(tmp.calling, calling2)
+        validated_testing_withfail(self, "OldWoman", _checkcode, data)
+
+    ## instance methods
     def test_attributes(self):
         data = [
                 (False, "太郎", "山田", "太郎", "山田,太郎", "山田・太郎",

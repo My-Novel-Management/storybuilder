@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Define person subject class.
 """
+from __future__ import annotations
 from . import assertion
 from .basesubject import BaseSubject
 from .strutils import divided_by_splitter, str_to_dict_by_splitter
@@ -9,6 +10,16 @@ from .strutils import divided_by_splitter, str_to_dict_by_splitter
 class Person(BaseSubject):
     """Data type of person subject.
     """
+    __MALE__ = "male"
+    __FEMALE__ = "female"
+    __AGE_CHILD__ = 10
+    __AGE_TEEN__ = 15
+    __AGE__ = 25
+    __AGE_OLD__ = 60
+    __JOB_CHILD__ = "小学生"
+    __JOB_TEEN__ = "学生"
+    __JOB__ = "会社員"
+    __JOB_OLD__ = "無職"
     __CALLING__ = "me:私"
     __NOTE__ = "nothing"
 
@@ -27,6 +38,39 @@ class Person(BaseSubject):
         # TODO: 髪色や髪型などはskinみたいなデータ型を作るか、itemを流用して
         #       後付できるようにする
         #       stageなどの設定と同じ
+
+    @staticmethod
+    def Boy(name: str, age: int=__AGE_CHILD__, job: str=__JOB_CHILD__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__MALE__, job, calling, "")
+
+    def Girl(name: str, age: int=__AGE_CHILD__, job: str=__JOB_CHILD__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__FEMALE__, job, calling, "")
+
+    def TeenBoy(name: str, age: int=__AGE_TEEN__, job: str=__JOB_TEEN__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__MALE__, job, calling, "")
+
+    def TeenGirl(name: str, age: int=__AGE_TEEN__, job: str=__JOB_TEEN__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__FEMALE__, job, calling, "")
+
+    def Man(name: str, age: int=__AGE__, job: str=__JOB__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__MALE__, job, calling, "")
+
+    def Woman(name: str, age: int=__AGE__, job: str=__JOB__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__FEMALE__, job, calling, "")
+
+    def OldMan(name: str, age: int=__AGE_OLD__, job: str=__JOB_OLD__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__MALE__, job, calling, "")
+
+    def OldWoman(name: str, age: int=__AGE_OLD__, job: str=__JOB_OLD__,
+            calling: (str, dict)=__CALLING__) -> __class__:
+        return Person(name, "", age, Person.__FEMALE__, job, calling, "")
 
     @property
     def firstname(self): return self._firstname
