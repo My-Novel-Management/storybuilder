@@ -64,6 +64,11 @@ class AnalyzerTest(unittest.TestCase):
                     Scene("s1","",
                         Action(self.taro, "test").d("apple"))))),
                     ("test", "orrange"), False, True),
+                (False, Scene("s1","", Action(self.taro, "test")),
+                    "test", True, True),
+                (False, Scene("s1","", Action(self.taro, "test is an apple")),
+                    ("test", "apple"), True, True),
+                (True, Action(self.taro), "test", False, False),
                 ]
         def _checkcode(v, t, ctype, expect):
             self.assertEqual(az.containsWord(v, t, ctype), expect)

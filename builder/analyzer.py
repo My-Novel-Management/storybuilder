@@ -26,6 +26,7 @@ AllActions = (Action, CombAction, TagAction)
 BaseActions = (Action, TagAction)
 TargetPerson = (Person, Chara, NoSubject)
 AllFlags = (Flag, NoFlag, NoDeflag)
+StoryContainers = (Story, Chapter, Episode, Scene)
 
 
 class Analyzer(object):
@@ -109,17 +110,28 @@ class Analyzer(object):
                 ActType.LOOK, ActType.MOVE, ActType.TALK, ActType.THINK]
         return dict([(v, _acttypeCountsIn(story, v)) for v in acttypes])
 
-    def containsWord(self, story: Story, target: (str, list, tuple),
+    def containsWord(self, src: StoryContainers, target: (str, list, tuple),
             useAnd: bool=True) -> bool:
-        '''Check the word to contain a story.
+        '''Check the word to contain the source.
         '''
+        def _check(src: StoryContainers, target: str):
+            if isinstance(src, Story):
+                return _containsWordIn(src, target)
+            elif isinstance(src, Chapter):
+                return _containsWordInChapter(src, target)
+            elif isinstance(src, Episode):
+                return _containsWordInEpisode(src, target)
+            elif isinstance(src, Scene):
+                return _containsWordInScene(src, target)
+            else:
+                raise AssertionError("Unexpect value: ", src)
         if isinstance(target, str):
-            return _containsWordIn(assertion.is_instance(story, Story), target)
+            return _check(src, target)
         else:
             if useAnd:
-                return not False in [_containsWordIn(story, v) for v in assertion.is_list(target)]
+                return not False in [_check(src, v) for v in assertion.is_list(target)]
             else:
-                return True in [_containsWordIn(story, v) for v in assertion.is_list(target)]
+                return True in [_check(src, v) for v in assertion.is_list(target)]
 
     def flag_infos(self, story: Story):
         allflags = _flagsIn(story)
@@ -232,13 +244,16 @@ def _acttypeCountsInAction(action: AllActions, act_type: ActType) -> int:
         return action.act_type is act_type
 
 def _containsWordIn(story: Story, target: str) -> bool:
-    def _in_scene(scene: Scene, target: str):
-        return len([v for v in scene.actions if _containsWordInAction(v, target)]) > 0
-    def _in_episode(episode: Episode, target: str):
-        return len([v for v in episode.scenes if _in_scene(v, target)]) > 0
-    def _in_chapter(chapter: Chapter, target: str):
-        return len([v for v in chapter.episodes if _in_episode(v, target)]) > 0
-    return len([v for v in story.chapters if _in_chapter(v, target)]) > 0
+    return len([v for v in story.chapters if _containsWordInChapter(v, target)]) > 0
+
+def _containsWordInChapter(chapter: Chapter, target: str) -> bool:
+    return len([v for v in chapter.episodes if _containsWordInEpisode(v, target)]) > 0
+
+def _containsWordInEpisode(episode: Episode, target: str) -> bool:
+    return len([v for v in episode.scenes if _containsWordInScene(v, target)]) > 0
+
+def _containsWordInScene(scene: Scene, target: str) -> bool:
+    return len([v for v in scene.actions if _containsWordInAction(v, target)]) > 0
 
 def _containsWordInAction(action: AllActions, target: str) -> bool:
     if isinstance(action, CombAction):
