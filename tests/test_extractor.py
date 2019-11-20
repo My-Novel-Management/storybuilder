@@ -38,6 +38,8 @@ class ExtractorTest(unittest.TestCase):
         ch2 = Chapter("orange")
         data = [
                 (False, Story("test", ch1, ch2), [ch1, ch2]),
+                (False, ch1, [ch1,]),
+                (False, Episode("e1",""), []),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).chapters
@@ -55,6 +57,9 @@ class ExtractorTest(unittest.TestCase):
                     [ep1, ep2]),
                 (True, Story("test", Chapter("1", ep1, ep2)),
                     [ep2, ep1]),
+                (False, Chapter("1", ep1),
+                    [ep1]),
+                (False, ep1, [ep1]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).episodes
@@ -68,6 +73,11 @@ class ExtractorTest(unittest.TestCase):
         data = [
                 (False, Story("test", Chapter("1", Episode("e1", "", sc1, sc2))),
                     [sc1, sc2]),
+                (False, Chapter("1", Episode("e1","", sc1)),
+                    [sc1]),
+                (False, Episode("e1","", sc1),
+                    [sc1]),
+                (False, sc1, [sc1]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).scenes
@@ -88,6 +98,12 @@ class ExtractorTest(unittest.TestCase):
                     Chapter("1", Episode("e1","",
                         Scene("s1","", cmbact1)))),
                     [act1, act2]),
+                (False, Chapter("1", Episode("e1","",
+                    Scene("s1","", act1))),
+                    [act1]),
+                (False, Episode("e1","", Scene("s1","", act1)),
+                    [act1]),
+                (False, Scene("s1","", act1), [act1]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).actions
@@ -103,6 +119,8 @@ class ExtractorTest(unittest.TestCase):
                 (False, Story("test",
                     Chapter("1", Episode("e1","",
                         Scene("s1","", act1, act2)))),
+                    [self.taro, self.hana]),
+                (False, Scene("s1","", act1,act2),
                     [self.taro, self.hana]),
                 ]
         def _checkcode(v, expect):
@@ -124,6 +142,8 @@ class ExtractorTest(unittest.TestCase):
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","", stage=st1), Scene("s2", "",)))),
                     [st1,]),
+                (False, Scene("s1","", stage=st1),
+                    [st1,]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).stages
@@ -143,6 +163,8 @@ class ExtractorTest(unittest.TestCase):
                     [day1, day2]),
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","",day=day1), Scene("s2","",)))),
+                    [day1,]),
+                (False, Scene("s1","", day=day1),
                     [day1,]),
                 ]
         def _checkcode(v, expect):
@@ -164,6 +186,7 @@ class ExtractorTest(unittest.TestCase):
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","",time=time1), Scene("s2","")))),
                     [time1,]),
+                (False, Scene("s","", time=time1), [time1,]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).times

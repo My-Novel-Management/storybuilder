@@ -18,35 +18,52 @@ from .story import Story
 AllActions = (Action, CombAction, TagAction)
 BaseActions = (Action, TagAction)
 Someone = (Person, NoSubject)
-
+StoryContainers = (Story, Chapter, Episode, Scene)
 
 class Extractor(object):
     """Extractor class.
     """
-    def __init__(self, story: Story):
-        self._story = assertion.is_instance(story, Story)
+    def __init__(self, src: StoryContainers):
+        self._src = assertion.is_instance(src, StoryContainers)
 
     @property
-    def story(self) -> Story:
-        return self._story
+    def src(self) -> StoryContainers:
+        return self._src
+
+    @property
+    def story(self) -> (Story, None):
+        return self._src if isinstance(self._src, Story) else None
 
     @property
     def chapters(self) -> list:
-        return [v for v in self.story.chapters if isinstance(v, Chapter)]
+        if self.story:
+            return [v for v in self.story.chapters if isinstance(v, Chapter)]
+        elif isinstance(self.src, Chapter):
+            return [self.src]
+        else:
+            return []
 
     @property
     def episodes(self) -> list:
         def _episodes(chapter: Chapter):
             return [v for v in chapter.episodes if isinstance(v, Episode)]
-        return list(chain.from_iterable(
-            _episodes(v) for v in self.chapters))
+        if self.chapters:
+            return list(chain.from_iterable(_episodes(v) for v in self.chapters))
+        elif isinstance(self.src, Episode):
+            return [self.src]
+        else:
+            return []
 
     @property
     def scenes(self) -> list:
         def _scenes(episode: Episode):
             return [v for v in episode.scenes if isinstance(v, Scene)]
-        return list(chain.from_iterable(
-            _scenes(v) for v in self.episodes))
+        if self.episodes:
+            return list(chain.from_iterable(_scenes(v) for v in self.episodes))
+        elif isinstance(self.src, Scene):
+            return [self.src]
+        else:
+            return []
 
     @property
     def actions(self) -> list:
@@ -57,8 +74,7 @@ class Extractor(object):
                 return [action]
         def _actions(scene: Scene):
             return chain.from_iterable(_extract_acts(v) for v in scene.actions if isinstance(v, AllActions))
-        return list(chain.from_iterable(
-            _actions(v) for v in self.scenes))
+        return list(chain.from_iterable(_actions(v) for v in self.scenes))
 
     @property
     def persons(self) -> list:
