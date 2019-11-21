@@ -8,7 +8,9 @@ from .basesubject import NoSubject
 from .basedata import NoData
 from .chapter import Chapter
 from .combaction import CombAction
+from .description import Description, NoDesc
 from .episode import Episode
+from .flag import Flag, NoDeflag, NoFlag
 from .person import Person
 from .scene import Scene
 from .story import Story
@@ -19,6 +21,7 @@ AllActions = (Action, CombAction, TagAction)
 BaseActions = (Action, TagAction)
 Someone = (Person, NoSubject)
 StoryContainers = (Story, Chapter, Episode, Scene)
+
 
 class Extractor(object):
     """Extractor class.
@@ -77,6 +80,20 @@ class Extractor(object):
         return list(chain.from_iterable(_actions(v) for v in self.scenes))
 
     @property
+    def outlines(self) -> list:
+        if self.actions:
+            return [v.outline for v in self.actions if v.outline]
+        else:
+            return []
+
+    @property
+    def descriptions(self) -> list:
+        if self.actions:
+            return [v.description for v in self.actions if not isinstance(v.description, NoDesc)]
+        else:
+            return []
+
+    @property
     def persons(self) -> list:
         return list(set(v.subject for v in self.actions if hasattr(v, "subject")))
 
@@ -91,3 +108,11 @@ class Extractor(object):
     @property
     def times(self) -> list:
         return list(set(v.time for v in self.scenes if not isinstance(v.time, NoData)))
+
+    @property
+    def flags(self) -> list:
+        if self.actions:
+            return [v.getFlag() for v in self.actions if not isinstance(v.getFlag(), NoFlag)] \
+                    + [v.getDeflag() for v in self.actions if not isinstance(v.getDeflag(), NoDeflag)]
+        else:
+            return []

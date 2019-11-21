@@ -7,8 +7,10 @@ from builder.action import Action
 from builder.chapter import Chapter
 from builder.combaction import CombAction
 from builder.day import Day
+from builder.description import Description, DescType, NoDesc
 from builder.episode import Episode
 from builder.extractor import Extractor
+from builder.flag import Flag, NoDeflag, NoFlag
 from builder.person import Person
 from builder.scene import Scene
 from builder.stage import Stage
@@ -108,9 +110,45 @@ class ExtractorTest(unittest.TestCase):
         def _checkcode(v, expect):
             tmp = Extractor(v).actions
             self.assertIsInstance(tmp, list)
-            print(tmp, expect)
             self.assertEqual(tmp, expect)
         validated_testing_withfail(self, "actions", _checkcode, data)
+
+    def test_outlines(self):
+        act1 = Action(self.taro, "apple")
+        act2 = Action(self.hana, "orange")
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","", act1, act2)))),
+                    ["apple", "orange"]),
+                (False, Scene("s1","", act1, Action("melon")),
+                    ["apple", "melon"]),
+                (False, Scene("s1",""),
+                    []),
+                (False, Scene("s1","", Action(self.hana)),
+                    []),
+                ]
+        def _checkcode(v, expect):
+            tmp = Extractor(v).outlines
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "outlines", _checkcode, data)
+
+    def test_descriptions(self):
+        act1 = Action(self.taro, "apple")
+        act2 = Action(self.hana, "orange")
+        d1 = Description("an apple",)
+        d2 = Description("a orange",)
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","", act1._setDescription(d1, desc_type=DescType.DESC),
+                        act2._setDescription(d2, desc_type=DescType.DESC))))),
+                    [d1, d2]),
+                ]
+        def _checkcode(v, expect):
+            tmp = Extractor(v).descriptions
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "descriptions", _checkcode, data)
 
     def test_persons(self):
         act1 = Action(self.taro, "apple")
@@ -193,3 +231,24 @@ class ExtractorTest(unittest.TestCase):
             self.assertIsInstance(tmp, list)
             self.assertEqual(set(tmp), set(expect))
         validated_testing_withfail(self, "times", _checkcode, data)
+
+    def test_flags(self):
+        f1 = Flag("apple")
+        f2 = Flag("orange")
+        df1 = Flag("melon")
+        data = [
+                (False, Story("test", Chapter("1", Episode("e1","",
+                    Scene("s1","", Action(self.taro).flag(f1))))),
+                    [f1,]),
+                (False, Scene("s1","",
+                    Action(self.taro).flag(f1).deflag(df1)),
+                    [f1, df1]),
+                (False, Scene("s1","",
+                    Action(self.taro).deflag(df1), Action(self.hana).flag(f1)),
+                    [f1, df1]),
+                ]
+        def _checkcode(v, expect):
+            tmp = Extractor(v).flags
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "flags", _checkcode, data)
