@@ -268,7 +268,7 @@ class Build(object):
         return is_succeeded
 
     def _out_to_file(data: list, filename: str, suffix: str, extention: str,
-            builddir: str): # pragma: no coveer
+            builddir: str): # pragma: no cover
         is_succeeded = True
         if not os.path.isdir(builddir):
             os.makedirs(builddir)

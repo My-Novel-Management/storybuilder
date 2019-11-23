@@ -23,7 +23,7 @@ BaseActions = [Action, TagAction]
 Someone = [Person, NoSubject]
 
 
-class Parser(object): # pragma: no coveer
+class Parser(object): # pragma: no cover
     """Parser class.
     """
     def __init__(self, story: Story, words: dict, priority: int):
@@ -176,7 +176,7 @@ def _layerReplacedInScene(scene: Scene):
             tmp.append(_sel_layer(v, cur))
     return scene.inherited(*tmp)
 
-def _outlinesFrom(story: Story) -> list: # pragma: no coveer
+def _outlinesFrom(story: Story) -> list: # pragma: no cover
     # TODO: action についても何かしらまとめる
     def _in_scene(scene: Scene):
         return [(f"- {scene.title}", f"{scene.outline}")]
