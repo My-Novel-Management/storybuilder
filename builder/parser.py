@@ -161,7 +161,7 @@ def _layerReplacedInScene(scene: Scene):
         c_tmp = []
         for a in act.actions:
             if isinstance(a, TagAction) and a.tag_type is TagType.SET_LAYER:
-                cur = a.info
+                cur = Action.MAIN_LAYER if a.info == Action.DEF_LAYER else a.info
             else:
                 c_tmp.append(_sel_layer(a, cur))
         return act.inherited(*c_tmp), cur
@@ -171,7 +171,7 @@ def _layerReplacedInScene(scene: Scene):
             c_tmp, cur = _in_combaction(v, cur)
             tmp.append(c_tmp)
         elif isinstance(v, TagAction) and v.tag_type is TagType.SET_LAYER:
-            cur = v.info
+            cur = Action.MAIN_LAYER if v.info == Action.DEF_LAYER else v.info
         else:
             tmp.append(_sel_layer(v, cur))
     return scene.inherited(*tmp)
