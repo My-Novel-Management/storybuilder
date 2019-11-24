@@ -14,6 +14,7 @@ import test_buildtool
 import test_chapter
 import test_chara
 import test_combaction
+import test_converter
 import test_day
 import test_description
 import test_episode
@@ -49,6 +50,7 @@ def suite():
         unittest.makeSuite(test_basesubject.NoSubjectTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
+        unittest.makeSuite(test_converter.ConverterTest),
         unittest.makeSuite(test_extractor.ExtractorTest),
         unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_strutils.MethodsTest),
