@@ -11,6 +11,7 @@ from .story import Story
 from .parser import Parser
 from .strutils import dict_sorted
 from .analyzer import Analyzer
+from .converter import Converter
 from .formatter import Formatter
 from .chara import Chara
 from .person import Person
@@ -49,8 +50,8 @@ class Build(object):
         is_debug = options.debug # NOTE: 現在デバッグモードはコンソール出力のみ
         is_comment = options.comment # NOTE: コメント付き出力
 
-        parser = Parser(self._story, self._words, pri_filter)
-        story_converted = parser.story
+        story_converted = Converter(self._story).toConverFullSrc(pri_filter, self._words)
+        parser = Parser(story_converted)
         _mecabdir = self._mecabdictdir
         if options.forcemecab:
             _mecabdir = ""
@@ -127,7 +128,7 @@ class Build(object):
             is_debug: bool): # pragma: no cover
         is_succeeded = True
         # NOTE: 解析結果
-        freq = analyzer.frequency_words(parser.story)
+        freq = analyzer.frequency_words(parser.src)
         res = freq
         if is_debug:
             is_succeeded = Build._out_to_console(res)
@@ -139,7 +140,13 @@ class Build(object):
     def to_description(self, parser: Parser, filename: str, formattype: str,
             is_comment: bool, is_debug: bool): # pragma: no cover
         is_succeeded = True
-        res = Formatter().asDescription(parser.description(is_comment), formattype)
+        res = Formatter().toDescriptions(parser.toDescriptions(is_comment))
+        if formattype in ("estar",):
+            res = Formatter().toDescriptionsAsEstar(res)
+        elif formattype in ("smart", "phone"):
+            res = Formatter().toDescriptionsAsSmartphone(res)
+        elif formattype in ("web",):
+            res = Formatter().toDescriptionsAsWeb(res)
         if is_debug:
             is_succeeded = Build._out_to_console(res)
         else:
@@ -154,10 +161,11 @@ class Build(object):
         # TODO: 文字数に続いて各シーンの簡易情報
         # TODO: 各分析情報
         # TODO: flag情報
-        charcounts = analyzer.characters_count(parser.story)
-        scenes_characters = analyzer.characters_count_each_scenes(parser.story)
-        act_percents = analyzer.action_percent(parser.story)
-        flaginfo = analyzer.flag_infos(parser.story)
+        # TODO: Formatterを使うようにする
+        charcounts = analyzer.characters_count(parser.src)
+        scenes_characters = analyzer.characters_count_each_scenes(parser.src)
+        act_percents = analyzer.action_percent(parser.src)
+        flaginfo = analyzer.flag_infos(parser.src)
         scene_num = ["## Scene info",
                 "- chapters: {}".format(len([v for v in scenes_characters if 'CH-' in v])),
                 "- episodes: {}".format(len([v for v in scenes_characters if 'Ep-' in v])),
@@ -179,7 +187,7 @@ class Build(object):
             is_debug: bool): # pragma: no cover
         is_succeeded = True
         # NOTE: dialogue count and list
-        info = analyzer.dialogue_infos(parser.story)
+        info = analyzer.dialogue_infos(parser.src)
         res = info
         if is_debug:
             is_succeeded = Build._out_to_console(res)
@@ -190,9 +198,8 @@ class Build(object):
 
     def to_layer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
         is_succeeded = True
-        tmp = parser.layer()
-        res = Formatter().asLayer(tmp, False)
-        res_outline = Formatter().asLayer(tmp, True)
+        res = Formatter().toDescriptionsAsLayer(parser.toDescriptionsAsLayer())
+        res_outline = Formatter().toOutlinesAsLayer(parser.toOutlinesAsLayer())
         if is_debug:
             is_succeeded = Build._out_to_console(res)
             print("---- outline ----")
@@ -206,7 +213,7 @@ class Build(object):
 
     def to_outline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
         is_succeeded = True
-        res = Formatter().asOutline(parser.outline())
+        res = Formatter().toOutlines(parser.toOutlines())
         if is_debug:
             is_succeeded = Build._out_to_console(res)
         else:
@@ -217,7 +224,7 @@ class Build(object):
     def to_scenario(self, parser: Parser, filename: str, is_comment: bool,
             is_debug: bool): # pragma: no cover
         is_succeeded = True
-        res = Formatter().asScenario(parser.scenario(is_comment))
+        res = Formatter().toScenarios(parser.toScenarios())
         if is_debug:
             is_succeeded = Build._out_to_console(res)
         else:
@@ -227,7 +234,7 @@ class Build(object):
 
     def to_total_info(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
         is_succeeded = True
-        charcounts = analyzer.characters_count(parser.story)
+        charcounts = analyzer.characters_count(parser.src)
         is_succeeded = Build._out_to_console(charcounts)
         return is_succeeded
 

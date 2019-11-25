@@ -4,16 +4,16 @@
 import unittest
 from testutils import print_test_title, validated_testing_withfail
 from builder.parser import Parser
-from builder.parser import _actionLayersFromAction
-from builder.parser import _descriptionConnectedFromAction
-from builder.parser import _descriptionsFromAction
-from builder.parser import _scenariosFromAction
-from builder.parser import _storyFilteredInAction
-from builder.parser import _tagActionConverted
-from builder.parser import _tagReplacedInDocument
 from builder.action import Action, ActType, TagAction, TagType
+from builder.chapter import Chapter
 from builder.combaction import CombAction
+from builder.day import Day
+from builder.episode import Episode
 from builder.person import Person
+from builder.scene import Scene, ScenarioType
+from builder.stage import Stage
+from builder.story import Story
+from builder.time import Time
 
 
 _FILENAME = "parser.py"
@@ -27,125 +27,105 @@ class ParserTest(unittest.TestCase):
 
     def setUp(self):
         self.taro = Person("Taro", "", 17, "male", "student", "me:俺")
-        self.hana = Person("Hana", "", 15, "female", "girl", "me:私")
+        self.hana = Person("Hana", "", 15, "female", "flowerlist")
 
-    def test_actionLayersFromAction(self):
-        act1 = Action(self.taro, layer="test")
-        act2 = Action(self.hana, layer="test")
+    def test_toDescriptions(self):
         data = [
-                (False, act1, "A",
-                    [("test", "A", act1),],),
-                (False, CombAction(act1, act2), "B",
-                    [("test", "B", act1), ("test", "B", act2)],),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","", Action(self.taro, "I'm").d("wanna eat"))))),
+                    False,
+                    ["# test",
+                        "## c1", "### e1",
+                        "**s1**", "　wanna eat。"]),
                 ]
-        def _checkcode(v, h,expect):
-            self.assertEqual(_actionLayersFromAction(v, h), expect)
-        validated_testing_withfail(self, "actionLayersFromAction", _checkcode, data)
+        def _checkcode(v, isCmt, expect):
+            tmp = Parser(v).toDescriptions(isCmt)
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toDescriptions", _checkcode, data)
 
-    def test_descriptionConnectedFromAction(self):
+    def test_toDescriptionsAsLayer(self):
         data = [
-                (False, Action(self.taro).d("test", "apple"),
-                    ("test。apple",),),
-                (False, Action(self.taro).d("test"),
-                    ("test",),),
-                (False, CombAction(Action(self.taro).d("test"), Action(self.taro).d("apple")),
-                    [("test",), ("apple",)],),
+                (False, Story("test", Chapter("c1", Episode("e1", "",
+                    Scene("s1","", Action(self.taro, layer="t1").d("apple"),
+                        Action(self.hana, layer="t2").d("orange"))))),
+                    [("__TITLE__", "# test"),
+                        ("c1-e1-s1:t1", "　apple。"),
+                        ("c1-e1-s1:t2", "　orange。")]),
                 ]
         def _checkcode(v, expect):
-            if isinstance(v, TagAction):
-                self.assertEqual(_descriptionConnectedFromAction(v), v)
-            elif isinstance(v, CombAction):
-                tmp = _descriptionConnectedFromAction(v)
-                self.assertEqual(list(v.description.descs for v in tmp.actions), expect)
-            else:
-                self.assertEqual(_descriptionConnectedFromAction(v).description.descs,
-                        expect)
-        validated_testing_withfail(self, "descriptionConnectedFromAction", _checkcode, data)
+            tmp = Parser(v).toDescriptionsAsLayer()
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toDescriptionsAsLayer", _checkcode, data)
 
-    def test_descriptionsFromAction(self):
+    def test_toOutlines(self):
         data = [
-                (False, Action(self.taro).d("test"),
-                    True, ["　test。"],),
-                (False, Action(self.taro).t("test"),
-                    True, ["「test」"],),
-                (False, CombAction(Action(self.taro).d("test"), Action(self.taro).d("apple"),
-                    ),
-                    True, ["　test。apple。"],),
+                (False, Story("test", Chapter("c1", Episode("e1", "a episode",
+                    Scene("s1", "a scene", Action(self.taro, "eat an apple"))))),
+                    ["# test",
+                        "## c1", "### e1", "a episode",
+                        "**s1**", "a scene"]),
                 ]
-        def _checkcode(v, is_cmt, expect):
-            self.assertEqual(_descriptionsFromAction(v, is_cmt), expect)
-        validated_testing_withfail(self, "descriptionsFromAction", _checkcode, data)
+        def _checkcode(v, expect):
+            tmp = Parser(v).toOutlines()
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toOutlines", _checkcode, data)
 
-    @unittest.skip("complex function")
-    def test_layerReplacedFrom(self):
-        pass
-
-    @unittest.skip("currently no need")
-    def test_outlinesFrom(self):
-        pass
-
-    @unittest.skip("complex function")
-    def test_pronounReplacedInScene(self):
-        pass
-
-    def test_scenariosFromAction(self):
-        from builder.scene import ScenarioType
+    def test_toOutlinesAsLayer(self):
         data = [
-                (False, Action(self.taro, "test"), False,
-                    [(ScenarioType.DIRECTION, "test。")],),
-                (False, Action(self.taro, "test", act_type=ActType.TALK), False,
-                    [(ScenarioType.DIALOGUE, "Taro「test」")],),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","", Action(self.taro, "apple", layer="t1"),
+                        Action(self.taro, "orange", layer="t2"))))),
+                    [("__TITLE__", "# test"),
+                        ("c1-e1-s1:t1", "apple"),
+                        ("c1-e1-s1:t2", "orange"),]),
                 ]
-        def _checkcode(v, is_cmt, expect):
-            self.assertEqual(_scenariosFromAction(v, is_cmt), expect)
-        validated_testing_withfail(self, "scenariosFromAction", _checkcode, data)
+        def _checkcode(v, expect):
+            tmp = Parser(v).toOutlinesAsLayer()
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toOutlinesAsLayer", _checkcode, data)
 
-    def test_storyFilteredInAction(self):
-        act1 = Action(self.taro)
-        act2 = Action(self.hana)
-        combact = CombAction(act1, act2)
+    def test_toScenarios(self):
+        time1 = Time("朝", 8,00)
+        day1 = Day("ある日", 4,10,2019)
+        stage1 = Stage("教室",)
         data = [
-                (False, act1, 1, Action, act1,),
-                (False, act1, 9, None, None,),
-                (False, combact, 1, CombAction,combact,),
+                (False, Story("test", Chapter("c1", Episode("e1", "",
+                    Scene("s1","", Action(self.taro, "apple"),
+                        Action(self.hana, "orange", act_type=ActType.TALK),
+                        camera=self.taro, stage=stage1, day=day1, time=time1)))),
+                    [(ScenarioType.TITLE, "# test"),
+                        (ScenarioType.TITLE, "## c1"),
+                        (ScenarioType.TITLE, "### e1"),
+                        (ScenarioType.TITLE, "**s1**"),
+                        (ScenarioType.PILLAR, "教室:ある日:朝"),
+                        (ScenarioType.DIRECTION, "apple"),
+                        (ScenarioType.DIALOGUE, "Hana:orange")]),
                 ]
-        def _checkcode(v, pri, cls, expect):
-            tmp = _storyFilteredInAction(v, pri)
-            if cls:
-                self.assertIsInstance(tmp, cls)
-            if isinstance(tmp, CombAction):
-                self.assertEqual(len(tmp.actions), len(expect.actions))
-            elif tmp:
-                self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "storyFilteredInAction", _checkcode, data)
+        def _checkcode(v, expect):
+            tmp = Parser(v).toScenarios()
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toScenarios", _checkcode, data)
 
-    def test_tagActionConverted(self):
+    def test_toScenariosAsLayer(self):
+        time1 = Time("朝", 8,00)
+        day1 = Day("ある日", 4,10,2019)
+        stage1 = Stage("教室",)
         data = [
-                (False, TagAction("test", tag_type=TagType.COMMENT), True,
-                    "<!--test-->",),
-                (False, TagAction("test", tag_type=TagType.COMMENT), False,
-                    "",),
-                (False, TagAction("test", tag_type=TagType.BR), True,
-                    "\n\n",),
-                (False, TagAction("test", tag_type=TagType.HR), True,
-                    "----"*8,),
-                (False, TagAction("test", tag_type=TagType.SYMBOL), True,
-                    "\ntest\n",),
-                (False, TagAction("test", "1", tag_type=TagType.TITLE), True,
-                    "# test",),
+                (False, Story("test", Chapter("c1", Episode("e1", "",
+                    Scene("s1","", Action(self.taro, "apple", layer="t1"),
+                        Action(self.hana, "orange", act_type=ActType.TALK, layer="t2"),
+                        camera=self.taro, stage=stage1, day=day1, time=time1)))),
+                    [("__TITLE__", "", ScenarioType.TITLE, "# test"),
+                        ("c1-e1-s1:t1", "教室:ある日:朝", ScenarioType.DIRECTION, "apple"),
+                        ("c1-e1-s1:t2", "教室:ある日:朝", ScenarioType.DIALOGUE, "Hana:orange")]),
                 ]
-        def _checkcode(v, is_cmt, expect):
-            self.assertEqual(_tagActionConverted(v, is_cmt), expect)
-        validated_testing_withfail(self, "tagActionConverted", _checkcode, data)
-
-    def test_tagReplacedInDocument(self):
-        base_words = {"T":"test"}
-        data = [
-                (False, self.taro, "$meは$Sだ", base_words, "A",
-                    "俺はTaroだ",),
-                (True, self.taro, "$meは$Sだ$", base_words, "A",
-                    "俺はTaroだ",),
-                ]
-        def _checkcode(subject, t, words, msg, expect):
-            self.assertEqual(_tagReplacedInDocument(subject, t, words, msg), expect)
-        validated_testing_withfail(self, "tagReplacedInDocument", _checkcode, data)
+        def _checkcode(v, expect):
+            tmp = Parser(v).toScenariosAsLayer()
+            self.assertIsInstance(tmp, list)
+            self.assertEqual(tmp, expect)
+        validated_testing_withfail(self, "toScenariosAsLayer", _checkcode, data)

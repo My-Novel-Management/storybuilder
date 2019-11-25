@@ -2,6 +2,8 @@
 """For format class.
 """
 from . import assertion
+from .scene import ScenarioType
+from .strutils import str_duplicated_chopped
 
 
 class Formatter(object):
@@ -9,89 +11,170 @@ class Formatter(object):
     """
 
     # methods
-    def asDescription(self, data: list, format_type: str) -> list:
-        if format_type in ("estar",):
-            return _descriptionsAsEstar(data)
-        elif format_type in ("smartphone", "phone", "smart"):
-            return _descriptionsAsSmartphone(data)
-        elif format_type in ("web",):
-            return _descriptionsAsWebnovel(data)
-        else:
-            return data
+    def toDescriptions(self, data: list) -> list:
+        def _conv(v):
+            if "###" in v: return f"\n{v}\n"
+            elif "##" in v: return f"\n{v}\n"
+            elif "#" in v: return f"{v}\n"
+            elif "**" in v: return f"\n{v}\n"
+            else: return v
+        return [_conv(v) for v in data]
 
-    def asLayer(self, data: list, is_outline: bool) -> list:
-        from .action import Action, TagAction, ActType
-        from .description import DescType
+    def toDescriptionsAsEstar(self, data: list) -> list:
         tmp = []
-        datahead = assertion.is_list(data)[0]
-        layers = sorted(list(set([v[0] for v in data[1:]])))
-        def _conv_talk(act: Action, base: str):
-            return f"_「{base}」_" if act.act_type is ActType.TALK or act.description.desc_type is DescType.DIALOGUE else base
-        def _conv(act: [Action, TagAction], is_outline: bool):
-            # TODO: tag
-            if isinstance(act, TagAction):
-                return ""
+        indialogue = False
+        for v in assertion.is_list(data):
+            if "#" in v or "**" in v:
+                tmp.append(v)
             else:
-                if is_outline:
-                    return _conv_talk(act, act.outline)
-                else:
-                    return _conv_talk(act, "".join(act.description.descs)) if act.description.descs else ""
-        def _convert(data: tuple, layer: str, is_outline: bool):
-            if layer == data[0]:
-                tmp1 = _conv(v[2], is_outline)
-                return f"{data[1]}: {tmp1}" if tmp1 else ""
-            else:
-                return ""
-        for l in layers:
-            tmp.append("--------" * 9 + f"\n## {l}\n")
+                cur = v.startswith(('「', '『'))
+                pre = "" if indialogue == cur else "\n"
+                tmp.append(pre + v + "\n")
+                indialogue = cur
+        return tmp
+
+    def toDescriptionsAsLayer(self, data: list) -> list:
+        tmp = []
+        title = data[0][1] if "__TITLE__" == assertion.is_list(data)[0][0] else "no title"
+        layers = []
+        for v in data[1:]:
+            head, lname = v[0].split(":")
+            layers.append(lname)
+        layers_sorted = sorted(list(set(layers)))
+        tmp.append(f"{title}\n")
+        for k in layers_sorted:
+            tmp.append("--------"*8)
+            tmp.append(f"## {k}\n")
             for v in data[1:]:
-                tmp.append(_convert(v, l, is_outline))
-        return [datahead] + [v for v in tmp if v]
-
-    def asOutline(self, data: list) -> list:
-        tmp = []
-        for v in assertion.is_list(data):
-            assert len(v) == 2
-            if "###" in v[0]:
-                tmp.append(f"{v[0]}\n\n\t{v[1]}")
-            elif "#" in v[0]:
-                tmp.append(f"{v[0]}")
-            else:
-                tmp.append(f"- 「{v[0]}」: {v[1]}")
+                head, lname = v[0].split(":")
+                if lname == k:
+                    tmp.append(f"{head}: {v[1]}")
         return tmp
 
-    def asScenario(self, data: list) -> list:
-        from .scene import ScenarioType
+    def toDescriptionsAsSmartphone(self, data: list) -> list:
         tmp = []
         for v in assertion.is_list(data):
-            assert len(v) == 2
-            if v[0] is ScenarioType.DIRECTION:
-                tmp.append("　　" + v[1])
+            if "#" in v or "**" in v:
+                tmp.append(v)
             else:
+                tmp.append(f"{v}\n")
+        return tmp
+
+    def toDescriptionsAsWeb(self, data: list) -> list:
+        tmp = []
+        inDialogue = False
+        for v in assertion.is_list(data):
+            if "#" in v or "**" in v:
+                tmp.append(v)
+            else:
+                cur = v.startswith(('「', '『'))
+                pre = "" if inDialogue == cur else "\n"
+                tmp.append(pre + v)
+                inDialogue = cur
+        return tmp
+
+    def toOutlines(self, data: list) -> list:
+        tmp = []
+        sc_head = ""
+        inEpisode = False
+        inScene = False
+        for v in assertion.is_list(data):
+            if "###" in v:
+                tmp.append(f"\n{v}\n")
+                inEpisode = True
+            elif "##" in v:
+                tmp.append(f"\n{v}\n")
+            elif "#" in v:
+                tmp.append(f"{v}\n")
+            elif "**" in v:
+                sc_head = v
+                inScene = True
+            elif inEpisode:
+                tmp.append(f"\t{v}\n")
+                inEpisode = False
+            elif inScene:
+                tmp.append(f"- {sc_head}: {v}")
+                inScene = False
+            else:
+                tmp.append(v)
+        return tmp
+
+    def toOutlinesAsLayer(self, data: list) -> list:
+        tmp = []
+        title = data[0][1] if "__TITLE__" == assertion.is_list(data)[0][0] else "no title"
+        layers = []
+        for v in data[1:]:
+            head, lname = v[0].split(":")
+            layers.append(lname)
+        layers_sorted = sorted(list(set(layers)))
+        tmp.append(f"{title}\n")
+        for k in layers_sorted:
+            tmp.append("--------"*8)
+            tmp.append(f"## {k}\n")
+            for v in data[1:]:
+                head, lname = v[0].split(":")
+                if lname == k:
+                    tmp.append(f"{head}: {v[1]}")
+        return tmp
+
+    def toScenarios(self, data: list) -> list:
+        tmp = []
+        for v in assertion.is_list(data):
+            if v[0] is ScenarioType.TITLE:
+                if "###" in v[1]:
+                    tmp.append(f"\n{v[1]}\n")
+                elif "##" in v[1]:
+                    tmp.append(f"\n{v[1]}\n")
+                elif "#" in v[1]:
+                    tmp.append(f"{v[1]}\n")
+                elif "**" in v[1]:
+                    tmp.append(f"\n{v[1]}\n")
+            elif v[0] is ScenarioType.PILLAR:
+                stage, day, time = v[1].split(":")
+                tmp.append(f"○{stage}（{time}）- {day}")
+            elif v[0] is ScenarioType.DIRECTION:
+                tmp.append(str_duplicated_chopped(f"　　{v[1]}。"))
+            elif v[0] is ScenarioType.DIALOGUE:
+                subject, dial = v[1].split(":")
+                tmp.append(f"{subject}「{dial}」")
+            elif v[0] is ScenarioType.TAG:
+                if v[1]:
+                    tmp.append(v[1])
+            elif v[0] is ScenarioType.EFFECT:
                 tmp.append(v[1])
+            else:
+                raise AssertionError("Not reachable value: ", v[0])
         return tmp
 
-## privates
-def _descriptionsAsEstar(data: list) -> list:
-    tmp = []
-    inDialogue = False
-    for v in assertion.is_list(data):
-        cur = v.startswith(('「', '『'))
-        pre = "" if inDialogue == cur else "\n"
-        tmp.append(pre + v + "\n")
-        inDialogue = cur
-    return tmp
-
-def _descriptionsAsSmartphone(data: list) -> list:
-    return [f"{v}\n" for v in assertion.is_list(data)]
-
-def _descriptionsAsWebnovel(data: list) -> list:
-    tmp = []
-    inDialogue = False
-    for v in assertion.is_list(data):
-        cur = v.startswith(('「', '『'))
-        pre = "" if inDialogue == cur else "\n"
-        tmp.append(pre + v)
-        inDialogue = cur
-    return tmp
-
+    def toScenariosAsLayer(self, data: list) -> list:
+        tmp = []
+        title = data[0][3] if "__TITLE__" == data[0][0] else "no title"
+        layers = []
+        pillars = []
+        for v in data[1:]:
+            head, lname = v[0].split(":")
+            layers.append(lname)
+            if not v[1] in pillars:
+                pillars.append(v[1])
+        layers_sorted = sorted(list(set(layers)))
+        tmp.append(f"{title}\n")
+        for k in layers_sorted:
+            tmp.append("--------"*8)
+            tmp.append(f"## {k}\n")
+            for p in pillars:
+                stage, day, time = p.split(":")
+                isFirst = False
+                for v in data[1:]:
+                    head, lname = v[0].split(":")
+                    if not isFirst:
+                        tmp.append(f"{head}: {stage}（{time}）- {day}")
+                        isFirst = True
+                    if k == lname and v[1] == p:
+                        if v[2] is ScenarioType.DIRECTION:
+                            tmp.append(f"\t{v[3]}。")
+                        elif v[2] is ScenarioType.DIALOGUE:
+                            subject, dial = v[3].split(":")
+                            tmp.append(f"{subject}「{dial}」")
+                        else:
+                            tmp.append(v[3])
+        return tmp

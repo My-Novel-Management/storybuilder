@@ -34,40 +34,51 @@ class Converter(object):
     def src(self) -> StoryContainers:
         return self._src
 
-    def toConnectDescriptions(self) -> StoryContainers:
+    def toConnectDescriptions(self, src=None) -> StoryContainers:
         return self._toSomething(
                 storyFnc=_toConnectDescsFrom,
                 chapterFnc=_toConnectDescsFromChapter,
                 episodeFnc=_toConnectDescsFromEpisode,
                 sceneFnc=_toConnectDescsFromScene,
+                src=src
                 )
 
-    def toFilter(self, pri_filter: int) -> StoryContainers:
+    def toConverFullSrc(self, pri_filter: int, words: dict, src=None) -> StoryContainers:
+        return self.toReplaceTag(words,
+                self.toConnectDescriptions(
+                self.toReplacePronoun(
+                self.toLayer(
+                self.toFilter(pri_filter, src=src if src else self.src)))))
+
+    def toFilter(self, pri_filter: int, src=None) -> StoryContainers:
         return self._toSomething(
                 pri_filter,
                 storyFnc=_toFilterFrom,
                 chapterFnc=_toFilterFromChapter,
                 episodeFnc=_toFilterFromEpisode,
                 sceneFnc=_toFilterFromScene,
+                src=src
                 )
 
-    def toLayer(self) -> StoryContainers:
+    def toLayer(self, src=None) -> StoryContainers:
         return self._toSomething(
                 storyFnc=_toLayerFrom,
                 chapterFnc=_toLayerFromChapter,
                 episodeFnc=_toLayerFromEpisode,
                 sceneFnc=_toLayerFromScene,
+                src=src
                 )
 
-    def toReplacePronoun(self) -> StoryContainers:
+    def toReplacePronoun(self, src=None) -> StoryContainers:
         return self._toSomething(
                 storyFnc=_toReplacePronounFrom,
                 chapterFnc=_toReplacePronounFromChapter,
                 episodeFnc=_toReplacePronounFromEpisode,
                 sceneFnc=_toReplacePronounFromScene,
+                src=src
                 )
 
-    def toReplaceTag(self, words: dict) -> StoryContainers:
+    def toReplaceTag(self, words: dict, src=None) -> StoryContainers:
         prefix = "$"
         return self._toSomething(
                 words, prefix,
@@ -75,6 +86,7 @@ class Converter(object):
                 chapterFnc=_toReplaceTagFromChapter,
                 episodeFnc=_toReplaceTagFromEpisode,
                 sceneFnc=_toReplaceTagFromScene,
+                src=src
                 )
 
     ## private methods
@@ -82,21 +94,23 @@ class Converter(object):
             storyFnc,
             chapterFnc,
             episodeFnc,
-            sceneFnc) -> StoryContainers:
-        if isinstance(self.src, Story):
-            return storyFnc(self.src, *args)
-        elif isinstance(self.src, Chapter):
-            return chapterFnc(self.src, *args)
-        elif isinstance(self.src, Episode):
-            return episodeFnc(self.src, *args)
-        elif isinstance(self.src, Scene):
-            return sceneFnc(self.src, *args)
+            sceneFnc,
+            src=None) -> StoryContainers:
+        src = src if src else self.src
+        if isinstance(src, Story):
+            return storyFnc(src, *args)
+        elif isinstance(src, Chapter):
+            return chapterFnc(src, *args)
+        elif isinstance(src, Episode):
+            return episodeFnc(src, *args)
+        elif isinstance(src, Scene):
+            return sceneFnc(src, *args)
         else:
-            raise AssertionError("Non-reachable value: ", self.src)
+            raise AssertionError("Non-reachable value: ", src)
 
 ## publics
-def toConvertTagAction(action: TagAction) -> str:
-    if assertion.is_instance(action, TagAction).tag_type is TagType.COMMENT:
+def toConvertTagAction(action: TagAction, is_comment: bool) -> str:
+    if assertion.is_instance(action, TagAction).tag_type is TagType.COMMENT and is_comment:
         return f"<!--{action.info}-->"
     elif action.tag_type is TagType.BR:
         return f"\n\n"
@@ -160,25 +174,20 @@ def _toFilterFromAction(action: AllActions,
     return action if action.priority >= pri_filter else None
 
 def _toLayerFrom(story :Story) -> Story:
-    return story.inherited(
-            *generatedValidList([_toLayerFromChapter(v) for v in story.chapters])
-            )
+    return story.inherited(*[_toLayerFromChapter(v) for v in story.chapters])
 
 def _toLayerFromChapter(chapter: Chapter) -> Chapter:
-    return chapter.inherited(
-            *generatedValidList([_toLayerFromEpisode(v) for v in chapter.episodes])
-            )
+    return chapter.inherited(*[_toLayerFromEpisode(v) for v in chapter.episodes])
 
 def _toLayerFromEpisode(episode: Episode) -> Episode:
-    return episode.inherited(
-            *generatedValidList([_toLayerFromScene(v) for v in episode.scenes])
-            )
+    return episode.inherited(*[_toLayerFromScene(v) for v in episode.scenes])
 
 def _toLayerFromScene(scene: Scene) -> Scene:
     tmp = []
     cur = Action.MAIN_LAYER
     for v in scene.actions:
         act, cur = _toLayerFromAction(v, cur)
+        tmp.append(act)
     return scene.inherited(*tmp)
 
 def _toLayerFromAction(action: AllActions,
@@ -189,13 +198,17 @@ def _toLayerFromAction(action: AllActions,
         tmp = []
         cur = layer
         for v in action.actions:
-            act, cur = _set_layer(v, cur)
+            act, cur = _toLayerFromAction(v, cur)
             tmp.append(act)
         return action.inherited(*tmp), cur
     elif isinstance(action, TagAction):
-        tmp = action.setLayer(
-                action.info if action.info != Action.DEF_LAYER else Action.MAIN_LAYER
-                ) if action.tag_type is TagType.SET_LAYER else action
+        cur = Action.MAIN_LAYER
+        if action.tag_type is TagType.SET_LAYER:
+            if action.info == Action.DEF_LAYER:
+                cur = Action.MAIN_LAYER
+            else:
+                cur = action.info
+        tmp = action.setLayer(cur)
         return tmp, tmp.layer
     else:
         tmp = _set_layer(action, layer)

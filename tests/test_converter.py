@@ -148,17 +148,17 @@ class ConverterTest(unittest.TestCase):
     def test_toConveretTagAction(self):
         data = [
                 (False, TagAction("test", tag_type=TagType.COMMENT),
-                    "<!--test-->"),
+                    True, "<!--test-->"),
                 (False, TagAction("test", tag_type=TagType.BR),
-                    "\n\n"),
+                    True, "\n\n"),
                 (False, TagAction("test", tag_type=TagType.HR),
-                    "--------"*8,),
+                    True, "--------"*8,),
                 (False, TagAction("test", tag_type=TagType.SYMBOL),
-                    "\ntest\n"),
+                    True, "\ntest\n"),
                 (False, TagAction("test", "2", tag_type=TagType.TITLE),
-                    "\n## test\n"),
+                    True, "\n## test\n"),
                 ]
-        def _checkcode(v, expect):
-            tmp = toConvertTagAction(v)
+        def _checkcode(v, isCmt, expect):
+            tmp = toConvertTagAction(v, isCmt)
             self.assertEqual(tmp, expect)
         validated_testing_withfail(self, "toConvertTagAction", _checkcode, data)
