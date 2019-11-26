@@ -45,10 +45,14 @@ class Formatter(object):
         for k in layers_sorted:
             tmp.append("--------"*8)
             tmp.append(f"## {k}\n")
+            head_title = ""
             for v in data[1:]:
                 head, lname = v[0].split(":")
                 if lname == k:
-                    tmp.append(f"{head}: {v[1]}")
+                    if head_title != head:
+                        tmp.append(f"* {head}")
+                        head_title = head
+                    tmp.append(f"    - {v[1]}")
         return tmp
 
     def toDescriptionsAsSmartphone(self, data: list) -> list:
@@ -111,10 +115,14 @@ class Formatter(object):
         for k in layers_sorted:
             tmp.append("--------"*8)
             tmp.append(f"## {k}\n")
+            head_title = ""
             for v in data[1:]:
                 head, lname = v[0].split(":")
                 if lname == k:
-                    tmp.append(f"{head}: {v[1]}")
+                    if head_title != head:
+                        tmp.append(f"* {head}")
+                        head_title = head
+                    tmp.append(f"    - {v[1]}")
         return tmp
 
     def toScenarios(self, data: list) -> list:

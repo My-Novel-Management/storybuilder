@@ -52,8 +52,13 @@ class FormatterTest(unittest.TestCase):
         data = [
                 (False, [("__TITLE__", "# test"), ("c1-e1-s1:t1", "　apple。"),
                     ("c1-e1-s1:t2", "　orange。")],
-                    ["# test\n", "--------"*8, "## t1\n", "c1-e1-s1: 　apple。",
-                        "--------"*8, "## t2\n", "c1-e1-s1: 　orange。"]),
+                    ["# test\n", "--------"*8, "## t1\n", "* c1-e1-s1","    - 　apple。",
+                        "--------"*8, "## t2\n", "* c1-e1-s1", "    - 　orange。"]),
+                (False, [("__TITLE__", "# test"), ("c1-e1-s1:t1", "　apple。"),
+                    ("c1-e1-s1:t2", "　orange。"), ("c1-e1-s2:t1", "「Wow」")],
+                    ["# test\n", "--------"*8, "## t1\n", "* c1-e1-s1","    - 　apple。",
+                        "* c1-e1-s2", "    - 「Wow」",
+                        "--------"*8, "## t2\n", "* c1-e1-s1", "    - 　orange。"]),
                 ]
         def _checkcode(v, expect):
             tmp = Formatter().toDescriptionsAsLayer(v)
@@ -108,9 +113,9 @@ class FormatterTest(unittest.TestCase):
                     ("c1-e1-s1:t2", "orange")],
                     ["# test\n",
                         "--------"*8,
-                        "## t1\n", "c1-e1-s1: apple",
+                        "## t1\n", "* c1-e1-s1", "    - apple",
                         "--------"*8,
-                        "## t2\n", "c1-e1-s1: orange"]),
+                        "## t2\n", "* c1-e1-s1", "    - orange"]),
                 ]
         def _checkcode(v, expect):
             tmp = Formatter().toOutlinesAsLayer(v)
