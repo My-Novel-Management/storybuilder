@@ -16,7 +16,7 @@ def print_test_title(fname: str, title: str) -> bool:
 def validated_testing_withfail(testcase: unittest.TestCase,
         title: str, testfunc, data: list):
     for vals in data:
-        with testcase.subTest(title=title):
+        with testcase.subTest(title=title, vals=vals):
             assert isinstance(vals[0], bool)
             if not vals[0]:
                 testfunc(*vals[1:])
