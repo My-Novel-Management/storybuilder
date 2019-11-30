@@ -92,8 +92,10 @@ class Analyzer(object):
             tmp.append(f"### CH-{ch_num}: {c.title}")
             ch_num += 1
             for e in c.episodes:
-                tmp.append(f"* Ep-{epi_num}: {e.title}")
-                epi_num += 1
+                tmp_sc = []
+                tmp_total = 0
+                tmp_pp = 0
+                tmp_rows = 0
                 for s in e.scenes:
                     total = _descriptionCountInScene(s)
                     _rows = _descriptionManupaperCountsInScene(s, columns)
@@ -101,8 +103,15 @@ class Analyzer(object):
                     outline = _outlineCountsInScene(s)
                     _outrows = _outlineManupaperCountsInScene(s, columns)
                     _outpapers = _outrows / rows
-                    tmp.append(f"    - {scene_num}. {_shorttitle(s.title)}: {total} [{_papers:0.3f}p ({_rows:0.2f})] / Outline {outline} [{_outpapers:0.3f}p ({_outrows:0.2f})]")
+                    tmp_sc.append(f"    - {scene_num}. {_shorttitle(s.title)}: {total} [{_papers:0.3f}p ({_rows:0.2f})] / Outline {outline} [{_outpapers:0.3f}p ({_outrows:0.2f})]")
                     scene_num += 1
+                    tmp_total += total
+                    tmp_pp += _papers
+                    tmp_rows += _rows
+                tmp.append(f"* Ep-{epi_num}: {e.title}: {tmp_total} [{tmp_pp:0.3f}p ({tmp_rows:0.2f})]")
+                epi_num += 1
+                if tmp_sc:
+                    tmp = tmp + tmp_sc
         return tmp
 
     def acttypesFrom(self, story: wd.Story):
