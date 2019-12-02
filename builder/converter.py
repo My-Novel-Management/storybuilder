@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from . import assertion
 from .action import Action, ActType, TagAction, TagType
 from .basesubject import NoSubject
+from .basedata import NoData
 from .chapter import Chapter
 from .combaction import CombAction
 from .description import Description, NoDesc
@@ -14,7 +15,7 @@ from .scene import Scene
 from .story import Story
 from .strutils import str_duplicated_chopped
 from .strutils import str_replaced_tag_by_dictionary
-from .who import Who
+from .who import Who, When, Where
 from .utils import strOfDescription
 
 
@@ -225,9 +226,21 @@ def _toReplacePronounFromChapter(chapter: Chapter) -> Chapter:
             )
 
 def _toReplacePronounFromEpisode(episode: Episode) -> Episode:
-    return episode.inherited(
-            *generatedValidList([_toReplacePronounFromScene(v) for v in episode.scenes])
-            )
+    tmp = []
+    camera = NoSubject()
+    stage, day, time = NoData(), NoData(), NoData()
+    for v in episode.scenes:
+        sc = v.inherited(*v.actions,
+                camera=camera if isinstance(v.camera, Who) else v.camera,
+                stage=stage if isinstance(v.stage, Where) else v.stage,
+                day=day if isinstance(v.day, When) else v.day,
+                time=time if isinstance(v.time, When) else v.time)
+        camera = sc.camera
+        stage = sc.stage
+        day = sc.day
+        time = sc.time
+        tmp.append(_toReplacePronounFromScene(sc))
+    return episode.inherited(*tmp)
 
 def _toReplacePronounFromScene(scene: Scene) -> Scene:
     tmp = []

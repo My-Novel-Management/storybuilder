@@ -16,6 +16,7 @@ from builder.scene import Scene
 from builder.stage import Stage
 from builder.story import Story
 from builder.time import Time
+from builder.who import When, Where, Who
 
 
 _FILENAME = "extractor.py"
@@ -179,14 +180,14 @@ class ExtractorTest(unittest.TestCase):
                     [st1, st2]),
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","", stage=st1), Scene("s2", "",)))),
-                    [st1,]),
+                    [st1,Where()]),
                 (False, Scene("s1","", stage=st1),
                     [st1,]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).stages
             self.assertIsInstance(tmp, list)
-            self.assertEqual(set(tmp), set(expect))
+            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
         validated_testing_withfail(self, "stages", _checkcode, data)
 
     def test_days(self):
@@ -201,14 +202,14 @@ class ExtractorTest(unittest.TestCase):
                     [day1, day2]),
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","",day=day1), Scene("s2","",)))),
-                    [day1,]),
+                    [day1,When()]),
                 (False, Scene("s1","", day=day1),
                     [day1,]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).days
             self.assertIsInstance(tmp, list)
-            self.assertEqual(set(tmp), set(expect))
+            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
         validated_testing_withfail(self, "days", _checkcode, data)
 
     def test_times(self):
@@ -223,13 +224,13 @@ class ExtractorTest(unittest.TestCase):
                     [time1, time2]),
                 (False, Story("test", Chapter("1", Episode("e1","",
                     Scene("s1","",time=time1), Scene("s2","")))),
-                    [time1,]),
+                    [time1,When()]),
                 (False, Scene("s","", time=time1), [time1,]),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor(v).times
             self.assertIsInstance(tmp, list)
-            self.assertEqual(set(tmp), set(expect))
+            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
         validated_testing_withfail(self, "times", _checkcode, data)
 
     def test_flags(self):

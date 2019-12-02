@@ -12,6 +12,7 @@ from .time import Time
 from .action import Action, TagAction
 from .combaction import CombAction
 from .basesubject import NoSubject
+from .who import Who, When, Where
 from . import __DEF_PRIORITY__
 
 
@@ -35,23 +36,27 @@ class Scene(BaseContainer):
     """The container for actions.
     """
     def __init__(self, title: str, outline: str, *args,
-            camera: [Person, NoData]=None,
-            stage: [Stage, NoData]=None,
-            day: [Day, NoData]=None,
-            time: [Time, NoData]=None):
+            camera: (Person, NoData, Who)=None,
+            stage: (Stage, NoData, Where)=None,
+            day: (Day, NoData, When)=None,
+            time: (Time, NoData, When)=None):
         super().__init__(title, __DEF_PRIORITY__)
         self._outline = assertion.is_str(outline)
         self._actions = Scene._validatedActions(*args)
-        self._camera = NoData() if not camera or isinstance(camera, NoData) else assertion.is_instance(camera, Someone)
-        self._stage = NoData() if not stage or isinstance(stage, NoData) else assertion.is_instance(stage, Stage)
-        self._day = NoData() if not day or isinstance(day, NoData) else assertion.is_instance(day, Day)
-        self._time = NoData() if not time or isinstance(time, NoData) else assertion.is_instance(time, Time)
+        self._camera = Scene._validatedCamera(camera)
+        self._stage = Scene._validatedStage(stage)
+        self._day = Scene._validatedDay(day)
+        self._time = Scene._validatedTime(time)
 
-    def inherited(self, *acts):
+    def inherited(self, *acts,
+            camera=None, stage=None, day=None, time=None):
         return Scene(self.title, self.outline,
                 *acts,
-                camera=self.camera, stage=self.stage, day=self.day, time=self.time) \
-                .setPriority(self.priority)
+                camera=camera if camera else self.camera,
+                stage=stage if stage else self.stage,
+                day=day if day else self.day,
+                time=time if time else self.time,
+                ).setPriority(self.priority)
 
     @property
     def actions(self): return self._actions
@@ -117,4 +122,16 @@ class Scene(BaseContainer):
     # privates
     def _validatedActions(*args):
         return args if [assertion.is_instance(v, AllActions) for v in args] else ()
+
+    def _validatedCamera(camera: (Person, NoSubject, NoData, Who)):
+        return camera if isinstance(camera, (Person, Who)) else Who()
+
+    def _validatedStage(stage: (Stage, NoData, Where)):
+        return stage if isinstance(stage, (Stage, Where)) else Where()
+
+    def _validatedDay(day: (Day, NoData, When)):
+        return day if isinstance(day, (Day, When)) else When()
+
+    def _validatedTime(time: (Time, NoData, When)):
+        return time if isinstance(time, (Time, When)) else When()
 

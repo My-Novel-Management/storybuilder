@@ -136,8 +136,6 @@ def sc_meetdog(w: World):
 
 def sc_meetmonkey(w: World):
     s = w.scene("猿と出会う", "猿に出会い仲間にする")
-    s.setCamera(w.taro)
-    s.setStage(w.stage.onstreet).setDay(w.day.meetdog).setTime(w.time.afternoon)
     s.add(
         w.move(w.taro, "犬を連れて歩いていた"),
         w.look("猿と出会う"),
@@ -149,8 +147,6 @@ def sc_meetmonkey(w: World):
 
 def sc_meetpheasant(w: World):
     s = w.scene("雉と出会う", "雉に出会い仲間にする")
-    s.setCamera(w.taro)
-    s.setStage(w.stage.onstreet).setDay(w.day.meetdog).setTime(w.time.afternoon)
     s.add(
         w.move(w.taro, "道を歩いていた"),
         w.look("雉と出会う"),
