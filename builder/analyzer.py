@@ -19,6 +19,7 @@ from .chara import Chara
 from .basesubject import NoSubject
 from .story import Story
 from .utils import strOfDescription
+from .parser import Parser
 
 
 ## define type
@@ -155,9 +156,8 @@ class Analyzer(object):
                 + list("- " + v.info for v in deflags)
 
     def frequency_words(self, story: wd.Story):
-        from .parser import descriptions_from
         is_comment = False
-        descs = descriptions_from(story, is_comment)
+        descs = Parser(story).toDescriptions(False)
         parsed = self.tokenizer.parse("\n".join(descs)).split("\n")
         tokens = (re.split('[\t,]', v) for v in parsed)
         def base_excepted(target: str):
