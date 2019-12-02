@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.1] - 2019-12-02
+### Added
+- Extractor
+- Formatter
+- Covnerter
+- common times data
+- episode char count
+- Person: simple person creator
+- test utility
+### Changed
+- Parser
+- display names of values in subtest
+- Analyzer: containsWord using all story containers/And or Or check enable
+### Fixed
+- analyzer bug
+- default layer
+
 ## [0.3.0] - 2019-11-17
 ### Added
 - action layer
@@ -188,7 +205,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/nagisc007/storybuilder/releases/v0.3.1
 [0.3.0]: https://github.com/nagisc007/storybuilder/releases/v0.3.0
 [0.2.10]: https://github.com/nagisc007/storybuilder/releases/v0.2.10
 [0.2.9]: https://github.com/nagisc007/storybuilder/releases/v0.2.9
