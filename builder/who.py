@@ -14,6 +14,10 @@ class Who(BaseSubject):
     def __init__(self):
         super().__init__(Who.__NAME__)
 
+    ## override operator
+    def __eq__(self, obj):
+        return isinstance(obj, Who) and self.name == obj.name
+
 
 class Where(BaseData):
     """For a pronoun class as a stage.

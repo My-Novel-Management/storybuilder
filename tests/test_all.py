@@ -34,6 +34,7 @@ import test_utils
 import test_who
 import test_word
 import test_world
+import test_writer
 
 
 def suite():
@@ -50,9 +51,6 @@ def suite():
         unittest.makeSuite(test_basesubject.NoSubjectTest),
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
-        unittest.makeSuite(test_converter.ConverterTest),
-        unittest.makeSuite(test_extractor.ExtractorTest),
-        unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_strutils.MethodsTest),
         unittest.makeSuite(test_utils.MethodsTest),
         # data type
@@ -86,7 +84,11 @@ def suite():
         # tools
         unittest.makeSuite(test_analyzer.AnalyzerTest),
         unittest.makeSuite(test_buildtool.BuildTest),
+        unittest.makeSuite(test_converter.ConverterTest),
+        unittest.makeSuite(test_extractor.ExtractorTest),
+        unittest.makeSuite(test_formatter.FormatterTest),
         unittest.makeSuite(test_parser.ParserTest),
+        unittest.makeSuite(test_writer.WriterTest),
         ))
 
     return suite

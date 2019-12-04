@@ -11,7 +11,7 @@ from .person import Person
 from .chara import Chara
 from .who import Who
 from . import __DEF_PRIORITY__, __MAX_PRIORYTY__, __MIN_PRIORITY__
-
+from . import __DEF_LAYER__, __MAIN_LAYER__
 
 class ActType(Enum):
     """Action type.
@@ -43,16 +43,14 @@ class TagType(Enum):
 class Action(BaseData):
     """Data type of an action.
     """
-    DEF_LAYER = "__default__"
-    MAIN_LAYER = "main"
     __NAME__ = "__action__"
 
     def __init__(self, subject: [Person, Chara, None],
             outline: str="", act_type: ActType=ActType.ACT,
-            layer: str=DEF_LAYER):
+            layer: str=__DEF_LAYER__):
         super().__init__(Action.__NAME__)
         _subject_is_str = isinstance(subject, str)
-        self._subject = Who() if _subject_is_str else Action._validatedSubject(subject)
+        self._subject = Action._validatedSubject(subject)
         self._outline = assertion.is_str(subject if _subject_is_str else outline)
         self._act_type = assertion.is_instance(act_type, ActType)
         self._description = NoDesc()
@@ -158,7 +156,7 @@ class Action(BaseData):
     def _validatedSubject(sub: [str, Person, Chara, None]):
         if isinstance(sub, str):
             return Who()
-        elif isinstance(sub, (Person, Chara)):
+        elif isinstance(sub, (Person, Chara, Who)):
             return sub
         else:
             return NoSubject()

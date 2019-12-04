@@ -3,6 +3,7 @@
 """
 from typing import Any
 from . import assertion
+from . import __DEF_LAYER__
 from .basedata import BaseData
 from .chapter import Chapter
 from .episode import Episode
@@ -149,43 +150,43 @@ class World(UtilityDict):
         return CombAction(*args)
 
     def act(self, subject: [str, Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.ACT, layer=layer)
 
     def be(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.BE, layer=layer)
 
     def come(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.COME, layer=layer)
 
     def go(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.GO, layer=layer)
 
     def have(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.HAVE, layer=layer)
 
     def hear(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.HEAR, layer=layer)
 
     def look(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.LOOK, layer=layer)
 
     def move(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.MOVE, layer=layer)
 
     def talk(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.TALK, layer=layer)
 
     def think(self, subject: [Person, Chara, None],
-            outline: str="", layer: str=ac.Action.DEF_LAYER):
+            outline: str="", layer: str=__DEF_LAYER__):
         return ac.Action(subject, outline, act_type=ac.ActType.THINK, layer=layer)
 
     # tags
@@ -204,7 +205,7 @@ class World(UtilityDict):
     def title(self, info: str, subinfo: str="1"):
         return ac.TagAction(info, subinfo, ac.TagType.TITLE)
 
-    def layer(self, info: str=ac.Action.DEF_LAYER):
+    def layer(self, info: str=__DEF_LAYER__):
         return ac.TagAction(info, tag_type=ac.TagType.SET_LAYER)
 
     # build

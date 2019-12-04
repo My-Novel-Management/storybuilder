@@ -6,6 +6,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append('builder')
 from builder.world import World
+from builder.writer import Writer
 import momotaro_config as cnf
 
 ################################################################
@@ -54,8 +55,10 @@ def sc_birth(w: World):
     s = w.scene("誕生", "桃太郎が生まれる")
     s.setCamera(w.granma)
     s.setStage(w.stage.home).setDay(w.day.birth).setTime(w.time.afternoon)
+    r = Writer(w.granma)
     s.add(
         w.be(None, "午後").d("その昼のことだ"),
+        r.sit(),
         w.look(w.granma, "夫に桃のことを相談").d("$Sは桃を拾ったのだがどうすべきかと相談をしてみた"),
         w.talk(w.granpa, "中を見てみよう").t("こりゃあデカいな",
             "よし、切ってみるとしよう", "$meに任せておきなさい"),

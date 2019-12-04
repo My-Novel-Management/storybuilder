@@ -7,6 +7,7 @@ from builder.action import Action, ActType, TagAction, TagType
 from builder.description import Description, NoDesc, DescType
 from builder.flag import Flag, NoFlag, NoDeflag
 from builder import __DEF_PRIORITY__, __MIN_PRIORITY__
+from builder import __DEF_LAYER__
 from builder.person import Person
 
 
@@ -29,11 +30,11 @@ class ActionTest(unittest.TestCase):
                 (False, self.taro, "a test", ActType.BE, "test layer",
                     "a test", ActType.BE, "test layer",),
                 (False, self.taro, "a test", ActType.BE, None,
-                    "a test", ActType.BE, Action.DEF_LAYER,),
+                    "a test", ActType.BE, __DEF_LAYER__,),
                 (False, self.taro, "a test", None, None,
-                    "a test", ActType.ACT, Action.DEF_LAYER,),
+                    "a test", ActType.ACT, __DEF_LAYER__,),
                 (False, self.taro, None, None, None,
-                    "", ActType.ACT, Action.DEF_LAYER,),
+                    "", ActType.ACT, __DEF_LAYER__,),
                 (True, 1, "a test", ActType.BE, "test layer",
                     "a test", ActType.BE, "test layer",),
                 (True, self.taro, 1, ActType.BE, "test layer",
@@ -65,6 +66,10 @@ class ActionTest(unittest.TestCase):
             self.assertEqual(tmp.priority, __DEF_PRIORITY__)
         validated_testing_withfail(self, "attributes", _checkcode, data)
 
+    def test_attr_subjectnone(self):
+        tmp = Action("test")
+        self.assertIsInstance(tmp, Action)
+
     def test_setPriority(self):
         data = [
                 (False, 1, 1,),
@@ -85,7 +90,7 @@ class ActionTest(unittest.TestCase):
                 ]
         def _checkcode(v, expect):
             tmp = Action(self.taro)
-            self.assertEqual(tmp.layer, Action.DEF_LAYER)
+            self.assertEqual(tmp.layer, __DEF_LAYER__)
             tmp.setLayer(v)
             self.assertEqual(tmp.layer, expect)
         validated_testing_withfail(self, "setLayer", _checkcode, data)

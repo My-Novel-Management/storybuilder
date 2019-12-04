@@ -3,6 +3,7 @@
 """
 import unittest
 from testutils import print_test_title, validated_testing_withfail
+from builder import __DEF_LAYER__
 from builder.action import Action, ActType, TagAction, TagType
 from builder.basesubject import NoSubject
 from builder.chapter import Chapter
@@ -68,7 +69,7 @@ class ConverterTest(unittest.TestCase):
         validated_testing_withfail(self, "toFilter", _checkcode, data)
 
     def test_toLayer(self):
-        lay0 = TagAction(Action.DEF_LAYER, tag_type=TagType.SET_LAYER)
+        lay0 = TagAction(__DEF_LAYER__, tag_type=TagType.SET_LAYER)
         lay1 = TagAction("test1", tag_type=TagType.SET_LAYER)
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1","",
@@ -86,7 +87,7 @@ class ConverterTest(unittest.TestCase):
             tmp = Converter(v).toLayer()
             tmp1 = Extractor(tmp).actions
             for v in tmp1:
-                self.assertTrue(v.layer != Action.DEF_LAYER)
+                self.assertTrue(v.layer != __DEF_LAYER__)
         validated_testing_withfail(self, "toLayer", _checkcode, data)
 
     def test_toReplacePronoun(self):

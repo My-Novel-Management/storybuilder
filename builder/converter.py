@@ -3,6 +3,7 @@
 """
 from typing import Optional, Tuple
 from . import assertion
+from . import __DEF_LAYER__, __MAIN_LAYER__
 from .action import Action, ActType, TagAction, TagType
 from .basesubject import NoSubject
 from .basedata import NoData
@@ -185,7 +186,7 @@ def _toLayerFromEpisode(episode: Episode) -> Episode:
 
 def _toLayerFromScene(scene: Scene) -> Scene:
     tmp = []
-    cur = Action.MAIN_LAYER
+    cur = __MAIN_LAYER__
     for v in scene.actions:
         act, cur = _toLayerFromAction(v, cur)
         tmp.append(act)
@@ -194,7 +195,7 @@ def _toLayerFromScene(scene: Scene) -> Scene:
 def _toLayerFromAction(action: AllActions,
         layer: str) -> (Tuple[Action, str], Tuple[TagAction, str], Tuple[CombAction, str]):
     def _set_layer(action: AllActions, layer: str):
-        return action.setLayer(layer) if action.layer == Action.DEF_LAYER or action.layer != layer else action
+        return action.setLayer(layer) if action.layer == __DEF_LAYER__ or action.layer != layer else action
     if isinstance(action, CombAction):
         tmp = []
         cur = layer
@@ -203,10 +204,10 @@ def _toLayerFromAction(action: AllActions,
             tmp.append(act)
         return action.inherited(*tmp), cur
     elif isinstance(action, TagAction):
-        cur = Action.MAIN_LAYER
+        cur = __MAIN_LAYER__
         if action.tag_type is TagType.SET_LAYER:
-            if action.info == Action.DEF_LAYER:
-                cur = Action.MAIN_LAYER
+            if action.info == __DEF_LAYER__:
+                cur = __MAIN_LAYER__
             else:
                 cur = action.info
         tmp = action.setLayer(cur)
