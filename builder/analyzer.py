@@ -97,6 +97,9 @@ class Analyzer(object):
                 tmp_total = 0
                 tmp_pp = 0
                 tmp_rows = 0
+                tmp_out_total = 0
+                tmp_out_pp = 0
+                tmp_out_rows = 0
                 for s in e.scenes:
                     total = _descriptionCountInScene(s)
                     _rows = _descriptionManupaperCountsInScene(s, columns)
@@ -109,7 +112,10 @@ class Analyzer(object):
                     tmp_total += total
                     tmp_pp += _papers
                     tmp_rows += _rows
-                tmp.append(f"* Ep-{epi_num}: {e.title}: {tmp_total} [{tmp_pp:0.3f}p ({tmp_rows:0.2f})]")
+                    tmp_out_total += outline
+                    tmp_out_pp += _outpapers
+                    tmp_out_rows += _outrows
+                tmp.append(f"* Ep-{epi_num}: {e.title}: {tmp_total} [{tmp_pp:0.3f}p ({tmp_rows:0.2f})] / Outline {tmp_out_total} [{tmp_out_pp:0.3f}p ({tmp_out_rows:0.2f})]")
                 epi_num += 1
                 if tmp_sc:
                     tmp = tmp + tmp_sc
