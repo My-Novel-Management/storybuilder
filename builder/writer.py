@@ -18,35 +18,48 @@ class Does(Enum):
     CLIMB = "登る"
     COME = "来る"
     CONFUSE = "戸惑う"
+    CONSIDER = "考える"
     CRY = "叫ぶ"
+    DISPLAY = "映る"
     DOWN = "降りる"
     DRINK = "飲む"
     EAT = "食べる"
     EXPRESSION = "表情をする"
     FALLDOWN = "倒れる"
+    FEEL = "感じる"
     FLY = "飛ぶ"
+    FUN = "楽しい"
+    GAZE = "見つめる"
+    GLAD = "嬉しい"
     GO = "行く"
     HEAR = "聞く"
+    HURT = "傷つく"
+    IMAGINE = "想像する"
     ISA = "である" # is a
     LAUGH = "笑う"
     LOOK = "見る"
     MAKE = "作る"
     MOVE = "移動する"
     NOD = "頷く"
+    NOTICE = "気づく"
     OBTAIN = "手に入れる"
     PEEP = "覗く"
     PUTON = "履く"
+    READ = "読む"
     REFUSE = "首を横に振る"
     REMEMBER = "思い出す"
     REPLY = "返事する"
     RUN = "走る"
+    SAD = "悲しい"
     SIT = "座る"
     SLEEP = "眠る"
     TEARS = "泣く"
     TAKEOFF = "脱ぐ"
-    THINK = "考える"
+    THINK = "思う"
+    WALK = "歩く"
     WEAR = "着る"
     WONDER = "不思議に思う"
+    WRITE = "書く"
 
 
 class Writer(object):
@@ -114,10 +127,20 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.CONFUSE, doing),
                 subject, obj, ActType.THINK)
 
+    def consider(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.CONSIDER, doing),
+                subject, obj, ActType.THINK)
+
     def cry(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.CRY, doing),
                 subject, obj, ActType.ACT)
+
+    def display(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.DISPLAY, doing),
+                subject, obj, ActType.LOOK)
 
     def down(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -144,10 +167,30 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.FALLDOWN, doing),
                 subject, obj, ActType.MOVE)
 
+    def feel(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.FEEL, doing),
+                subject, obj, ActType.THINK)
+
     def fly(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.FLY, doing),
                 subject, obj, ActType.ACT)
+
+    def fun(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.FUN, doing),
+                subject, obj, ActType.THINK)
+
+    def gaze(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.GAZE, doing),
+                subject, obj, ActType.LOOK)
+
+    def glad(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.GLAD, doing),
+                subject, obj, ActType.THINK)
 
     def go(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -158,6 +201,16 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.HEAR, doing),
                 subject, obj, ActType.HEAR)
+
+    def hurt(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.HURT, doing),
+                subject, obj, ActType.THINK)
+
+    def imagine(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.IMAGINE, doing),
+                subject, obj, ActType.THINK)
 
     def isa(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -189,6 +242,11 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.NOD, doing),
                 subject, obj, ActType.ACT)
 
+    def notice(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.NOTICE, doing),
+                subject, obj, ActType.THINK)
+
     def obtain(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.OBTAIN, doing),
@@ -202,6 +260,11 @@ class Writer(object):
     def puton(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.PUTON, doing),
+                subject, obj, ActType.ACT)
+
+    def read(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.READ, doing),
                 subject, obj, ActType.ACT)
 
     def refuse(self, obj: str="", doing: str=None,
@@ -223,6 +286,11 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.RUN, doing),
                 subject, obj, ActType.MOVE)
+
+    def sad(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.SAD, doing),
+                subject, obj, ActType.THINK)
 
     def sit(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -249,6 +317,11 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.THINK, doing),
                 subject, obj, ActType.THINK)
 
+    def walk(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.WALK, doing),
+                subject, obj, ActType.MOVE)
+
     def wear(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.WEAR, doing),
@@ -258,6 +331,11 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.WONDER, doing),
                 subject, obj, ActType.THINK)
+
+    def write(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.WRITE, doing),
+                subject, obj, ActType.ACT)
 
     ## privates
     def _validatedSubject(self, subject) -> (Person, Who):
