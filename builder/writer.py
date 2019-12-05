@@ -14,7 +14,7 @@ SomeOnes = (Person, Who)
 class Does(Enum):
     ATTENTION = "気にする"
     AWAKE = "目覚める"
-    BE = "である"
+    BE = "いる"
     CLIMB = "登る"
     COME = "来る"
     CONFUSE = "戸惑う"
@@ -27,6 +27,7 @@ class Does(Enum):
     FLY = "飛ぶ"
     GO = "行く"
     HEAR = "聞く"
+    ISA = "である" # is a
     LAUGH = "笑う"
     LOOK = "見る"
     MAKE = "作る"
@@ -146,6 +147,11 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.HEAR, doing),
                 subject, obj, ActType.HEAR)
+
+    def isa(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.ISA, doing),
+                subject, obj, ActType.BE)
 
     def laugh(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
