@@ -29,7 +29,7 @@ class WriterTest(unittest.TestCase):
 
     def test_do(self):
         data = [
-                (False, self.taro, None, "test", self.taro, "test"),
+                (False, self.taro, None, "test", self.taro, "Taroはtest"),
                 (False, None, None, "test", Who(), "test"),
                 (False, self.taro, self.hana, "test", self.hana, "Hanaはtest"),
                 ]
@@ -43,8 +43,8 @@ class WriterTest(unittest.TestCase):
 
     def test_be(self):
         data = [
-                (False, self.taro, None, None, Does.BE.value),
-                (False, self.taro, "test", None, f"test{Does.BE.value}"),
+                (False, self.taro, None, None, f"Taroは{Does.BE.value}"),
+                (False, self.taro, "test", None, f"Taroはtest{Does.BE.value}"),
                 ]
         def _be(w, v, obj):
             if obj:

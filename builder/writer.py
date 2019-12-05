@@ -52,7 +52,7 @@ class Does(Enum):
 class Writer(object):
     """Utility tool for writing documents.
     """
-    def __init__(self, subject: SomeOnes=Who()):
+    def __init__(self, subject: SomeOnes=Who(), is_displayS: bool=True):
         self._subject = assertion.is_instance(subject, SomeOnes)
 
     @property
@@ -63,7 +63,18 @@ class Writer(object):
             obj: str="",
             act_type: ActType=ActType.ACT,
             layer: str=__DEF_LAYER__) -> Action:
-        sbj = f"{subject.name}は" if subject and subject.name != self.subject.name else ""
+        def _convS(subject):
+            if subject:
+                if not isinstance(subject, Who):
+                    return f"{subject.name}は"
+                else:
+                    return ""
+            else:
+                if isinstance(self.subject, Person):
+                    return f"{self.subject.name}は"
+                else:
+                    return ""
+        sbj = _convS(subject)
         return Action(self._validatedSubject(subject), f"{sbj}{obj}{doing}",
                 act_type=act_type, layer=layer)
 
