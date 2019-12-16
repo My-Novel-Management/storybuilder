@@ -12,9 +12,13 @@ SomeOnes = (Person, Who)
 
 
 class Does(Enum):
+    APPEAR = "現れる"
     ATTENTION = "気にする"
     AWAKE = "目覚める"
     BE = "いる"
+    CATCH = "捕まえる"
+    CAUGHT = "捕まる"
+    CHECK = "確認する"
     CLIMB = "登る"
     COME = "来る"
     CONFUSE = "戸惑う"
@@ -24,26 +28,39 @@ class Does(Enum):
     DOWN = "降りる"
     DRINK = "飲む"
     EAT = "食べる"
+    ENTER = "入る"
     EXPRESSION = "表情をする"
     FALLDOWN = "倒れる"
     FEEL = "感じる"
+    FIND = "見つける"
     FLY = "飛ぶ"
     FUN = "楽しい"
     GAZE = "見つめる"
     GLAD = "嬉しい"
     GO = "行く"
+    GOOUT = "出ていく"
+    HAVE = "持つ"
     HEAR = "聞く"
+    HOLD = "握る"
     HURT = "傷つく"
     IMAGINE = "想像する"
     ISA = "である" # is a
+    KNOW = "知る"
     LAUGH = "笑う"
+    LIGHT = "明かりを点ける"
     LOOK = "見る"
+    LOOKDOWN = "見下ろす"
+    LOOKUP = "見上げる"
     MAKE = "作る"
     MOVE = "移動する"
     NOD = "頷く"
     NOTICE = "気づく"
     OBTAIN = "手に入れる"
+    OFFLIGHT = "明かりを消す"
+    PASSON = "渡す"
+    PAY = "支払う"
     PEEP = "覗く"
+    PUT = "置く"
     PUTON = "履く"
     READ = "読む"
     REFUSE = "首を横に振る"
@@ -53,12 +70,20 @@ class Does(Enum):
     SAD = "悲しい"
     SIT = "座る"
     SLEEP = "眠る"
-    TEARS = "泣く"
+    SMILE = "微笑する"
+    STAND = "立つ"
+    STANDUP = "立ち上がる"
+    STARE = "睨む"
+    TAKEHOLD = "抱く"
     TAKEOFF = "脱ぐ"
+    TEARS = "泣く"
     THINK = "思う"
+    TOUCH = "触る"
+    UNDERSTAND = "分かる"
     WALK = "歩く"
     WEAR = "着る"
     WONDER = "不思議に思う"
+    WORK = "仕事をする"
     WRITE = "書く"
 
 
@@ -97,6 +122,10 @@ class Writer(object):
                 act_type=ActType.TALK, layer=layer)
 
     ## actions
+    def appear(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.APPEAR, doing),
+                subject, obj, ActType.COME)
     def attention(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.ATTENTION, doing),
@@ -111,6 +140,21 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.BE, doing),
                 subject, obj, ActType.BE)
+
+    def catch(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.CATCH, doing),
+                subject, obj, ActType.ACT)
+
+    def caught(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.CAUGHT, doing),
+                subject, obj, ActType.ACT)
+
+    def check(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.CHECK, doing),
+                subject, obj, ActType.THINK)
 
     def climb(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -157,6 +201,11 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.EAT, doing),
                 subject, obj, ActType.HAVE)
 
+    def enter(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.ENTER, doing),
+                subject, obj, ActType.COME)
+
     def expression(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.EXPRESSION, doing),
@@ -171,6 +220,11 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.FEEL, doing),
                 subject, obj, ActType.THINK)
+
+    def find(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.FIND, doing),
+                subject, obj, ActType.LOOK)
 
     def fly(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -197,10 +251,25 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.GO, doing),
                 subject, obj, ActType.GO)
 
+    def goout(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.GOOUT, doing),
+                subject, obj, ActType.GO)
+
+    def have(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.HAVE, doing),
+                subject, obj, ActType.HAVE)
+
     def hear(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.HEAR, doing),
                 subject, obj, ActType.HEAR)
+
+    def hold(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.HOLD, doing),
+                subject, obj, ActType.HAVE)
 
     def hurt(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -217,14 +286,34 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.ISA, doing),
                 subject, obj, ActType.BE)
 
+    def know(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.KNOW, doing),
+                subject, obj, ActType.THINK)
+
     def laugh(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.LAUGH, doing),
                 subject, obj, ActType.ACT)
 
+    def light(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.LIGHT, doing),
+                subject, obj, ActType.ACT)
+
     def look(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.LOOK, doing),
+                subject, obj, ActType.LOOK)
+
+    def lookdown(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.LOOKDOWN, doing),
+                subject, obj, ActType.LOOK)
+
+    def lookup(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.LOOKUP, doing),
                 subject, obj, ActType.LOOK)
 
     def make(self, obj: str="", doing: str=None,
@@ -252,10 +341,30 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.OBTAIN, doing),
                 subject, obj, ActType.HAVE)
 
+    def offlight(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.OFFLIGHT, doing),
+                subject, obj, ActType.ACT)
+
+    def passon(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.PASSON, doing),
+                subject, obj, ActType.HAVE)
+
+    def pay(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.PAY, doing),
+                subject, obj, ActType.ACT)
+
     def peep(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.PEEP, doing),
                 subject, obj, ActType.LOOK)
+
+    def put(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.PUT, doing),
+                subject, obj, ActType.HAVE)
 
     def puton(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
@@ -302,6 +411,31 @@ class Writer(object):
         return self.do(Writer._validatedDoing(Does.SLEEP, doing),
                 subject, obj, ActType.BE)
 
+    def smile(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.SMILE, doing),
+                subject, obj, ActType.LOOK)
+
+    def stand(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.STAND, doing),
+                subject, obj, ActType.MOVE)
+
+    def standup(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.STANDUP, doing),
+                subject, obj, ActType.MOVE)
+
+    def stare(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.STARE, doing),
+                subject, obj, ActType.LOOK)
+
+    def takehold(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.TAKEHOLD, doing),
+                subject, obj, ActType.ACT)
+
     def takeoff(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.TAKEOFF, doing),
@@ -315,6 +449,16 @@ class Writer(object):
     def think(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.THINK, doing),
+                subject, obj, ActType.THINK)
+
+    def touch(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.TOUCH, doing),
+                subject, obj, ActType.ACT)
+
+    def understand(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.UNDERSTAND, doing),
                 subject, obj, ActType.THINK)
 
     def walk(self, obj: str="", doing: str=None,
@@ -331,6 +475,11 @@ class Writer(object):
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
         return self.do(Writer._validatedDoing(Does.WONDER, doing),
                 subject, obj, ActType.THINK)
+
+    def work(self, obj: str="", doing: str=None,
+                subject: Optional[Person]=None) -> Action: # pragma: no cover
+        return self.do(Writer._validatedDoing(Does.WORK, doing),
+                subject, obj, ActType.ACT)
 
     def write(self, obj: str="", doing: str=None,
                 subject: Optional[Person]=None) -> Action: # pragma: no cover
