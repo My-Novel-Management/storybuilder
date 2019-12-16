@@ -17,16 +17,16 @@ class ActType(Enum):
     """Action type.
     """
     ACT = "act" # 全般
-    MOVE = "move" # 動かす
+    BE = "be" # 外部状態
     COME = "come" # 出現
     GO = "go" # 消去
-    LOOK = "look" # 描画
-    BE = "be" # 外部状態
-    THINK = "think" # 内部状態
     HAVE = "have" # 所有変更
     HEAR = "hear" # 効果音などの音声
+    LOOK = "look" # 描画
+    MOVE = "move" # 動かす
     TALK = "talk" # 台詞
     TAG = "tag" # for tag
+    THINK = "think" # 内部状態
 
 
 class TagType(Enum):

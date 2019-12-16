@@ -17,7 +17,7 @@ from .story import Story
 from .strutils import str_duplicated_chopped
 from .strutils import str_replaced_tag_by_dictionary
 from .who import Who, When, Where
-from .utils import strOfDescription
+from .utils import strOfDescription, toSomething
 
 
 ## defines
@@ -37,7 +37,7 @@ class Converter(object):
         return self._src
 
     def toConnectDescriptions(self, src=None) -> StoryContainers:
-        return self._toSomething(
+        return toSomething(self,
                 storyFnc=_toConnectDescsFrom,
                 chapterFnc=_toConnectDescsFromChapter,
                 episodeFnc=_toConnectDescsFromEpisode,
@@ -53,7 +53,7 @@ class Converter(object):
                 self.toFilter(pri_filter, src=src if src else self.src)))))
 
     def toFilter(self, pri_filter: int, src=None) -> StoryContainers:
-        return self._toSomething(
+        return toSomething(self,
                 pri_filter,
                 storyFnc=_toFilterFrom,
                 chapterFnc=_toFilterFromChapter,
@@ -63,7 +63,7 @@ class Converter(object):
                 )
 
     def toLayer(self, src=None) -> StoryContainers:
-        return self._toSomething(
+        return toSomething(self,
                 storyFnc=_toLayerFrom,
                 chapterFnc=_toLayerFromChapter,
                 episodeFnc=_toLayerFromEpisode,
@@ -72,7 +72,7 @@ class Converter(object):
                 )
 
     def toReplacePronoun(self, src=None) -> StoryContainers:
-        return self._toSomething(
+        return toSomething(self,
                 storyFnc=_toReplacePronounFrom,
                 chapterFnc=_toReplacePronounFromChapter,
                 episodeFnc=_toReplacePronounFromEpisode,
@@ -82,7 +82,7 @@ class Converter(object):
 
     def toReplaceTag(self, words: dict, src=None) -> StoryContainers:
         prefix = "$"
-        return self._toSomething(
+        return toSomething(self,
                 words, prefix,
                 storyFnc=_toReplaceTagFrom,
                 chapterFnc=_toReplaceTagFromChapter,
@@ -90,25 +90,6 @@ class Converter(object):
                 sceneFnc=_toReplaceTagFromScene,
                 src=src
                 )
-
-    ## private methods
-    def _toSomething(self, *args,
-            storyFnc,
-            chapterFnc,
-            episodeFnc,
-            sceneFnc,
-            src=None) -> StoryContainers:
-        src = src if src else self.src
-        if isinstance(src, Story):
-            return storyFnc(src, *args)
-        elif isinstance(src, Chapter):
-            return chapterFnc(src, *args)
-        elif isinstance(src, Episode):
-            return episodeFnc(src, *args)
-        elif isinstance(src, Scene):
-            return sceneFnc(src, *args)
-        else:
-            raise AssertionError("Non-reachable value: ", src)
 
 ## publics
 def toConvertTagAction(action: TagAction, is_comment: bool) -> str:

@@ -6,20 +6,19 @@ from collections import Counter
 from itertools import chain
 import MeCab
 from . import assertion
-from . import world as wd
-from .scene import Scene
-from .episode import Episode
-from .chapter import Chapter
-from .combaction import CombAction
 from .action import Action, ActType, TagAction, TagType
-from .description import Description, DescType, NoDesc
-from .flag import Flag, NoFlag, NoDeflag
-from .person import Person
-from .chara import Chara
 from .basesubject import NoSubject
-from .story import Story
-from .utils import strOfDescription
+from .chapter import Chapter
+from .chara import Chara
+from .combaction import CombAction
+from .description import Description, DescType, NoDesc
+from .episode import Episode
+from .flag import Flag, NoFlag, NoDeflag
 from .parser import Parser
+from .person import Person
+from .scene import Scene
+from .story import Story
+from .utils import strOfDescription, toSomething, hasTrueList, isDialogue, personsSorted, flagsSorted
 
 
 ## define type
@@ -39,129 +38,237 @@ class Analyzer(object):
 
     def __init__(self, dic: str):
         self.tokenizer = MeCab.Tagger(dic)
+        self.src = None
         # NOTE: mecab hack
         self.tokenizer.parse('')
 
-    # main analyzing methods
-    def action_percent(self, story):
-        acttypes = self.acttypesFrom(story)
+    ## base analyzing
+    def actionsCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_actionsCountIn,
+                chapterFnc=_actionsCountInChapter,
+                episodeFnc=_actionsCountInEpisode,
+                sceneFnc=_actionsCountInScene,
+                src=src)
+
+    def acttypeCount(self, src: StoryContainers, act_type: ActType) -> int:
+        return toSomething(self,
+                act_type,
+                storyFnc=_acttypeCountIn,
+                chapterFnc=_acttypeCountInChapter,
+                episodeFnc=_acttypeCountInEpisode,
+                sceneFnc=_acttypeCountInScene,
+                src=src)
+
+    def actTypesCountsFrom(self, src: StoryContainers) -> dict:
+        return dict([(v, self.acttypeCount(src, v)) for v in ActType])
+
+    def chaptersCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_chaptersCountIn,
+                chapterFnc=_chaptersCountInChapter,
+                episodeFnc=_chaptersCountInEpisode,
+                sceneFnc=_chaptersCountInScene,
+                src=src)
+
+    def descsContainsWord(self, src: StoryContainers, word: str) -> bool:
+        return toSomething(self,
+                word,
+                storyFnc=_descriptionContainsWordIn,
+                chapterFnc=_descriptionContainsWordInChapter,
+                episodeFnc=_descriptionContainsWordInEpisode,
+                sceneFnc=_descriptionContainsWordInScene,
+                src=src)
+
+    def descsManupaperRowCount(self, src: StoryContainers, columns: int) -> int:
+        return toSomething(self,
+                columns,
+                storyFnc=_descsManupaperRowCountIn,
+                chapterFnc=_descsManupaperRowCountInChapter,
+                episodeFnc=_descsManupaperRowCountInEpisode,
+                sceneFnc=_descsManupaperRowCountInScene,
+                src=src)
+
+    def descriptionsCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_descsCountIn,
+                chapterFnc=_descsCountInChapter,
+                episodeFnc=_descsCountInEpisode,
+                sceneFnc=_descsCountInScene,
+                src=src)
+
+    def dialoguesCount(self, src: StoryContainers, person: Person) -> int:
+        return toSomething(self,
+                person,
+                storyFnc=_dialoguesCountIn,
+                chapterFnc=_dialoguesCountInChapter,
+                episodeFnc=_dialoguesCountInEpisode,
+                sceneFnc=_dialoguesCountInScene,
+                src=src)
+
+    def dialoguesOfPerson(self, src: StoryContainers, person: Person) -> list:
+        return toSomething(self,
+                person,
+                storyFnc=_dialoguesOfPersonIn,
+                chapterFnc=_dialoguesOfPersonInChapter,
+                episodeFnc=_dialoguesOfPersonInEpisode,
+                sceneFnc=_dialoguesOfPersonInScene,
+                src=src)
+
+    def episodesCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_episodesCountIn,
+                chapterFnc=_episodesCountInChapter,
+                episodeFnc=_episodesCountInEpisode,
+                sceneFnc=_episodesCountInScene,
+                src=src)
+
+    def flagsCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_flagsCountIn,
+                chapterFnc=_flagsCountInChapter,
+                episodeFnc=_flagsCountInEpisode,
+                sceneFnc=_flagsCountInScene,
+                src=src)
+
+    def flagsFrom(self, src: StoryContainers) -> list:
+        return flagsSorted(list(set(toSomething(self,
+                storyFnc=_flagsFromIn,
+                chapterFnc=_flagsFromInChapter,
+                episodeFnc=_flagsFromInEpisode,
+                sceneFnc=_flagsFromInScene,
+                src=src))))
+
+    def generateGramPartWordsCount(self, src: StoryContainers, gram: str,
+            subinfo: str="") -> Counter:
+        return Counter(
+                toSomething(self,
+                    self, gram, subinfo,
+                    storyFnc=_genGramPartWordsIn,
+                    chapterFnc=_genGramPartWordsInChapter,
+                    episodeFnc=_genGramPartWordsInEpisode,
+                    sceneFnc=_genGramPartWordsInScene,
+                    src=src,
+                ))
+
+    def outlineContainsWord(self, src: StoryContainers, word: str) -> bool:
+        return toSomething(self,
+                word,
+                storyFnc=_outlineContainsWordIn,
+                chapterFnc=_outlineContainsWordInChapter,
+                episodeFnc=_outlineContainsWordInEpisode,
+                sceneFnc=_outlineContainsWordInScene,
+                src=src)
+
+    def outlinesCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_outlinesCountIn,
+                chapterFnc=_outlinesCountInChapter,
+                episodeFnc=_outlinesCountInEpisode,
+                sceneFnc=_outlinesCountInScene,
+                src=src)
+
+    def outlinesManupaperRowCount(self, src: StoryContainers, columns: int) -> int:
+        return toSomething(self,
+                columns,
+                storyFnc=_outlinesManupaperRowCountIn,
+                chapterFnc=_outlinesManupaperRowCountInChapter,
+                episodeFnc=_outlinesManupaperRowCountInEpisode,
+                sceneFnc=_outlinesManupaperRowCountInScene,
+                src=src)
+
+    def personsFrom(self, src: StoryContainers) -> list:
+        return personsSorted(list(set(toSomething(self,
+                storyFnc=_personsFromIn,
+                chapterFnc=_personsFromInChapter,
+                episodeFnc=_personsFromInEpisode,
+                sceneFnc=_personsFromInScene,
+                src=src))))
+
+    def scenesCount(self, src: StoryContainers) -> int:
+        return toSomething(self,
+                storyFnc=_scenesCountIn,
+                chapterFnc=_scenesCountInChapter,
+                episodeFnc=_scenesCountInEpisode,
+                sceneFnc=_scenesCountInScene,
+                src=src)
+
+    ## utility analyzing
+    def actionsPercent(self, src: StoryContainers) -> dict:
+        acttypes = self.actTypesCountsFrom(src)
         total = sum(v for v in acttypes.values())
-        def percent(char, atype):
-            return "- {}: {:.2f}%".format(
-                    char,
-                    acttypes[atype] / total * 100 if total else 0
-                    )
-        return ["## Actions",
-                f"- Total: {total}",
-                percent("Act", ActType.ACT),
-                percent("Be", ActType.BE),
-                percent("Come", ActType.COME),
-                percent("Go", ActType.GO),
-                percent("Have", ActType.HAVE),
-                percent("Hear", ActType.HEAR),
-                percent("Look", ActType.LOOK),
-                percent("Move", ActType.MOVE),
-                percent("Talk", ActType.TALK),
-                percent("Think", ActType.THINK),
-                ]
+        def _percent(v):
+            return acttypes[v] / total * 100 if total else 0
+        return dict([(v.name.capitalize(), _percent(v)) for v in ActType])
 
-    def characters_count(self, story: wd.Story):
-        # TODO: outline文字数／シナリオ用
-        rows, columns = Analyzer.DEF_BASEROWS, Analyzer.DEF_BASECOLUMNS
-        total = _descriptionCountIn(story) # NOTE: 総文字数
-        outline = _outlineCountsIn(story) # NOTE: outline文字数
-        estimated = self._descs_estimated_count(story) # NOTE: 予想文字数
-        manupapers, manupprows = _descriptionManupaperCountsIn(story, rows, columns) # NOTE: 原稿用紙換算枚数
-        outlinepapers, outlinerows = _outlineManupaperCountsIn(story, rows, columns) # NOTE: outline原稿用紙換算枚数
-        return [
-                "## Characters",
-                f"- Total: {total} / Outline: {outline}",
-                f"- Estimated: {estimated}",
-                f"- Manupapers: {manupapers:0.3f}p ({manupprows:0.2f}) / Outline {outlinepapers:0.3f}p ({outlinerows:0.2f}) / {rows} x {columns}",
-                ]
+    def charactersCount(self, src: StoryContainers,
+            columns: int=DEF_BASECOLUMNS, rows: int=DEF_BASEROWS) -> dict:
+        return {"desc_total": self.descriptionsCount(src),
+                "outline_total": self.outlinesCount(src),
+                "estimated": self.descsEstimatedCount(src),
+                "desc_rows": self.descsManupaperRowCount(src, columns),
+                "outline_rows": self.outlinesManupaperRowCount(src, columns),
+                "base_columns": columns,
+                "base_rows": rows,
+                }
 
-    def characters_count_each_scenes(self, story: wd.Story):
+    def charactersCountEachScenes(self, story: Story,
+            columns: int=DEF_BASECOLUMNS, rows: int=DEF_BASEROWS) -> list:
         tmp = []
-        rows = Analyzer.DEF_BASEROWS
-        columns = Analyzer.DEF_BASECOLUMNS
-        ch_num = 1
-        epi_num = 1
-        scene_num = 1
-        def _shorttitle(title: str):
-            return title[:8] + '..' if len(title) >= 8 else title
-        for c in story.chapters:
-            tmp.append(f"### CH-{ch_num}: {c.title}")
+        ch_num, ep_num, sc_num = 1, 1, 1
+        for ch in story.chapters:
+            tmp.append((f"Ch-{ch_num}: {ch.title}",
+                self.charactersCount(ch, columns, rows)))
             ch_num += 1
-            for e in c.episodes:
-                tmp_sc = []
-                tmp_total = 0
-                tmp_pp = 0
-                tmp_rows = 0
-                tmp_out_total = 0
-                tmp_out_pp = 0
-                tmp_out_rows = 0
-                for s in e.scenes:
-                    total = _descriptionCountInScene(s)
-                    _rows = _descriptionManupaperCountsInScene(s, columns)
-                    _papers = _rows / rows
-                    outline = _outlineCountsInScene(s)
-                    _outrows = _outlineManupaperCountsInScene(s, columns)
-                    _outpapers = _outrows / rows
-                    tmp_sc.append(f"    - {scene_num}. {_shorttitle(s.title)}: {total} [{_papers:0.3f}p ({_rows:0.2f})] / Outline {outline} [{_outpapers:0.3f}p ({_outrows:0.2f})]")
-                    scene_num += 1
-                    tmp_total += total
-                    tmp_pp += _papers
-                    tmp_rows += _rows
-                    tmp_out_total += outline
-                    tmp_out_pp += _outpapers
-                    tmp_out_rows += _outrows
-                tmp.append(f"* Ep-{epi_num}: {e.title}: {tmp_total} [{tmp_pp:0.3f}p ({tmp_rows:0.2f})] / Outline {tmp_out_total} [{tmp_out_pp:0.3f}p ({tmp_out_rows:0.2f})]")
-                epi_num += 1
-                if tmp_sc:
-                    tmp = tmp + tmp_sc
+            for ep in ch.episodes:
+                tmp.append((f"Ep-{ep_num}: {ep.title}",
+                    self.charactersCount(ep, columns, rows)))
+                ep_num += 1
+                for sc in ep.scenes:
+                    tmp.append((f"Sc-1{sc_num}: {sc.title}",
+                        self.charactersCount(sc, columns, rows)))
+                    sc_num += 1
         return tmp
 
-    def acttypesFrom(self, story: wd.Story):
-        acttypes = [ActType.ACT, ActType.BE, ActType.COME, ActType.GO, ActType.HAVE, ActType.HEAR,
-                ActType.LOOK, ActType.MOVE, ActType.TALK, ActType.THINK]
-        return dict([(v, _acttypeCountsIn(story, v)) for v in acttypes])
-
-    def containsWord(self, src: StoryContainers, target: (str, list, tuple),
+    def containsWord(self, src: StoryContainers, words: (str, list, tuple),
             useAnd: bool=True) -> bool:
         '''Check the word to contain the source.
         '''
-        def _check(src: StoryContainers, target: str):
-            if isinstance(src, Story):
-                return _containsWordIn(src, target)
-            elif isinstance(src, Chapter):
-                return _containsWordInChapter(src, target)
-            elif isinstance(src, Episode):
-                return _containsWordInEpisode(src, target)
-            elif isinstance(src, Scene):
-                return _containsWordInScene(src, target)
-            else:
-                raise AssertionError("Unexpect value: ", src)
-        if isinstance(target, str):
-            return _check(src, target)
+        if isinstance(words, str):
+            return self.outlineContainsWord(src, words) or self.descsContainsWord(src, words)
         else:
+            assertion.is_list(words)
             if useAnd:
-                return not False in [_check(src, v) for v in assertion.is_list(target)]
+                return not hasTrueList(
+                        words,
+                        lambda v, src: not (self.outlineContainsWord(src, v) or self.descsContainsWord(src, v)),
+                        src)
             else:
-                return True in [_check(src, v) for v in assertion.is_list(target)]
+                return hasTrueList(
+                        words,
+                        lambda v, src: (self.outlineContainsWord(src, v) or self.descsContainsWord(src, v)),
+                        src)
 
-    def flag_infos(self, story: Story):
-        allflags = _flagsIn(story)
-        flags = list(v for v in allflags if not v.isDeflag)
-        deflags = list(v for v in allflags if v.isDeflag)
-        return ["## Flag info",
-                "- flags: {}".format(len(flags)),
-                "- deflags: {}".format(len(deflags))] \
-                + ["### Flag detail"] \
-                + list("+ " + v.info for v in flags) \
-                + ["### Deflag detail"] \
-                + list("- " + v.info for v in deflags)
+    def descsEstimatedCount(self, src: StoryContainers, basement: int=DEF_BASEMENT) -> int:
+        tmp = self.actTypesCountsFrom(src)
+        def multi(t, v):
+            if t is ActType.BE: return v * 1
+            elif t in (ActType.GO, ActType.COME): return v * 2
+            elif t is ActType.TAG: return v * 0
+            else: return v * 4
+        return sum([multi(k, v) for k,v in tmp.items()]) * basement
 
-    def frequency_words(self, story: wd.Story):
+    def dialoguesEachPerson(self, src: StoryContainers) -> list:
+        tmp = []
+        persons = self.personsFrom(src)
+        for v in persons:
+            t = self.dialoguesOfPerson(src,v)
+            tmp.append((v.name, self.dialoguesOfPerson(src, v)))
+        return tmp
+
+    # main analyzing methods
+    def frequency_words(self, story: Story):
+        # TODO: all story source
         is_comment = False
         descs = Parser(story).toDescriptions(False)
         parsed = self.tokenizer.parse("\n".join(descs)).split("\n")
@@ -209,220 +316,204 @@ class Analyzer(object):
                 + ["\n### 接続詞\n"] + _wordslist(conjuct_counter) \
                 + _as_one_counts(conjuct_counter)
 
-    def dialogue_infos(self, story: Story):
-        def _conv(data: list, target: TargetPerson):
-            return [f"{target.name}"] + [f"- {v}" for v in data if v]
-        charalist = _personsIn(story)
-        dial_counts = [f"{v.name}: {_dialogueCountIn(story, v)}" for v in charalist]
-        each_charas = list(chain.from_iterable(_conv(_dialoguesOfPersonIn(story, v), v) for v in charalist))
-        return ["## Dialogue counts\n"] \
-                + dial_counts \
-                + ["\n## Dialogue each persons\n"] \
-                + each_charas
+## privates (detail)
+### counts
+'''Action counts
+'''
+def _actionsCountIn(story: Story) -> int:
+    return sum(_actionsCountInChapter(v) for v in story.chapters)
 
-    # privates (hook)
-    def _descs_estimated_count(self, story: wd.Story, basement: int=DEF_BASEMENT):
-        tmp = self.acttypesFrom(story)
-        return sum([
-            tmp[ActType.ACT] * 4,
-            tmp[ActType.BE] * 1,
-            tmp[ActType.COME] * 2,
-            tmp[ActType.GO] * 2,
-            tmp[ActType.HAVE] * 2,
-            tmp[ActType.HEAR] * 2,
-            tmp[ActType.LOOK] * 4,
-            tmp[ActType.MOVE] * 2,
-            tmp[ActType.TALK] * 4,
-            tmp[ActType.THINK] * 4,
-                ]) * basement
+def _actionsCountInChapter(chapter: Chapter) -> int:
+    return sum(_actionsCountInEpisode(v) for v in chapter.episodes)
 
-# privates (detail)
-###
-def _acttypeCountsIn(story: Story, act_type: ActType) -> int:
-    def _in_scene(scene: Scene, act_type: ActType):
-        return sum(_acttypeCountsInAction(v, act_type) for v in scene.actions)
+def _actionsCountInEpisode(episode: Episode) -> int:
+    return sum(_actionsCountInScene(v) for v in episode.scenes)
 
-    def _in_episode(episode: Episode, act_type: ActType):
-        return sum(_in_scene(v, act_type) for v in episode.scenes)
+def _actionsCountInScene(scene: Scene) -> int:
+    return sum(_actionsCountInAction(v) for v in scene.actions)
 
-    def _in_chapter(chapter: Chapter, act_type: ActType):
-        return sum(_in_episode(v, act_type) for v in chapter.episodes)
-
-    return sum(_in_chapter(v, act_type) for v in story.chapters)
-
-def _acttypeCountsInAction(action: AllActions, act_type: ActType) -> int:
+def _actionsCountInAction(action: AllActions) -> int:
     if isinstance(action, CombAction):
-        return sum(_acttypeCountsInAction(v, act_type) for v in action.actions)
-    elif isinstance(action, TagAction):
-        return 0
+        return sum(_actionsCountInAction(v) for v in action.actions)
     else:
-        return action.act_type is act_type
+        return 1
 
-def _containsWordIn(story: Story, target: str) -> bool:
-    return len([v for v in story.chapters if _containsWordInChapter(v, target)]) > 0
+'''Act type count
+'''
+def _acttypeCountIn(story: Story, act_type: ActType) -> int:
+    return sum(_acttypeCountInChapter(v, act_type) for v in story.chapters)
 
-def _containsWordInChapter(chapter: Chapter, target: str) -> bool:
-    return len([v for v in chapter.episodes if _containsWordInEpisode(v, target)]) > 0
+def _acttypeCountInChapter(chapter: Chapter, act_type: ActType) -> int:
+    return sum(_acttypeCountInEpisode(v, act_type) for v in chapter.episodes)
 
-def _containsWordInEpisode(episode: Episode, target: str) -> bool:
-    return len([v for v in episode.scenes if _containsWordInScene(v, target)]) > 0
+def _acttypeCountInEpisode(episode: Episode, act_type: ActType) -> int:
+    return sum(_acttypeCountInScene(v, act_type) for v in episode.scenes)
 
-def _containsWordInScene(scene: Scene, target: str) -> bool:
-    return len([v for v in scene.actions if _containsWordInAction(v, target)]) > 0
+def _acttypeCountInScene(scene: Scene, act_type: ActType) -> int:
+    return sum(_acttypeCountInAction(v, act_type) for v in scene.actions)
 
-def _containsWordInAction(action: AllActions, target: str) -> bool:
+def _acttypeCountInAction(action: AllActions, act_type: ActType) -> int:
     if isinstance(action, CombAction):
-        return len([v for v in action.actions if _containsWordInAction(v, target)]) > 0
+        return sum(_acttypeCountInAction(v, act_type) for v in action.actions)
     elif isinstance(action, TagAction):
-        return False
+        return action.act_type == act_type
     else:
-        return assertion.is_str(target) in action.subject.name \
-                or target in action.outline \
-                or target in strOfDescription(action)
+        return action.act_type == act_type
 
-def _descriptionCountIn(story: Story) -> int:
-    def _in_episode(episode: Episode):
-        return sum(_descriptionCountInScene(v) for v in episode.scenes)
+'''chapters count
+'''
+def _chaptersCountIn(story: Story) -> int:
+    return sum(_chaptersCountInChapter(v) for v in story.chapters)
 
-    def _in_chapter(chapter: Chapter):
-        return sum(_in_episode(v) for v in chapter.episodes)
+def _chaptersCountInChapter(chapter: Chapter) -> int:
+    return 1
 
-    return sum(_in_chapter(v) for v in story.chapters)
+def _chaptersCountInEpisode(episode: Episode) -> int:
+    return 0
 
-def _descriptionCountInScene(scene: Scene) -> int:
-    return sum(_descriptionCountInAction(v) for v in scene.actions)
+def _chaptersCountInScene(scene: Scene) -> int:
+    return 0
 
-def _descriptionCountInAction(action: AllActions) -> int:
+'''descriptions count
+'''
+def _descsCountIn(story: Story) -> int:
+    return sum(_descsCountInChapter(v) for v in story.chapters)
+
+def _descsCountInChapter(chapter: Chapter) -> int:
+    return sum(_descsCountInEpisode(v) for v in chapter.episodes)
+
+def _descsCountInEpisode(episode: Episode) -> int:
+    return sum(_descsCountInScene(v) for v in episode.scenes)
+
+def _descsCountInScene(scene: Scene) -> int:
+    return sum(_descsCountInAction(v) for v in scene.actions)
+
+def _descsCountInAction(action: AllActions) -> int:
     if isinstance(action, CombAction):
-        return sum(_descriptionCountInAction(v) for v in action.actions)
+        return sum(_descsCountInAction(v) for v in action.actions)
     elif isinstance(action, TagAction):
         return 0
     else:
         return len(strOfDescription(action))
 
-def _descriptionManupaperCountsIn(story: Story, rows: int, columns: int) -> tuple:
-    def _in_episode(episode: Episode, columns: int):
-        return sum(_descriptionManupaperCountsInScene(v, columns) for v in episode.scenes)
+'''description manupaper row count
+'''
+def _descsManupaperRowCountIn(story: Story, columns: int) -> int:
+    return sum(_descsManupaperRowCountInChapter(v, columns) for v in story.chapters)
 
-    def _in_chapter(chapter: Chapter, columns: int):
-        return sum(_in_episode(v, columns) for v in chapter.episodes)
+def _descsManupaperRowCountInChapter(chapter: Chapter, columns: int) -> int:
+    return sum(_descsManupaperRowCountInEpisode(v, columns) for v in chapter.episodes)
 
-    row_nums = sum(_in_chapter(v, columns) for v in story.chapters)
-    papers = row_nums / rows
-    return (papers, row_nums)
+def _descsManupaperRowCountInEpisode(episode: Episode, columns: int) -> int:
+    return sum(_descsManupaperRowCountInScene(v, columns) for v in episode.scenes)
 
-def _descriptionManupaperCountsInScene(scene: Scene, columns: int) -> int:
-    return sum(_descriptionManupaperCountsInAction(v, columns) for v in scene.actions)
+def _descsManupaperRowCountInScene(scene: Scene, columns: int) -> int:
+    return sum(_descsManupaperRowCountInAction(v, columns) for v in scene.actions)
 
-def _descriptionManupaperCountsInAction(action: AllActions, columns: int) -> int:
+def _descsManupaperRowCountInAction(action: AllActions, columns: int) -> int:
     if isinstance(action, CombAction):
         return sum(int_ceiled(len(strOfDescription(v)), columns) for v in action.actions)
     elif isinstance(action, TagAction):
-        return action.tag_type in (TagType.BR, TagType.SYMBOL)
+        return action.tag_type is (TagType.BR, TagType.SYMBOL)
     else:
         return int_ceiled(len(strOfDescription(action)), columns)
 
-def _dialogueCountIn(story: Story, target: TargetPerson) -> int:
-    def _in_scene(scene: Scene, target: TargetPerson):
-        return sum(_dialogueCountInAction(v, target) for v in scene.actions)
+'''dialogue count
+'''
+def _dialoguesCountIn(story: Story, person: Person) -> int:
+    return sum(_dialoguesCountInChapter(v, person) for v in story.chapters)
 
-    def _in_episode(episode: Episode, target: TargetPerson):
-        return sum(_in_scene(v, target) for v in episode.scenes)
+def _dialoguesCountInChapter(chapter: Chapter, person: Person) -> int:
+    return sum(_dialoguesCountInEpisode(v, person) for v in chapter.episodes)
 
-    def _in_chapter(chapter: Chapter, target: TargetPerson):
-        return sum(_in_episode(v, target) for v in chapter.episodes)
+def _dialoguesCountInEpisode(episode: Episode, person: Person) -> int:
+    return sum(_dialoguesCountInScene(v, person) for v in episode.scenes)
 
-    return sum(_in_chapter(v, target) for v in story.chapters)
+def _dialoguesCountInScene(scene: Scene, person: Person) -> int:
+    return sum(_dialoguesCountInAction(v, person) for v in scene.actions)
 
-def _dialogueCountInAction(action: AllActions, target: TargetPerson) -> int:
+def _dialoguesCountInAction(action: AllActions, person: Person) -> int:
     if isinstance(action, CombAction):
-        return sum(_dialogueCountInAction(v, target) for v in action.actions)
+        return sum(_dialoguesCountInAction(v, person) for v in action.actions)
     elif isinstance(action, TagAction):
         return 0
     else:
-        return action.act_type is ActType.TALK and action.subject is target
+        return isDialogue(action) \
+                and isinstance(action.subject, Person) and action.subject.equals(person)
 
-def _dialoguesOfPersonIn(story: Story, target: TargetPerson) -> list:
-    def _in_scene(scene: Scene, target: TargetPerson):
-        return chain.from_iterable(_dialoguesOfPersonInAction(v, target) for v in scene.actions)
+'''episodes count
+'''
+def _episodesCountIn(story: Story) -> int:
+    return sum(_episodesCountInChapter(v) for v in story.chapters)
 
-    def _in_episode(episode: Episode, target: TargetPerson):
-        return chain.from_iterable(_in_scene(v, target) for v in episode.scenes)
+def _episodesCountInChapter(chapter: Chapter) -> int:
+    return sum(_episodesCountInEpisode(v) for v in chapter.episodes)
 
-    def _in_chapter(chapter: Chapter, target: TargetPerson):
-        return chain.from_iterable(_in_episode(v, target) for v in chapter.episodes)
+def _episodesCountInEpisode(episode: Episode) -> int:
+    return 1
 
-    return list(chain.from_iterable(_in_chapter(v, target) for v in story.chapters))
+def _episodesCountInScene(scene: Scene) -> int:
+    return 0
 
-def _dialoguesOfPersonInAction(action: AllActions, target: TargetPerson) -> list:
-    def _isTalk(action: Action):
-        return action.act_type is ActType.TALK or action.description.desc_type is DescType.DIALOGUE
+'''flags count
+'''
+def _flagsCountIn(story: Story) -> int:
+    return sum(_flagsCountInChapter(v) for v in story.chapters)
+
+def _flagsCountInChapter(chapter: Chapter) -> int:
+    return sum(_flagsCountInEpisode(v) for v in chapter.episodes)
+
+def _flagsCountInEpisode(episode: Episode) -> int:
+    return sum(_flagsCountInScene(v) for v in episode.scenes)
+
+def _flagsCountInScene(scene: Scene) -> int:
+    return sum(_flagsCountInAction(v) for v in scene.actions)
+
+def _flagsCountInAction(action: AllActions) -> int:
     if isinstance(action, CombAction):
-        return chain.from_iterable(
-                _dialoguesOfPersonInAction(v, target) for v in action.actions)
+        return sum(_flagsCountInAction(v) for v in action.actions)
     elif isinstance(action, TagAction):
-        return []
+        return 0
     else:
-        return [strOfDescription(action)] if _isTalk(action) and action.subject is target else []
+        return len([v for v in (action.getFlag(), action.getDeflag()) if not isinstance(v, (NoFlag, NoDeflag))])
 
-def _flagsIn(story: Story) -> list:
-    def _in_scene(scene: Scene):
-        return chain.from_iterable(_flagsInAction(v) for v in scene.actions)
+'''outlines count
+'''
+def _outlinesCountIn(story: Story) -> int:
+    return sum(_outlinesCountInChapter(v) for v in story.chapters)
 
-    def _in_episode(episode: Episode):
-        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
+def _outlinesCountInChapter(chapter: Chapter) -> int:
+    return sum(_outlinesCountInEpisode(v) for v in chapter.episodes)
 
-    def _in_chapter(chapter: Chapter):
-        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
+def _outlinesCountInEpisode(episode: Episode) -> int:
+    return sum(_outlinesCountInScene(v) for v in episode.scenes)
 
-    return list(chain.from_iterable(_in_chapter(v) for v in story.chapters))
+def _outlinesCountInScene(scene: Scene) -> int:
+    return sum(_outlinesCountInAction(v) for v in scene.actions)
 
-def _flagsInAction(action: AllActions) -> list:
-    def _is_flag_or_deflag(flag: AllFlags):
-        return not isinstance(flag, (NoFlag, NoDeflag)) or not isinstance(flag, (NoFlag, NoDeflag))
+def _outlinesCountInAction(action: AllActions) -> int:
     if isinstance(action, CombAction):
-        return chain.from_iterable(_flagsInAction(v) for v in action.actions)
+        return sum(_outlinesCountInAction(v) for v in action.actions)
     elif isinstance(action, TagAction):
-        return []
+        return 0
     else:
-        return [v for v in (action.getFlag(), action.getDeflag()) if _is_flag_or_deflag(v)]
+        return len(action.outline)
 
-def _outlineCountsIn(story: Story) -> int:
-    def _in_episode(episode: Episode):
-        return sum(_outlineCountsInScene(v) for v in episode.scenes)
+'''outlines manupaper row count
+'''
+def _outlinesManupaperRowCountIn(story: Story, columns: int) -> int:
+    return sum(_outlinesManupaperRowCountInChapter(v, columns) for v in story.chapters)
 
-    def _in_chapter(chapter: Chapter):
-        return sum(_in_episode(v) for v in chapter.episodes)
+def _outlinesManupaperRowCountInChapter(chapter: Chapter, columns: int) -> int:
+    return sum(_outlinesManupaperRowCountInEpisode(v, columns) for v in chapter.episodes)
 
-    return sum(_in_chapter(v) for v in story.chapters)
+def _outlinesManupaperRowCountInEpisode(episode: Episode, columns: int) -> int:
+    return sum(_outlinesManupaperRowCountInScene(v, columns) for v in episode.scenes)
 
-def _outlineCountsInScene(scene: Scene) -> int:
-    return sum(_outlineCountsInAction(v) for v in scene.actions)
+def _outlinesManupaperRowCountInScene(scene: Scene, columns: int) -> int:
+    return sum(_outlinesManupaperRowCountInAction(v, columns) for v in scene.actions)
 
-def _outlineCountsInAction(action: AllActions) -> int:
-        if isinstance(action, CombAction):
-            return sum(_outlineCountsInAction(v) for v in action.actions)
-        elif isinstance(action, TagAction):
-            return 0
-        else:
-            return len(action.outline)
-
-def _outlineManupaperCountsIn(story: Story, rows: int, columns: int) -> tuple:
-    def _in_episode(episode: Episode, columns: int):
-        return sum(_outlineManupaperCountsInScene(v, columns) for v in episode.scenes)
-
-    def _in_chapter(chapter: Chapter, columns: int):
-        return sum(_in_episode(v, columns) for v in chapter.episodes)
-
-    row_nums = sum(_in_chapter(v, columns) for v in story.chapters)
-    papers = row_nums / rows
-    return (papers, row_nums)
-
-def _outlineManupaperCountsInScene(scene: Scene, columns: int) -> int:
-    # NOTE: +2 is title pillar
-    return sum(_outlineManupaperCountsInAction(v, columns) for v in scene.actions) + 2
-
-def _outlineManupaperCountsInAction(action: AllActions, columns: int) -> int:
+def _outlinesManupaperRowCountInAction(action: AllActions, columns: int) -> int:
     if isinstance(action, CombAction):
         return sum(int_ceiled(len(v.outline), columns) for v in action.actions)
     elif isinstance(action, TagAction):
@@ -430,26 +521,169 @@ def _outlineManupaperCountsInAction(action: AllActions, columns: int) -> int:
     else:
         return int_ceiled(len(action.outline), columns)
 
-def _personsIn(story: Story) -> list:
-    def _in_scene(scene: Scene):
-        return chain.from_iterable(_personsInAction(v) for v in scene.actions)
+'''scenes count
+'''
+def _scenesCountIn(story: Story) -> int:
+    return sum(_scenesCountInChapter(v) for v in story.chapters)
 
-    def _in_episode(episode: Episode):
-        return chain.from_iterable(_in_scene(v) for v in episode.scenes)
+def _scenesCountInChapter(chapter: Chapter) -> int:
+    return sum(_scenesCountInEpisode(v) for v in chapter.episodes)
 
-    def _in_chapter(chapter: Chapter):
-        return chain.from_iterable(_in_episode(v) for v in chapter.episodes)
+def _scenesCountInEpisode(episode: Episode) -> int:
+    return sum(_scenesCountInScene(v) for v in episode.scenes)
 
-    return list(set(
-        list(chain.from_iterable(_in_chapter(v) for v in story.chapters))))
+def _scenesCountInScene(scene: Scene) -> int:
+    return 1
 
-def _personsInAction(action: AllActions) -> list:
+### contains
+'''description contains word
+'''
+def _descriptionContainsWordIn(story: Story, word: str) -> bool:
+    return hasTrueList(story.chapters, _descriptionContainsWordInChapter, word)
+
+def _descriptionContainsWordInChapter(chapter: Chapter, word: str) -> bool:
+    return hasTrueList(chapter.episodes, _descriptionContainsWordInEpisode, word)
+
+def _descriptionContainsWordInEpisode(episode: Episode, word: str) -> bool:
+    return hasTrueList(episode.scenes, _descriptionContainsWordInScene, word)
+
+def _descriptionContainsWordInScene(scene: Scene, word: str) -> bool:
+    return hasTrueList(scene.actions, _descriptionContainsWordInAction, word)
+
+def _descriptionContainsWordInAction(action: AllActions, word: str) -> bool:
     if isinstance(action, CombAction):
-        return list(chain.from_iterable(_personsInAction(v) for v in action.actions))
+        return hasTrueList(action.actions, _descriptionContainsWordInAction, word)
+    elif isinstance(action, TagAction):
+        return False
+    else:
+        return word in strOfDescription(action)
+
+'''outline contains word
+'''
+def _outlineContainsWordIn(story: Story, word: str) -> bool:
+    return hasTrueList(story.chapters, _outlineContainsWordInChapter, word)
+
+def _outlineContainsWordInChapter(chapter: Chapter, word: str) -> bool:
+    return hasTrueList(chapter.episodes, _outlineContainsWordInEpisode, word)
+
+def _outlineContainsWordInEpisode(episode: Episode, word: str) -> bool:
+    return hasTrueList(episode.scenes, _outlineContainsWordInScene, word)
+
+def _outlineContainsWordInScene(scene: Scene, word: str) -> bool:
+    return hasTrueList(scene.actions, _outlineContainsWordInAction, word)
+
+def _outlineContainsWordInAction(action: AllActions, word: str) -> bool:
+    if isinstance(action, CombAction):
+        return hasTrueList(action.actions, _outlineContainsWordInAction, word)
+    elif isinstance(action, TagAction):
+        return False
+    else:
+        return word in action.outline
+
+## convert
+
+
+## extractor
+def _dialoguesOfPersonIn(story: Story, person: Person) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInChapter(v, person) for v in story.chapters))
+
+def _dialoguesOfPersonInChapter(chapter: Chapter, person: Person) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInEpisode(v, person) for v in chapter.episodes))
+
+def _dialoguesOfPersonInEpisode(episode: Episode, person: Person) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInScene(v, person) for v in episode.scenes))
+
+def _dialoguesOfPersonInScene(scene: Scene, person: Person) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person) for v in scene.actions))
+
+def _dialoguesOfPersonInAction(action: AllActions, person: Person) -> list:
+    def _exceptNoDesc(act: Action):
+        if isinstance(act.description, NoDesc):
+            return ""
+        else:
+            return strOfDescription(act)
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person) for v in action.actions))
     elif isinstance(action, TagAction):
         return []
     else:
-        return [action.subject]
+        return [_exceptNoDesc(action)] if (isDialogue(action) and isinstance(action.subject, Person) and action.subject.equals(person)) else []
+
+'''flags list from
+'''
+def _flagsFromIn(story: Story) -> list:
+    return list(chain.from_iterable(_flagsFromInChapter(v) for v in story.chapters))
+
+def _flagsFromInChapter(chapter: Chapter) -> list:
+    return list(chain.from_iterable(_flagsFromInEpisode(v) for v in chapter.episodes))
+
+def _flagsFromInEpisode(episode: Episode) -> list:
+    return list(chain.from_iterable(_flagsFromInScene(v) for v in episode.scenes))
+
+def _flagsFromInScene(scene: Scene) -> list:
+    return list(chain.from_iterable(_flagsFromInAction(v) for v in scene.actions))
+
+def _flagsFromInAction(action: AllActions) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_flagsFromInAction(v) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        return [action.getFlag(), action.getDeflag()]
+
+'''persons list from
+'''
+def _personsFromIn(story: Story) -> list:
+    return list(chain.from_iterable(_personsFromInChapter(v) for v in story.chapters))
+
+def _personsFromInChapter(chapter: Chapter) -> list:
+    return list(chain.from_iterable(_personsFromInEpisode(v) for v in chapter.episodes))
+
+def _personsFromInEpisode(episode: Episode) -> list:
+    return list(chain.from_iterable(_personsFromInScene(v) for v in episode.scenes))
+
+def _personsFromInScene(scene: Scene) -> list:
+    return list(chain.from_iterable(_personsFromInAction(v) for v in scene.actions))
+
+def _personsFromInAction(action: AllActions) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_personsFromInAction(v) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        return [action.subject] if isinstance(action.subject, Person) else []
+
+## generate
+def _genGramPartWordsIn(story: Story, az: Analyzer, gram: str, subinfo: str) -> list:
+    return list(chain.from_iterable([_genGramPartWordsInChapter(v, az, gram, subinfo) for v in story.chapters]))
+
+def _genGramPartWordsInChapter(chapter: Chapter, az: Analyzer, gram: str, subinfo: str) -> list:
+    return list(chain.from_iterable([_genGramPartWordsInEpisode(v, az, gram, subinfo) for v in chapter.episodes]))
+
+def _genGramPartWordsInEpisode(episode: Episode, az: Analyzer, gram: str, subinfo: str) -> list:
+    return list(chain.from_iterable([_genGramPartWordsInScene(v, az, gram, subinfo) for v in episode.scenes]))
+
+def _genGramPartWordsInScene(scene: Scene, az: Analyzer, gram: str, subinfo: str) -> list:
+    return list(chain.from_iterable([_genGramPartWordsInAction(v, az, gram, subinfo) for v in scene.actions]))
+
+def _genGramPartWordsInAction(action: AllActions, az: Analyzer, gram: str,
+        subinfo: str) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable([_genGramPartWordsInAction(v, az, gram, subinfo) for v in action.actions]))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        def _except(t: str):
+            return t in ('EOS', '', 't', 'ー')
+        parsed = az.tokenizer.parse(strOfDescription(action)).split("\n")
+        tokens = (re.split('[\t,]', v) for v in parsed)
+        def _ifcond(v, gram, subinfo):
+            if v and not _except(v[0]):
+                if v[1] == gram:
+                    return subinfo in (v[2], v[3]) if subinfo else True
+            return False
+        tmp = [v[0] for v in tokens if _ifcond(v, gram, subinfo)]
+        return tmp
 
 ## math utility
 def int_ceiled(a: [int, float], b: [int, float]) -> int:

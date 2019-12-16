@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """For format class.
 """
+from itertools import chain
 from . import assertion
 from .scene import ScenarioType
 from .strutils import str_duplicated_chopped
@@ -11,6 +12,45 @@ class Formatter(object):
     """
 
     # methods
+    def toActionPercentInfo(self, total: int, data: dict, prefix: str) -> list:
+        from .action import ActType
+        def _conv(c, v):
+            return f"- {c}: {v:.2f}%"
+        return [f"## Actions: {prefix}",
+                f"- Total: {total}",
+                ] + [_conv(k,v) for k,v in data.items()]
+
+    def toCharactersInfo(self, data: dict, prefix: str=None, idt: int=0) -> list:
+        desc_total = data["desc_total"]
+        outline_total = data["outline_total"]
+        estimated = data["estimated"]
+        desc_rows = data["desc_rows"]
+        outline_rows = data["outline_rows"]
+        columns = data["base_columns"]
+        rows = data["base_rows"]
+        desc_pp = desc_rows / rows
+        outline_pp = outline_rows / rows
+        indent = " " * 4 * idt
+        title = f"{indent}* {prefix}" if prefix else "* Characters"
+        return [title \
+                + f" - {desc_total}c [{desc_pp:0.2f}p ({desc_rows:0.2f}ls)]" \
+                + f" / Outline: {outline_total}c [{outline_pp:0.2f}p ({outline_rows:0.2f})ls]" \
+                + f"- Estimated: {estimated}c",
+                ]
+
+    def toCharactersInfoEachScenes(self, data: list) -> list:
+        tmp = []
+        idt = 0
+        for v in data:
+            if "Ch" in v[0]:
+                idt = 0
+            elif "Ep" in v[0]:
+                idt = 1
+            else:
+                idt = 2
+            tmp.append(self.toCharactersInfo(v[1], v[0], idt))
+        return list(chain.from_iterable(tmp))
+
     def toDescriptions(self, data: list) -> list:
         def _conv(v):
             if "###" in v: return f"\n{v}\n"
@@ -75,6 +115,26 @@ class Formatter(object):
                 pre = "" if inDialogue == cur else "\n"
                 tmp.append(pre + v)
                 inDialogue = cur
+        return tmp
+
+    def toDialoguesInfo(self, data: list) -> list:
+        tmp = []
+        for v in data:
+            tmp.append(f"* {v[0]}")
+            for d in v[1]:
+                tmp.append(f"    - {d}")
+        return tmp
+
+    def toFlagsInfo(self, data: list) -> list:
+        tmp = []
+        flags = [v for v in data if not v.isDeflag]
+        deflags = [v for v in data if v.isDeflag]
+        tmp.append("* Flags")
+        for v in flags:
+            tmp.append(f"    + {v.info}")
+        tmp.append("* Deflags")
+        for v in deflags:
+            tmp.append(f"    - {v.info}")
         return tmp
 
     def toOutlines(self, data: list) -> list:

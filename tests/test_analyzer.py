@@ -4,17 +4,6 @@
 import unittest
 from testutils import print_test_title, validated_testing_withfail
 from builder.analyzer import Analyzer, int_ceiled
-from builder.analyzer import _acttypeCountsInAction
-from builder.analyzer import _containsWordIn
-from builder.analyzer import _containsWordInAction
-from builder.analyzer import _descriptionCountInAction
-from builder.analyzer import _descriptionManupaperCountsInAction
-from builder.analyzer import _dialogueCountInAction
-from builder.analyzer import _dialoguesOfPersonInAction
-from builder.analyzer import _flagsInAction
-from builder.analyzer import _outlineCountsInAction
-from builder.analyzer import _outlineManupaperCountsInAction
-from builder.analyzer import _personsInAction
 from builder.action import Action, ActType, TagAction, TagType
 from builder.person import Person
 from builder.chapter import Chapter
@@ -35,6 +24,7 @@ class AnalyzerTest(unittest.TestCase):
         print_test_title(_FILENAME, "Analyzer class")
 
     def setUp(self):
+        self.az = Analyzer("")
         self.taro = Person("Taro", "", 17, "male", "student")
         self.hana = Person("Hana", "", 15, "female", "cafe-part")
 
@@ -44,210 +34,208 @@ class AnalyzerTest(unittest.TestCase):
         self.assertIsInstance(tmp, Analyzer)
         self.assertIsInstance(tmp.tokenizer, Tagger)
 
-    ## methods
-    def test_containsWord(self):
+    ## base methods
+    def test_actionsCount(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro))))),
+                    1),
+                ]
+        def _checkcode(v, expect):
+            self.assertEqual(self.az.actionsCount(v), expect)
+        validated_testing_withfail(self, "actionsCount", _checkcode, data)
+
+    def test_acttypeCount(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, act_type=ActType.BE))))),
+                    ActType.BE, 1),
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, act_type=ActType.BE))))),
+                    ActType.ACT, 0),
+                ]
+        def _checkcode(v, atype, expect):
+            self.assertEqual(self.az.acttypeCount(v, atype), expect)
+        validated_testing_withfail(self, "acttypeCount", _checkcode, data)
+
+    def test_actTypesCountsFrom(self):
+        basedict = dict([(v, 0) for v in ActType])
+        def upDict(base: dict, key, val):
+            return {**base, **{key:val}}
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, act_type=ActType.BE))))),
+                    upDict(basedict, ActType.BE, 1)),
+                (False, Scene("s1","",
+                        Action(self.taro, act_type=ActType.BE),
+                        Action(self.taro, act_type=ActType.BE)),
+                    upDict(basedict, ActType.BE, 2)),
+                ]
+        def _checkcode(v, expect):
+            self.assertEqual(self.az.actTypesCountsFrom(v), expect)
+        validated_testing_withfail(self, "actTypesCountsFrom", _checkcode, data)
+
+    def test_descsContainsWord(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).d("apple"))))),
+                    "apple", True),
+                ]
+        def _checkcode(v, w, expect):
+            self.assertEqual(self.az.descsContainsWord(v, w), expect)
+        validated_testing_withfail(self, "descsContainsWord", _checkcode, data)
+
+    def test_descsManupaperRowCount(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).d("あ"*25))))),
+                    20, 2),
+                ]
+        def _checkcode(v, c, expect):
+            self.assertEqual(self.az.descsManupaperRowCount(v, c), expect)
+        validated_testing_withfail(self, "descsManupaperRowCount", _checkcode, data)
+
+    def test_descriptionsCount(self):
         az = Analyzer("")
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
-                        Action(self.taro, "test"))))),
-                    "test", True, True),
+                        Action(self.taro, "test").d("apple"))))),
+                    5),
+                ]
+        def _checkcode(v, expect):
+            self.assertEqual(az.descriptionsCount(v), expect)
+        validated_testing_withfail(self, "descriptionsCount", _checkcode, data)
+
+    def test_dialoguesCount(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).t("apple"))))),
+                    self.taro, 1),
+                ]
+        def _checkcode(v, p, expect):
+            self.assertEqual(self.az.dialoguesCount(v, p), expect)
+        validated_testing_withfail(self, "dialoguesCount", _checkcode, data)
+
+    def test_dialoguesOfPerson(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).t("test"))))),
+                    self.taro, ["test",]),
+                (False, Scene("s1","",
+                    Action(self.taro)),
+                    self.taro, []),
+                ]
+        def _checkcode(v, p, expect):
+            self.assertEqual(self.az.dialoguesOfPerson(v, p), expect)
+        validated_testing_withfail(self, "dialoguesOfPerson", _checkcode, data)
+
+    def test_flagsCount(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).flag("1"))))),
+                    1),
+                (False, Scene("s1","",
+                    Action(self.taro).flag("1"), Action(self.hana).deflag("2")),
+                    2),
+                ]
+        def _checkcode(v, expect):
+            self.assertEqual(self.az.flagsCount(v), expect)
+        validated_testing_withfail(self, "flagsCount", _checkcode, data)
+
+    def test_flagsFrom(self):
+        f1 = Flag("1")
+        df1 = Flag("1", True)
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro).flag(f1))))),
+                    [f1]),
+                (False, Scene("s1","",
+                    Action(self.taro), Action(self.hana).deflag(df1)),
+                    [df1,]),
+                (False, Scene("s1","",
+                    Action(self.taro).flag(f1), Action(self.hana).deflag(df1)),
+                    [f1,df1,]),
+                ]
+        def _checkcode(v, expect):
+            self.assertEqual(self.az.flagsFrom(v), expect)
+        validated_testing_withfail(self, "flagsFrom", _checkcode, data)
+
+    def test_generateGramPartWordsCount(self):
+        from collections import Counter
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1", "",
+                    Scene("s1", "",
+                        Action(self.taro).d("太郎は話す"))))),
+                    "名詞", "",
+                    Counter({"太郎":1})),
+                (False, Scene("s1","",
+                    Action(self.taro).d("太郎は笑う"),
+                    Action(self.hana).d("花子は太郎に花を投げた")),
+                    "名詞", "人名",
+                    Counter({"太郎":2,"花子":1})),
+                ]
+        def _checkcode(v, gram, sub, expect):
+            self.assertEqual(self.az.generateGramPartWordsCount(v, gram, sub), expect)
+        validated_testing_withfail(self, "generateGramPartWordsCount", _checkcode, data)
+
+    def test_outlineContainsWord(self):
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1","",
+                    Scene("s1","",
+                        Action(self.taro, "apple"))))),
+                    "ap", True),
+                ]
+        def _checkcode(v, w, expect):
+            self.assertEqual(self.az.outlineContainsWord(v, w), expect)
+        validated_testing_withfail(self, "outlineContainsWord", _checkcode, data)
+
+    def test_outlinesCount(self):
+        az = Analyzer("")
+        data = [
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro, "test").d("apple"))))),
-                    ("test", "apple"), True, True),
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","",
-                        Action(self.taro, "test").d("apple"))))),
-                    ("test", "orrange"), True, False),
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","",
-                        Action(self.taro, "test").d("apple"))))),
-                    ("test", "orrange"), False, True),
-                (False, Scene("s1","", Action(self.taro, "test")),
-                    "test", True, True),
-                (False, Scene("s1","", Action(self.taro, "test is an apple")),
-                    ("test", "apple"), True, True),
-                (True, Action(self.taro), "test", False, False),
+                    4),
                 ]
-        def _checkcode(v, t, ctype, expect):
-            self.assertEqual(az.containsWord(v, t, ctype), expect)
-        validated_testing_withfail(self, "containsWord", _checkcode, data)
+        def _checkcode(v, expect):
+            self.assertEqual(az.outlinesCount(v), expect)
+        validated_testing_withfail(self, "outlinescount", _checkcode, data)
 
-    ## functions
-    def test_acttypeCountsInAction(self):
-        data = [
-                (False, Action(self.taro, act_type=ActType.ACT), ActType.ACT, 1,),
-                (False, Action(self.taro, act_type=ActType.BE), ActType.ACT, 0,),
-                (False, CombAction(Action(self.taro, act_type=ActType.ACT), Action(self.taro, act_type=ActType.ACT)),
-                    ActType.ACT, 2,),
-                (False, TagAction("", tag_type=TagType.COMMENT), ActType.ACT, 0,),
-                ]
-        def _checkcode(v, atype, expect):
-            self.assertEqual(_acttypeCountsInAction(v, atype), expect)
-        validated_testing_withfail(self, "acttypeCountsInAction", _checkcode, data)
-
-    def test_containsWordIn(self):
+    def test_outlinesManupaperRowCount(self):
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
-                        Action(self.taro, "test"))))),
-                    "test", True),
+                        Action(self.taro, "あ"*21))))),
+                    20, 2),
+                ]
+        def _checkcode(v, c, expect):
+            self.assertEqual(self.az.outlinesManupaperRowCount(v, c), expect)
+        validated_testing_withfail(self, "outlinesManupaperRowCount", _checkcode, data)
+
+    def test_personsFrom(self):
+        data = [
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
-                        Action(self.taro, "test"))))),
-                    "Hana", False),
-                ]
-        def _checkcode(v, t, expect):
-            self.assertEqual(_containsWordIn(v, t), expect)
-        validated_testing_withfail(self, "containsWordIn", _checkcode, data)
-
-    def test_containsWordInAction(self):
-        data = [
-                (False, Action(self.taro, "test"), "test", True),
-                (False, Action(self.taro, "test"), "te", True),
-                (False, Action(self.taro, "test"), "Taro", True),
-                (False, Action(self.taro, "test").d("apple"), "apple", True),
-                (False, Action(self.taro, "test").d("orange"), "俺", False),
-                (False, CombAction(Action(self.taro, "apple"), Action(self.taro, "orange")),
-                    "ple", True),
-                (False, TagAction("test"), "test", False),
-                ]
-        def _checkcode(v, t, expect):
-            self.assertEqual(_containsWordInAction(v, t), expect)
-        validated_testing_withfail(self, "containsWordInAction", _checkcode, data)
-
-    def test_descriptionCountInAction(self):
-        data = [
-                (False, Action(self.taro).d("test"), 4,),
-                (False, CombAction(Action(self.taro).d("test"), Action(self.taro).d("test")),
-                    8,),
-                (False, TagAction("", tag_type=TagType.COMMENT), 0,),
+                        Action(self.taro))))),
+                    [self.taro,]),
+                (False, Scene("s1","",
+                    Action(self.taro), Action(self.taro)),
+                    [self.taro,]),
+                (False, Scene("s1","",
+                    Action(self.hana), Action(self.taro)),
+                    [self.hana, self.taro]),
                 ]
         def _checkcode(v, expect):
-            self.assertEqual(_descriptionCountInAction(v), expect)
-        validated_testing_withfail(self, "descriptionCountInAction", _checkcode, data)
-
-    def test_descriptionManupaperCountsInAction(self):
-        data = [
-                (False, Action(self.taro).d("test"), 20, 1,),
-                (False, Action(self.taro).d("test"*10), 20, 2,),
-                (False, Action(self.taro).d("test"*10), 10, 4,),
-                (False, CombAction(Action(self.taro).d("test"), Action(self.taro).d("test"*5)),
-                    20, 2,),
-                (False, TagAction("", tag_type=TagType.BR),
-                    20, 1,),
-                ]
-        def _checkcode(v, columns, expect):
-            self.assertEqual(_descriptionManupaperCountsInAction(v, columns), expect)
-        validated_testing_withfail(self, "descriptionManupaperCountsInAction", _checkcode, data)
-
-    def test_dialogueCountInAction(self):
-        data = [
-                (False, Action(self.taro, act_type=ActType.TALK), self.taro, 1,),
-                (False, Action(self.taro), self.taro, 0,),
-                (False, Action(self.taro, act_type=ActType.TALK), self.hana, 0,),
-                (False, CombAction(Action(self.taro, act_type=ActType.TALK),
-                    Action(self.hana, act_type=ActType.TALK)),
-                    self.taro, 1,),
-                (False, CombAction(Action(self.taro, act_type=ActType.TALK),
-                    Action(self.taro, act_type=ActType.TALK)),
-                    self.taro, 2,),
-                (False, CombAction(Action(self.taro, act_type=ActType.TALK),
-                    Action(self.taro, act_type=ActType.TALK)),
-                    self.hana, 0,),
-                (False, TagAction("", tag_type=TagType.BR), self.taro, 0,),
-                ]
-        def _checkcode(v, t, expect):
-            self.assertEqual(_dialogueCountInAction(v, t), expect)
-        validated_testing_withfail(self, "dialogueCountInAction", _checkcode, data)
-
-    def test_dialoguesOfPersonInAction(self):
-        data = [
-                (False, Action(self.taro, act_type=ActType.TALK).t("test"),
-                    self.taro, ["test"],),
-                (False, Action(self.taro).t("test"),
-                    self.taro, ["test"],),
-                (False, Action(self.taro, "test"),
-                    self.taro, [],),
-                (False, Action(self.taro, act_type=ActType.TALK).t("test"),
-                    self.hana, [],),
-                (False, CombAction(Action(self.taro, act_type=ActType.TALK).t("test"),
-                    Action(self.taro).t("apple"),
-                    ), self.taro, ["test", "apple"],),
-                (False, TagAction("", tag_type=TagType.COMMENT),
-                    self.taro, [],),
-                ]
-        def _checkcode(v, t, expect):
-            tmp = _dialoguesOfPersonInAction(v, t)
-            tmp1 = tmp if isinstance(tmp, list) else list(tmp)
-            self.assertEqual(tmp1, expect)
-        validated_testing_withfail(self, "dialoguesOfPersonInAction", _checkcode, data)
-
-    def test_flagsInAction(self):
-        f1 = Flag("test")
-        d1 = Flag("apple", True)
-        data = [
-                (False, Action(self.taro).flag(f1),
-                    [f1],),
-                (False, Action(self.taro).deflag(d1),
-                    [d1],),
-                (False, Action(self.taro).flag(f1).deflag(d1),
-                    [f1,d1],),
-                (False, Action(self.taro), [],),
-                (False, CombAction(Action(self.taro).flag(f1), Action(self.taro).deflag(d1),
-                    ), [f1, d1],),
-                (False, TagAction(""), [],),
-                ]
-        def _checkcode(v, expect):
-            tmp = _flagsInAction(v)
-            tmp1 = tmp if isinstance(tmp, list) else list(tmp)
-            self.assertEqual(tmp1, expect)
-        validated_testing_withfail(self, "flagsInAction", _checkcode, data)
-
-    def test_outlineCountsInAction(self):
-        data = [
-                (False, Action(self.taro, "test"), 4,),
-                (False, CombAction(Action(self.taro, "test"), Action(self.taro, "test"),
-                    ), 8,),
-                (False, TagAction("test"), 0,),
-                ]
-        def _checkcode(v, expect):
-            self.assertEqual(_outlineCountsInAction(v), expect)
-        validated_testing_withfail(self, "outlineCountsInAction", _checkcode, data)
-
-    def test_outlineManupaperCountsInAction(self):
-        data = [
-                (False, Action(self.taro, "test"), 20, 1,),
-                (False, CombAction(Action(self.taro, "test"), Action(self.taro, "test"*5),
-                    ), 20, 2,),
-                (False, TagAction("test", tag_type=TagType.BR), 20, 1,),
-                ]
-        def _checkcode(v, columns, expect):
-            self.assertEqual(_outlineManupaperCountsInAction(v, columns), expect)
-        validated_testing_withfail(self, "outlineManupaperCountsInAction", _checkcode, data)
-
-    def test_personsInAction(self):
-        data = [
-                (False, Action(self.taro),
-                    [self.taro],),
-                (False, CombAction(Action(self.taro), Action(self.hana)),
-                    [self.taro, self.hana],),
-                (False, CombAction(Action(self.taro), Action(self.hana)),
-                    [self.taro, self.hana],),
-                (False, TagAction("test"),
-                    [],),
-                ]
-        def _checkcode(v, expect):
-            self.assertEqual(_personsInAction(v), expect)
-        validated_testing_withfail(self, "personsInAction", _checkcode, data)
-
-    def test_math_util_int_ceiled(self):
-        data = [
-                (False, 10, 3, 4,),
-                (False, -10, 3, -3,),
-                (True, "1", 1, 1,),
-                ]
-        def _checkcode(a, b, expect):
-            self.assertEqual(int_ceiled(a, b), expect)
-        validated_testing_withfail(self, "math_util_int_ceiled", _checkcode, data)
+            self.assertEqual(self.az.personsFrom(v), expect)
+        validated_testing_withfail(self, "personsFrom", _checkcode, data)

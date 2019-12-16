@@ -72,6 +72,9 @@ class Person(BaseSubject):
             calling: (str, dict)=__CALLING__) -> __class__:
         return Person(name, "", age, Person.__FEMALE__, job, calling, "")
 
+    def equals(self, obj):
+        return isinstance(obj, Person) and self.name == obj.name
+
     @property
     def firstname(self): return self._firstname
 

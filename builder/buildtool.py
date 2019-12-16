@@ -2,6 +2,7 @@
 """The build tool.
 """
 from __future__ import print_function
+from itertools import chain
 import os
 import argparse
 import re
@@ -12,6 +13,7 @@ from .parser import Parser
 from .strutils import dict_sorted
 from .analyzer import Analyzer
 from .converter import Converter
+from .extractor import Extractor
 from .formatter import Formatter
 from .chara import Chara
 from .person import Person
@@ -126,20 +128,13 @@ class Build(object):
 
     def to_analyzed_info(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
-        is_succeeded = True
         # NOTE: 解析結果
         freq = analyzer.frequency_words(parser.src)
         res = freq
-        if is_debug:
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_anal", self._extension,
-                    self._builddir)
-        return is_succeeded
+        return self.outputOn(res, filename, "_anal", self._extension, self._builddir, is_debug)
 
     def to_description(self, parser: Parser, filename: str, formattype: str,
             is_comment: bool, is_debug: bool): # pragma: no cover
-        is_succeeded = True
         res = Formatter().toDescriptions(parser.toDescriptions(is_comment))
         if formattype in ("estar",):
             res = Formatter().toDescriptionsAsEstar(res)
@@ -147,96 +142,71 @@ class Build(object):
             res = Formatter().toDescriptionsAsSmartphone(res)
         elif formattype in ("web",):
             res = Formatter().toDescriptionsAsWeb(res)
-        if is_debug:
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "", self._extension,
-                    self._builddir)
-        return is_succeeded
+        return self.outputOn(res, filename, "", self._extension, self._builddir, is_debug)
 
     def to_detail_info(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
-        is_succeeded = True
         # TODO: 最初にタイトルから章やシーンリスト
         # TODO: 文字数に続いて各シーンの簡易情報
         # TODO: 各分析情報
         # TODO: flag情報
         # TODO: Formatterを使うようにする
-        charcounts = analyzer.characters_count(parser.src)
-        scenes_characters = analyzer.characters_count_each_scenes(parser.src)
-        act_percents = analyzer.action_percent(parser.src)
-        flaginfo = analyzer.flag_infos(parser.src)
-        scene_num = ["## Scene info",
-                "- chapters: {}".format(len([v for v in scenes_characters if 'CH-' in v])),
-                "- episodes: {}".format(len([v for v in scenes_characters if 'Ep-' in v])),
-                "- scenes: {}".format(len([v for v in scenes_characters if 'Outline' in v])),
-                ]
-        res = charcounts + [""] \
-                + scene_num + [""] \
-                + scenes_characters + [""] \
-                + act_percents + [""] \
+        extr = Extractor(parser.src)
+        total_charcounts = Formatter().toCharactersInfo(
+                analyzer.charactersCount(parser.src), "Total", 0)
+        scenes_charcounts = Formatter().toCharactersInfoEachScenes(
+                analyzer.charactersCountEachScenes(parser.src)
+                )
+        acts_percent = Formatter().toActionPercentInfo(
+                analyzer.actionsCount(parser.src),
+                analyzer.actionsPercent(parser.src), "")
+        flaginfo = ["## Flags info\n"] + Formatter().toFlagsInfo(
+                analyzer.flagsFrom(parser.src)
+                )
+        res = ["# Characters info\n"] \
+                + total_charcounts \
+                + scenes_charcounts \
+                + acts_percent + [""] \
                 + flaginfo
-        if is_debug: # out to console
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_info", self._extension,
-                    self._builddir)
-        return is_succeeded
+        return self.outputOn(res, filename, "_info", self._extension, self._builddir, is_debug)
 
     def to_dialogue_info(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
-        is_succeeded = True
         # NOTE: dialogue count and list
-        info = analyzer.dialogue_infos(parser.src)
-        res = info
-        if is_debug:
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_dial", self._extension,
-                    self._builddir)
-        return is_succeeded
+        info = Formatter().toDialoguesInfo(
+                analyzer.dialoguesEachPerson(parser.src))
+        res = ["# Dialogues info\n"] \
+                + info
+        return self.outputOn(res, filename, "_dial", self._extension, self._builddir, is_debug)
 
     def to_layer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
-        is_succeeded = True
         res = Formatter().toDescriptionsAsLayer(parser.toDescriptionsAsLayer())
         res_outline = Formatter().toOutlinesAsLayer(parser.toOutlinesAsLayer())
         if is_debug:
-            is_succeeded = Build._out_to_console(res)
-            print("---- outline ----")
-            is_succeeded = Build._out_to_console(res_outline)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_layer", self._extension,
-                    self._builddir)
-            is_succeeded = Build._out_to_file(res_outline, filename, "_layerout",
-                    self._extension, self._builddir)
-        return is_succeeded
+            res_outline = ["---- outline ----"] + res_outline
+        return self.outputOn(res, filename, "_lay", self._extension, self._builddir, is_debug) \
+                and self.outputOn(res_outline, filename, "_layO", self._extension, self._builddir, is_debug)
 
     def to_outline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
-        is_succeeded = True
         res = Formatter().toOutlines(parser.toOutlines())
-        if is_debug:
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_out", self._extension,
-                    self._builddir)
-        return is_succeeded
+        return self.outputOn(res, filename, "_out", self._extension, self._builddir, is_debug)
 
     def to_scenario(self, parser: Parser, filename: str, is_comment: bool,
             is_debug: bool): # pragma: no cover
-        is_succeeded = True
         res = Formatter().toScenarios(parser.toScenarios())
-        if is_debug:
-            is_succeeded = Build._out_to_console(res)
-        else:
-            is_succeeded = Build._out_to_file(res, filename, "_sc", self._extension,
-                    self._builddir)
-        return is_succeeded
+        return self.outputOn(res, filename, "_sc", self._extension, self._builddir, is_debug)
 
     def to_total_info(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
-        is_succeeded = True
-        charcounts = analyzer.characters_count(parser.src)
-        is_succeeded = Build._out_to_console(charcounts)
-        return is_succeeded
+        charcounts = Formatter().toCharactersInfo(
+                analyzer.charactersCount(parser.src))
+        return Build._out_to_console(charcounts)
+
+    def outputOn(self, data: list, filename: str, suffix: str, extention: str,
+            builddir: str, is_debug: bool): # pragma: no cover
+        if is_debug:
+            return Build._out_to_console(data)
+        else:
+            return Build._out_to_file(data, filename, suffix, extention, builddir)
 
     # private
     def _validatedStory(story: Story):
