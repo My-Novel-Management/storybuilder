@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.2] - 2019-12-16
+### Added
+- Writer
+- Scene: using when, where and who
+### Changed
+- Analyzer: using story containers
+### Fixed
+- old parser methods
+
 ## [0.3.1] - 2019-12-02
 ### Added
 - Extractor
@@ -205,7 +214,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/nagisc007/storybuilder/releases/v0.3.2
 [0.3.1]: https://github.com/nagisc007/storybuilder/releases/v0.3.1
 [0.3.0]: https://github.com/nagisc007/storybuilder/releases/v0.3.0
 [0.2.10]: https://github.com/nagisc007/storybuilder/releases/v0.2.10
