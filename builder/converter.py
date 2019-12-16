@@ -45,7 +45,8 @@ class Converter(object):
                 src=src
                 )
 
-    def toConverFullSrc(self, pri_filter: int, words: dict, src=None) -> StoryContainers:
+    def toConverFullSrc(self, pri_filter: int, words: dict,
+            src=None) -> StoryContainers: # pragma: no cover
         return self.toReplaceTag(words,
                 self.toConnectDescriptions(
                 self.toReplacePronoun(
@@ -107,6 +108,8 @@ def toConvertTagAction(action: TagAction, is_comment: bool) -> str:
         return ""
 
 ## privates
+''' description connects
+'''
 def _toConnectDescsFrom(story: Story) -> Story:
     return story.inherited(
             *generatedValidList([_toConnectDescsFromChapter(v) for v in story.chapters]))
@@ -125,6 +128,7 @@ def _toConnectDescsFromScene(scene: Scene) -> Scene:
 
 def _toConnectDescsFromAction(action: AllActions) -> AllActions:
     if isinstance(action, CombAction):
+        # TODO: combined description ?
         return action.inherited(*[_toConnectDescsFromAction(v) for v in action.actions])
     elif isinstance(action, TagAction):
         return action
@@ -132,6 +136,8 @@ def _toConnectDescsFromAction(action: AllActions) -> AllActions:
         return action.inherited(
                 desc=str_duplicated_chopped(strOfDescription(action, "。")))
 
+''' filter by priority
+'''
 def _toFilterFrom(story: Story, pri_filter: int) -> Optional[Story]:
     return story.inherited(
             *generatedValidList([_toFilterFromChapter(v, pri_filter) for v in story.chapters])
@@ -156,6 +162,8 @@ def _toFilterFromAction(action: AllActions,
         pri_filter: int) -> (Optional[Action], Optional[TagAction], Optional[CombAction]):
     return action if action.priority >= pri_filter else None
 
+''' layer setting
+'''
 def _toLayerFrom(story :Story) -> Story:
     return story.inherited(*[_toLayerFromChapter(v) for v in story.chapters])
 
@@ -197,6 +205,8 @@ def _toLayerFromAction(action: AllActions,
         tmp = _set_layer(action, layer)
         return tmp, tmp.layer
 
+''' replace pronoun
+'''
 def _toReplacePronounFrom(story: Story) -> Story:
     return story.inherited(
             *generatedValidList(_toReplacePronounFromChapter(v) for v in story.chapters)
@@ -249,6 +259,8 @@ def _toReplacePronounFromAction(action: AllActions,
         return (action.inherited(subject=subject),
                 subject) if isinstance(action.subject, Who) else (action, action.subject)
 
+''' replace tag
+'''
 def _toReplaceTagFrom(story: Story, words: dict, prefix: str) -> Story:
     return story.inherited(
             *[_toReplaceTagFromChapter(v, words, prefix) for v in story.chapters])
@@ -263,20 +275,22 @@ def _toReplaceTagFromEpisode(episode: Episode, words: dict, prefix: str) -> Epis
 
 def _toReplaceTagFromScene(scene: Scene, words: dict, prefix: str) -> Scene:
     return scene.inherited(
-            *[_toReplaceTagFromAction(v, words, prefix) for v in scene.actions])
+            *[_toReplaceTagFromAction(v, words, prefix, scene.camera) for v in scene.actions])
 
-def _toReplaceTagFromAction(action: AllActions, words: dict, prefix: str) -> AllActions:
+def _toReplaceTagFromAction(action: AllActions, words: dict, prefix: str,
+        camera: (Person, NoSubject)) -> AllActions:
     def _in_outline(act: Action, words: dict):
-        return _toReplaceTagInDocument(act.subject, act.outline, words, "outline", prefix)
+        return _toReplaceTagInDocument(act.subject, act.outline, words,
+                camera, "outline", prefix)
     def _in_descs(act: Action, words: dict):
         if isinstance(act.description, NoDesc):
             return act.description
         else:
             return _toReplaceTagInDocument(act.subject, strOfDescription(action), words,
-                    "description", prefix)
+                    camera, "description", prefix)
     if isinstance(action, CombAction):
         return action.inherited(
-                *[_toReplaceTagFromAction(v, words, prefix) for v in action.actions]
+                *[_toReplaceTagFromAction(v, words, prefix, camera) for v in action.actions]
                 )
     elif isinstance(action, TagAction):
         return action
@@ -287,12 +301,17 @@ def _toReplaceTagFromAction(action: AllActions, words: dict, prefix: str) -> All
                 )
 
 def _toReplaceTagInDocument(subject: SomeOnes, target: str, words: dict,
+        camera: (Person, NoSubject),
         msg: str, prefix: str="$") -> str:
     if not prefix in target:
         return target
     tmp = target
     if hasattr(subject, "calling"):
         tmp = str_replaced_tag_by_dictionary(tmp, subject.calling)
+    if isinstance(camera, Person) and hasattr(camera, "calling"):
+        calling = camera.calling
+        calling.update({"CS":calling["S"], "CM":calling["M"]})
+        tmp = str_replaced_tag_by_dictionary(tmp, calling)
     tmp = str_replaced_tag_by_dictionary(tmp, words)
     if isInvalidTagReplaced(tmp, prefix):
         raise AssertionError(f"Cannot convert tag in {msg}: ", tmp)

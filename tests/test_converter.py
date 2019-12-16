@@ -158,6 +158,8 @@ class ConverterTest(unittest.TestCase):
                     True, "\ntest\n"),
                 (False, TagAction("test", "2", tag_type=TagType.TITLE),
                     True, "\n## test\n"),
+                (False, TagAction("test", tag_type=TagType.SET_LAYER),
+                    True, ""),
                 ]
         def _checkcode(v, isCmt, expect):
             tmp = toConvertTagAction(v, isCmt)
