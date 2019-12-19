@@ -263,19 +263,25 @@ def _toReplacePronounFromAction(action: AllActions,
 '''
 def _toReplaceTagFrom(story: Story, words: dict, prefix: str) -> Story:
     return story.inherited(
-            *[_toReplaceTagFromChapter(v, words, prefix) for v in story.chapters])
+            *[_toReplaceTagFromChapter(v, words, prefix) for v in story.chapters],
+            title=str_replaced_tag_by_dictionary(story.title, words))
 
 def _toReplaceTagFromChapter(chapter: Chapter, words: dict, prefix: str) -> Chapter:
     return chapter.inherited(
-            *[_toReplaceTagFromEpisode(v, words, prefix) for v in chapter.episodes])
+            *[_toReplaceTagFromEpisode(v, words, prefix) for v in chapter.episodes],
+            title=str_replaced_tag_by_dictionary(chapter.title, words))
 
 def _toReplaceTagFromEpisode(episode: Episode, words: dict, prefix: str) -> Episode:
     return episode.inherited(
-            *[_toReplaceTagFromScene(v, words, prefix) for v in episode.scenes])
+            *[_toReplaceTagFromScene(v, words, prefix) for v in episode.scenes],
+            title=str_replaced_tag_by_dictionary(episode.title, words),
+            outline=str_replaced_tag_by_dictionary(episode.outline, words))
 
 def _toReplaceTagFromScene(scene: Scene, words: dict, prefix: str) -> Scene:
     return scene.inherited(
-            *[_toReplaceTagFromAction(v, words, prefix, scene.camera) for v in scene.actions])
+            *[_toReplaceTagFromAction(v, words, prefix, scene.camera) for v in scene.actions],
+            title=str_replaced_tag_by_dictionary(scene.title, words),
+            outline=str_replaced_tag_by_dictionary(scene.outline, words))
 
 def _toReplaceTagFromAction(action: AllActions, words: dict, prefix: str,
         camera: (Person, NoSubject)) -> AllActions:

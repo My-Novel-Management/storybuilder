@@ -15,8 +15,10 @@ class Episode(BaseContainer):
         self._outline = assertion.is_str(outline)
         self._scenes = Episode._validatedScenes(*args)
 
-    def inherited(self, *scs):
-        return Episode(self.title, self.outline, *scs).setPriority(self.priority)
+    def inherited(self, *scs, title: str=None, outline: str=None):
+        return Episode(self.title if not title else assertion.is_str(title),
+                self.outline if not outline else assertion.is_str(outline),
+                *scs).setPriority(self.priority)
 
     @property
     def outline(self): return self._outline

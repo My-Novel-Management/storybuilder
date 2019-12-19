@@ -14,8 +14,9 @@ class Story(BaseContainer):
         super().__init__(title, __DEF_PRIORITY__)
         self._chapters = Story._validatedChapters(*args)
 
-    def inherited(self, *chaps):
-        return Story(self.title, *chaps).setPriority(self.priority)
+    def inherited(self, *chaps, title: str=None):
+        return Story(self.title if not title else assertion.is_str(title),
+                *chaps).setPriority(self.priority)
 
     @property
     def chapters(self): return self._chapters

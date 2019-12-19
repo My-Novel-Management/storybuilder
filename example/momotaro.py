@@ -36,7 +36,7 @@ import momotaro_config as cnf
 """Scene は Action の塊。
 """
 def sc_washing(w: World):
-    s = w.scene("洗濯に", "おばあさんは洗濯に出かけて巨大な桃を見つけた")
+    s = w.scene("洗濯に", "おばあさんは洗濯に出かけて巨大な$t_peachを見つけた")
     s.setCamera(w.granma)
     s.setStage(w.stage.river).setDay(w.day.getpeach).setTime(w.time.morning)
     s.add(
@@ -52,7 +52,7 @@ def sc_washing(w: World):
     return s
 
 def sc_birth(w: World):
-    s = w.scene("誕生", "桃太郎が生まれる")
+    s = w.scene("誕生", "$n_taroが生まれる")
     s.setCamera(w.granma)
     s.setStage(w.stage.home).setDay(w.day.birth).setTime(w.time.afternoon)
     r = Writer(w.granma)

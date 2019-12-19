@@ -49,8 +49,11 @@ class Scene(BaseContainer):
         self._time = Scene._validatedTime(time)
 
     def inherited(self, *acts,
+            title: str=None,
+            outline: str=None,
             camera=None, stage=None, day=None, time=None):
-        return Scene(self.title, self.outline,
+        return Scene(self.title if not title else assertion.is_str(title),
+                self.outline if not outline else assertion.is_str(outline),
                 *acts,
                 camera=camera if camera else self.camera,
                 stage=stage if stage else self.stage,
