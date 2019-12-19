@@ -8,8 +8,9 @@ install:
     - pip install mecab-python3
 
 script:
-    - coverage run --rcfile=.coveragerc setup.py test
-    - python example/momotaro.py -osdi --forcemecab
+    - coverage run --parallel-mode --rcfile=.coveragerc setup.py test
+    - coverage run --parallel-mode --rcfile=.coveragerc example/momotaro.py -osdi --forcemecab
 
 after_success:
+    - coverage combine
     - coveralls

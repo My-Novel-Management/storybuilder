@@ -1,6 +1,8 @@
 # .coveragerc to control coverage.py
 [run]
-source = builder
+source =
+    builder
+    example
 omit =
     # projects
     old_*
