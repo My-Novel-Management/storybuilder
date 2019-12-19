@@ -107,7 +107,10 @@ class AnalyzerTest(unittest.TestCase):
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro, "test").d("apple"))))),
-                    5),
+                    6),
+                (False, Scene("s1","",
+                    Action(self.taro).t("apple")),
+                    7),
                 ]
         def _checkcode(v, expect):
             self.assertEqual(az.descriptionsCount(v), expect)

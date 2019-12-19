@@ -394,7 +394,14 @@ def _descsCountInAction(action: AllActions) -> int:
     elif isinstance(action, TagAction):
         return 0
     else:
-        return len(strOfDescription(action))
+        return _descsCountOfAction(action)
+
+def _descsCountOfAction(action: Action) -> int:
+    tmp = len(strOfDescription(action))
+    if tmp:
+        return tmp + 2 if isDialogue(action) else tmp + 1
+    else:
+        return 0
 
 '''description manupaper row count
 '''
@@ -412,11 +419,11 @@ def _descsManupaperRowCountInScene(scene: Scene, columns: int) -> int:
 
 def _descsManupaperRowCountInAction(action: AllActions, columns: int) -> int:
     if isinstance(action, CombAction):
-        return sum(int_ceiled(len(strOfDescription(v)), columns) for v in action.actions)
+        return sum(int_ceiled(_descsCountOfAction(v), columns) for v in action.actions)
     elif isinstance(action, TagAction):
         return action.tag_type is (TagType.BR, TagType.SYMBOL)
     else:
-        return int_ceiled(len(strOfDescription(action)), columns)
+        return int_ceiled(_descsCountOfAction(action), columns)
 
 '''dialogue count
 '''
