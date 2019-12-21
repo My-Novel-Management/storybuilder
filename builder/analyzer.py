@@ -201,6 +201,33 @@ class Analyzer(object):
             return acttypes[v] / total * 100 if total else 0
         return dict([(v.name.capitalize(), _percent(v)) for v in ActType])
 
+    def actionsPercentEachScenes(self, story: Story) -> list:
+        tmp = []
+        ch_num, ep_num, sc_num = 1, 1, 1
+        for ch in story.chapters:
+            tmp.append((f"Ch-{ch_num}: {ch.title}",
+                self.actionsPercent(ch)))
+            ch_num += 1
+            for ep in ch.episodes:
+                tmp.append((f"Ep-{ep_num}: {ep.title}",
+                    self.actionsPercent(ep)))
+                ep_num += 1
+                for sc in ep.scenes:
+                    tmp.append((f"Sc-{sc_num}: {sc.title}",
+                        self.actionsPercent(sc)))
+                    sc_num += 1
+        return tmp
+
+    def actionsTotalsFrom(self, story: Story) -> list:
+        tmp = []
+        for ch in story.chapters:
+            tmp.append(self.actionsCount(ch))
+            for ep in ch.episodes:
+                tmp.append(self.actionsCount(ep))
+                for sc in ep.scenes:
+                    tmp.append(self.actionsCount(sc))
+        return tmp
+
     def charactersCount(self, src: StoryContainers,
             columns: int=DEF_BASECOLUMNS, rows: int=DEF_BASEROWS) -> dict:
         return {"desc_total": self.descriptionsCount(src),

@@ -12,13 +12,28 @@ class Formatter(object):
     """
 
     # methods
-    def toActionPercentInfo(self, total: int, data: dict, prefix: str) -> list:
-        from .action import ActType
-        def _conv(c, v):
-            return f"- {c}: {v:.2f}%"
-        return [f"## Actions: {prefix}",
-                f"- Total: {total}",
-                ] + [_conv(k,v) for k,v in data.items()]
+    def toActionPercentInfo(self, total: int, data: dict, prefix: str, idt: int=0,
+            isHead: bool=True) -> list:
+        heads = ""
+        vals = ""
+        indent1 = " " * 4 * (idt)
+        indent2 = " " * 4 * (idt + 1)
+        for k,v in data.items():
+            heads += f"{k:>6} /"
+            vals += f"{v:>5.2f}% /"
+        heads = f"{indent2}- {heads}\n" if isHead else ""
+        return [f"{indent1}* {prefix}: {total}",
+                f"{heads}{indent2}- {vals}",
+                ]
+
+    def toActionPercentInfoEachScenes(self, totals:list, data: list) -> list:
+        def _level(v):
+            if "Ch" in v: return 0
+            elif "Ep" in v: return 1
+            else: return 2
+        return list(chain.from_iterable(
+            self.toActionPercentInfo(t, v[1], v[0], _level(v[0]), False) for t,v in zip(totals, data)
+            ))
 
     def toCharactersInfo(self, data: dict, prefix: str=None, idt: int=0) -> list:
         desc_total = data["desc_total"]
@@ -246,3 +261,7 @@ class Formatter(object):
                         else:
                             tmp.append(v[3])
         return tmp
+
+    ## privates
+    def _lineBreak(self) -> list:
+        return ["--------" * 8]

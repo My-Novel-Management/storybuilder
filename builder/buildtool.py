@@ -160,13 +160,21 @@ class Build(object):
         acts_percent = Formatter().toActionPercentInfo(
                 analyzer.actionsCount(parser.src),
                 analyzer.actionsPercent(parser.src), "")
+        scenes_actspercent = Formatter().toActionPercentInfoEachScenes(
+                analyzer.actionsTotalsFrom(parser.src),
+                analyzer.actionsPercentEachScenes(parser.src)
+                )
         flaginfo = ["## Flags info\n"] + Formatter().toFlagsInfo(
                 analyzer.flagsFrom(parser.src)
                 )
-        res = ["# Characters info\n"] \
+        head = [f"# Detail information of {parser.src.title}\n"]
+        res = head \
+                + ["## Characters info\n"] \
                 + total_charcounts \
                 + scenes_charcounts \
+                + ["\n## Actions info\n"] \
                 + acts_percent + [""] \
+                + scenes_actspercent + [""] \
                 + flaginfo
         return self.outputOn(res, filename, "_info", self._extension, self._builddir, is_debug)
 
