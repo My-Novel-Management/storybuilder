@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """The parser.
 """
+import re
 from itertools import chain
 from . import assertion
 from .action import Action, ActType
 from .converter import toConvertTagAction
+from .description import Rubi, RubiType
 from .story import Story
 from .chapter import Chapter
 from .converter import toConvertTagAction
@@ -45,6 +47,10 @@ class Parser(object): # pragma: no cover
                 sceneFnc=_toDescriptionsFromScene,
                 src=self.src
                 )
+
+    def toDescriptionsWithRubi(self, words: dict, is_comment: bool) -> list: # pragma: no cover
+        src = self.toDescriptions(is_comment)
+        return _toDescsWithRubiFrom(src, words)
 
     def toDescriptionsAsLayer(self) -> list: # pragma: no cover
         return self._toSomething(
@@ -116,6 +122,8 @@ class Parser(object): # pragma: no cover
 
 
 # privates
+'''to descriptions
+'''
 def _toDescriptionsFrom(story: Story, is_comment: bool) -> list:
     return [_storyTitleOf(story)] \
             + list(chain.from_iterable(_toDescriptionsFromChapter(v, is_comment) for v in story.chapters))
@@ -151,6 +159,40 @@ def _toDescriptionsFromAction(action: AllActions, is_comment: bool) -> list:
         else:
             return [str_duplicated_chopped(f"　{strOfDescription(action)}。")]
 
+'''with rubi
+'''
+def _toDescsWithRubiFrom(src: list, words: dict) -> list:
+    tmp = []
+    discards = []
+    def _check_exclude(val, words):
+        if isinstance(words, str):
+            return words in val
+        else:
+            for w in words:
+                if w in val:
+                    return True
+            return False
+    for v in src:
+        if '#' in v or '**' in v:
+            tmp.append(v)
+        else:
+            desc = v
+            for k,w in words.items():
+                if w.rubi_type is RubiType.NOSET:
+                    continue
+                elif k in discards:
+                    continue
+                elif k in desc and not f"｜{k}" in desc and not f"{k}《" in desc:
+                    if w.exclusions and _check_exclude(desc, w.exclusions):
+                        continue
+                    desc = desc.replace(k, w.rubi)
+                    if w.rubi_type is RubiType.ONCE:
+                        discards.append(k)
+            tmp.append(desc)
+    return tmp
+
+'''to layer
+'''
 def _toDescriptionsAsLayerFrom(story: Story, head: str) -> list:
     return [("__TITLE__", _storyTitleOf(story)),] \
             + list(chain.from_iterable(_toDescriptionsAsLayerFromChapter(v, head) for v in story.chapters))

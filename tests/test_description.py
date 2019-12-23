@@ -50,3 +50,21 @@ class NoDescTest(unittest.TestCase):
     def test_attributes(self):
         tmp = ds.NoDesc()
         self.assertIsInstance(tmp, ds.NoDesc)
+
+class RubiTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        print_test_title(_FILENAME, "Rubi class")
+
+    def test_attributes(self):
+        data = [
+                (False, ("test", "apple"), ds.RubiType.EVERY,
+                    "test", "apple", ds.RubiType.EVERY),
+                ]
+        def _checkcode(vals, t, exp_base, exp_rubi, exp_type):
+            tmp = ds.Rubi(*vals, rubi_type=t) if t else ds.Rubi(*vals)
+            self.assertIsInstance(tmp, ds.Rubi)
+            self.assertEqual(tmp.base, exp_base)
+            self.assertEqual(tmp.rubi, exp_rubi)
+            self.assertEqual(tmp.rubi_type, exp_type)

@@ -17,7 +17,7 @@ class BuildTest(unittest.TestCase):
         print_test_title(_FILENAME, "Build class")
 
     def test_attributes(self):
-        tmp = Build(Story("test"), World(), is_debug_test=True)
+        tmp = Build(Story("test"), World(), {}, is_debug_test=True)
         self.assertIsInstance(tmp, Build)
 
     @unittest.skip("integration test")

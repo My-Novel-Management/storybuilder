@@ -75,6 +75,7 @@ def suite():
         unittest.makeSuite(test_combaction.CombActionTest),
         unittest.makeSuite(test_description.DescriptionTest),
         unittest.makeSuite(test_description.NoDescTest),
+        unittest.makeSuite(test_description.RubiTest),
         unittest.makeSuite(test_episode.EpisodeTest),
         unittest.makeSuite(test_scene.SceneTest),
         unittest.makeSuite(test_story.StoryTest),

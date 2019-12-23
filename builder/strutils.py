@@ -6,8 +6,8 @@ from . import assertion
 
 
 # publics
-def dict_sorted(origin: dict) -> dict:
-    return dict(sorted(origin.items(), key=lambda x:x[0]))
+def dict_sorted(origin: dict, is_reverse: bool=True) -> dict:
+    return dict(sorted(origin.items(), key=lambda x:x[0], reverse=is_reverse))
 
 def divided_by_splitter(target: str, splitter: str=',') -> tuple:
     return tuple(target.split(splitter)) if assertion.is_str(splitter) in assertion.is_str(target) else (target, target)

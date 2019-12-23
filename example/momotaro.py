@@ -255,6 +255,7 @@ def world():
             cnf.DAYS, cnf.TIMES,
             cnf.ITEMS,
             cnf.WORDS)
+    w.setRubis(cnf.RUBIS)
     set_stages(w)
     return w
 

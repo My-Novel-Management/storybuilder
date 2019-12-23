@@ -27,9 +27,11 @@ class Build(object):
     __EXTENSION__ = "md" # NOTE: currently markdown only
     __BUILD_DIR__ = "build"
 
-    def __init__(self, story: Story, world_dict: dict, opt_dic: str="",
+    def __init__(self, story: Story, world_dict: dict, rubi_dict: dict,
+            opt_dic: str="",
             is_debug_test: bool=False):
         self._story = Build._validatedStory(story)
+        self._rubis = dict_sorted(assertion.is_dict(rubi_dict))
         self._words = assertion.is_dict(world_dict)
         self._filename = Build.__FILENAME__
         self._options = _options_parsed(is_debug_test)
@@ -52,7 +54,7 @@ class Build(object):
         is_debug = options.debug # NOTE: 現在デバッグモードはコンソール出力のみ
         is_comment = options.comment # NOTE: コメント付き出力
 
-        story_converted = Converter(self._story).toConverFullSrc(pri_filter, self._words)
+        story_converted = Converter(self._story).toConvertFullSrc(pri_filter, self._words)
         parser = Parser(story_converted)
         _mecabdir = self._mecabdictdir
         if options.forcemecab:
@@ -75,7 +77,8 @@ class Build(object):
 
         if options.description:
             is_succeeded = self.to_description(parser, filename, formattype,
-                    is_comment, is_debug)
+                    self._rubis,
+                    is_comment, options.rubi, is_debug)
             if not is_succeeded:
                 print("ERROR: output a description failed!!")
                 return is_succeeded
@@ -134,8 +137,12 @@ class Build(object):
         return self.outputOn(res, filename, "_anal", self._extension, self._builddir, is_debug)
 
     def to_description(self, parser: Parser, filename: str, formattype: str,
-            is_comment: bool, is_debug: bool): # pragma: no cover
+            rubi_dict: dict,
+            is_comment: bool, rubi: bool, is_debug: bool): # pragma: no cover
         res = Formatter().toDescriptions(parser.toDescriptions(is_comment))
+        if rubi:
+            res = Formatter().toDescriptions(
+                    parser.toDescriptionsWithRubi(rubi_dict, is_comment))
         if formattype in ("estar",):
             res = Formatter().toDescriptionsAsEstar(res)
         elif formattype in ("smart", "phone"):
@@ -298,6 +305,7 @@ def _options_parsed(is_debug_test: bool): # pragma: no cover
     parser.add_argument('--comment', help='output with comment', action='store_true')
     parser.add_argument('--mecab', help='force using the mecab dictionary directory', type=str)
     parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')
+    parser.add_argument('--rubi', help='description with rubi', action='store_true')
 
     # get result
     args = parser.parse_args(args=[]) if is_debug_test else parser.parse_args()

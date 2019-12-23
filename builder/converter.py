@@ -45,8 +45,15 @@ class Converter(object):
                 src=src
                 )
 
-    def toConverFullSrc(self, pri_filter: int, words: dict,
+    def toConvertFullSrc(self, pri_filter: int, words: dict,
             src=None) -> StoryContainers: # pragma: no cover
+        '''NOTE:
+            1. Priority filter
+            2. Layer complement
+            3. Replace pronouns
+            4. Connect descriptions
+            5. Replace tags
+        '''
         return self.toReplaceTag(words,
                 self.toConnectDescriptions(
                 self.toReplacePronoun(

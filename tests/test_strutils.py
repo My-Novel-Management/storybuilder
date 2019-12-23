@@ -17,8 +17,9 @@ class MethodsTest(unittest.TestCase):
 
     def test_dict_sorted(self):
         data = [
-                (False, {"orange":2, "apple":1}, {"apple":1, "orange":2},),
-                (True, {"orange":2, "apple":1}, {"orange":2, "apple":1},),
+                (False, {"orange":2, "apple":1}, {"orange":2, "apple":1},),
+                (True, {"orange":2, "apple":1}, {"orange":1, "apple":2},),
+                (False, {"apples":2, "apple":1}, {"apples":2, "apple":1},),
                 ]
         def _checkcode(v, expect):
             self.assertEqual(utl.dict_sorted(v), expect)
