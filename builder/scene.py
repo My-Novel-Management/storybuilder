@@ -35,11 +35,14 @@ class ScenarioType(Enum):
 class Scene(BaseContainer):
     """The container for actions.
     """
+    __nextid__ = 1
+
     def __init__(self, title: str, outline: str, *args,
             camera: (Person, NoData, Who)=None,
             stage: (Stage, NoData, Where)=None,
             day: (Day, NoData, When)=None,
-            time: (Time, NoData, When)=None):
+            time: (Time, NoData, When)=None,
+            inheritedId: int=0):
         super().__init__(title, __DEF_PRIORITY__)
         self._outline = assertion.is_str(outline)
         self._actions = Scene._validatedActions(*args)
@@ -47,6 +50,7 @@ class Scene(BaseContainer):
         self._stage = Scene._validatedStage(stage)
         self._day = Scene._validatedDay(day)
         self._time = Scene._validatedTime(time)
+        self._sceneId = inheritedId if inheritedId else Scene._nextId()
 
     def inherited(self, *acts,
             title: str=None,
@@ -59,7 +63,11 @@ class Scene(BaseContainer):
                 stage=stage if stage else self.stage,
                 day=day if day else self.day,
                 time=time if time else self.time,
+                inheritedId=self.sceneId
                 ).setPriority(self.priority)
+
+    @property
+    def sceneId(self): return self._sceneId
 
     @property
     def actions(self): return self._actions
@@ -123,6 +131,11 @@ class Scene(BaseContainer):
         return self
 
     # privates
+    def _nextId() -> int:
+        tmp = Scene.__nextid__
+        Scene.__nextid__ += 1
+        return tmp
+
     def _validatedActions(*args):
         return args if [assertion.is_instance(v, AllActions) for v in args] else ()
 

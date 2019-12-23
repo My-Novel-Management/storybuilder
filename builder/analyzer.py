@@ -630,21 +630,21 @@ def _outlineContainsWordInAction(action: AllActions, word: str) -> bool:
 ## extractor
 ''' description list with target words
 '''
-def _descsHasWordsIn(story: Story, words: (str, list, tuple)) -> list:
-    return list(chain.from_iterable(_descsHasWordsInChapter(v, words) for v in story.chapters))
+def _descsHasWordsIn(story: Story, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_descsHasWordsInChapter(v, words, pid) for v in story.chapters))
 
-def _descsHasWordsInChapter(chapter: Chapter, words: (str, list, tuple)) -> list:
-    return list(chain.from_iterable(_descsHasWordsInEpisode(v, words) for v in chapter.episodes))
+def _descsHasWordsInChapter(chapter: Chapter, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_descsHasWordsInEpisode(v, words, pid) for v in chapter.episodes))
 
-def _descsHasWordsInEpisode(episode: Episode, words: (str, list, tuple)) -> list:
-    return list(chain.from_iterable(_descsHasWordsInScene(v, words) for v in episode.scenes))
+def _descsHasWordsInEpisode(episode: Episode, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_descsHasWordsInScene(v, words, pid) for v in episode.scenes))
 
-def _descsHasWordsInScene(scene: Scene, words: (str, list, tuple)) -> list:
-    return list(chain.from_iterable(_descsHasWordsInAction(v, words) for v in scene.actions))
+def _descsHasWordsInScene(scene: Scene, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_descsHasWordsInAction(v, words, scene.sceneId) for v in scene.actions))
 
-def _descsHasWordsInAction(action: AllActions, words: (str, list, tuple)) -> list:
+def _descsHasWordsInAction(action: AllActions, words: (str, list, tuple), pid: int=0) -> list:
     if isinstance(action, CombAction):
-        return list(chain.from_iterable(_descsHasWordsInAction(v, words) for v in action.actions))
+        return list(chain.from_iterable(_descsHasWordsInAction(v, words, pid) for v in action.actions))
     elif isinstance(action, TagAction):
         return []
     else:
@@ -652,7 +652,7 @@ def _descsHasWordsInAction(action: AllActions, words: (str, list, tuple)) -> lis
             return []
         else:
             tmp = strOfDescription(action)
-            return [tmp] if containsWordsIn(tmp, words) else []
+            return [(f"{pid}-{action.actId}", tmp)] if containsWordsIn(tmp, words) else []
 
 ''' dialogues each person
 '''

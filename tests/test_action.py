@@ -23,6 +23,10 @@ class ActionTest(unittest.TestCase):
     def setUp(self):
         self.taro = Person("Taro", "", 17, "male", "student")
 
+    def test_actId(self):
+        tmp = Action(self.taro)
+        self.assertIsInstance(tmp.actId, int)
+
     def test_attributes(self):
         data = [
                 (False, self.taro, "a test", ActType.BE, "test layer",

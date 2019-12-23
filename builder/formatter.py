@@ -155,10 +155,10 @@ class Formatter(object):
     def toLayersInfo(self, data: list) -> list:
         tmp = []
         for v in data:
-            if "#" in v:
-                tmp.append(v)
+            if "#" in v[1]:
+                tmp.append(v[1])
             else:
-                tmp.append(f"- {v}")
+                tmp.append(f"- {v[0]}:{v[1]}")
         return tmp
 
     def toOutlines(self, data: list) -> list:

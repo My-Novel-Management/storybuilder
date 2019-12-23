@@ -44,10 +44,12 @@ class Action(BaseData):
     """Data type of an action.
     """
     __NAME__ = "__action__"
+    __nextid__ = 1
 
     def __init__(self, subject: [Person, Chara, None],
             outline: str="", act_type: ActType=ActType.ACT,
-            layer: str=__DEF_LAYER__):
+            layer: str=__DEF_LAYER__,
+            inheritedId: int=0):
         super().__init__(Action.__NAME__)
         _subject_is_str = isinstance(subject, str)
         self._subject = Action._validatedSubject(subject)
@@ -58,17 +60,22 @@ class Action(BaseData):
         self._deflag = NoDeflag()
         self._priority = __DEF_PRIORITY__
         self._layer = assertion.is_str(layer)
+        self._actId = inheritedId if inheritedId else Action._nextId()
 
     def inherited(self, subject=None, outline=None, desc=None):
         return Action(
                 subject if subject else self.subject,
                 outline if outline else self.outline,
-                self.act_type) \
+                self.act_type,
+                inheritedId=self.actId) \
                     .flag(self.getFlag()).deflag(self.getDeflag()) \
                     ._setDescription(desc if desc else self.description,
                             self.description.desc_type) \
                     .setPriority(self.priority) \
                     .setLayer(self.layer)
+
+    @property
+    def actId(self): return self._actId
 
     @property
     def act_type(self): return self._act_type
@@ -153,6 +160,11 @@ class Action(BaseData):
         return self
 
     # private
+    def _nextId() -> int:
+        tmp = Action.__nextid__
+        Action.__nextid__ += 1
+        return tmp
+
     def _validatedSubject(sub: [str, Person, Chara, None]):
         if isinstance(sub, str):
             return Who()
