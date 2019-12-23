@@ -58,7 +58,7 @@ def sc_birth(w: World):
     r = Writer(w.granma)
     s.add(
         w.be(None, "午後").d("その昼のことだ"),
-        r.sit(),
+        r.sit().d("畳の上に座り込んでいた"),
         w.look(w.granma, "夫に桃のことを相談").d("$Sは桃を拾ったのだがどうすべきかと相談をしてみた"),
         w.talk(w.granpa, "中を見てみよう").t("こりゃあデカいな",
             "よし、切ってみるとしよう", "$meに任せておきなさい"),

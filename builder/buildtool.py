@@ -6,7 +6,12 @@ from itertools import chain
 import os
 import argparse
 import re
+from . import __DEF_PRIORITY__
+from . import STAGE_LAYERS
+from . import FASHION_LAYERS
+from . import FOOD_LAYERS
 from . import assertion
+from .action import Layer
 from .world import World
 from .story import Story
 from .parser import Parser
@@ -17,7 +22,6 @@ from .extractor import Extractor
 from .formatter import Formatter
 from .chara import Chara
 from .person import Person
-from . import __DEF_PRIORITY__
 
 
 class Build(object):
@@ -91,17 +95,48 @@ class Build(object):
             pass
 
         if options.info:
-            # TODO: detail info output
+            # NOTE:
+            #   0. char count
+            #   1. words layers
+            #   2. stage layers
+            #   3. fashion layers
+            #   4. food layers
             is_succeeded = self.to_detail_info(parser, analyzer, filename,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info failed!!")
                 return is_succeeded
+
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     self._layers,
+                    "Words", 1,
                     is_debug)
             if not is_succeeded:
-                print("ERROR: output a detail info by words failed!!")
+                print("ERROR: output a detail info1(words) failed!!")
+                return is_succeeded
+
+            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
+                    _layerDictFrom(STAGE_LAYERS),
+                    "Stages", 2,
+                    is_debug)
+            if not is_succeeded:
+                print("ERROR: output a detail info2(stages) failed!!")
+                return is_succeeded
+
+            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
+                    _layerDictFrom(FASHION_LAYERS),
+                    "Fashions", 3,
+                    is_debug)
+            if not is_succeeded:
+                print("ERROR: output a detail info3(fashions) failed!!")
+                return is_succeeded
+
+            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
+                    _layerDictFrom(FOOD_LAYERS),
+                    "Foods", 4,
+                    is_debug)
+            if not is_succeeded:
+                print("ERROR: output a detail info4(foods) failed!!")
                 return is_succeeded
 
         if options.analyze:
@@ -196,14 +231,16 @@ class Build(object):
 
     def toDetailByWords(self, parser: Parser, analyzer: Analyzer, filename: str,
             layers: dict,
+            title: str,
+            num: int,
             is_debug: bool) -> bool: # pragma: no cover
         tmp = []
         for k,v in layers.items():
             tmp.append([("Title", f"\n## About {k}:{v.name}\n")])
             tmp.append(analyzer.descsHasWords(parser.src, v.words))
-        res = [f"# Analyzed info by words of {parser.src.title}\n"] \
+        res = [f"# Analyzed {title} info of {parser.src.title}\n"] \
                 + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
-        return self.outputOn(res, filename, "_info1", self._extension, self._builddir,
+        return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
                 is_debug)
 
     def to_dialogue_info(self, parser: Parser, analyzer: Analyzer, filename: str,
@@ -295,6 +332,13 @@ class Build(object):
         return is_succeeded
 
 # privates
+def _layerDictFrom(data: list) -> dict:
+    tmp = {}
+    for v in assertion.is_list(data):
+        k, val = v[0], v[1:]
+        tmp[k] = Layer(*val)
+    return tmp
+
 def _options_parsed(is_debug_test: bool): # pragma: no cover
     '''Get and setting a commandline option.
 
