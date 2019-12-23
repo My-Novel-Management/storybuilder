@@ -190,3 +190,14 @@ class TagAction(Action):
 
     def inherited(self):
         return TagAction(self.info, self.subinfo, self.tag_type)
+
+class Layer(BaseData):
+    """Data type of a layer
+    """
+    def __init__(self, name: str, words: (str, list, tuple)):
+        super().__init__(name)
+        self._words = words
+
+    @property
+    def words(self): return self._words
+

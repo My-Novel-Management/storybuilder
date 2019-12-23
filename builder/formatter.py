@@ -152,6 +152,15 @@ class Formatter(object):
             tmp.append(f"    - {v.info}")
         return tmp
 
+    def toLayersInfo(self, data: list) -> list:
+        tmp = []
+        for v in data:
+            if "#" in v:
+                tmp.append(v)
+            else:
+                tmp.append(f"- {v}")
+        return tmp
+
     def toOutlines(self, data: list) -> list:
         tmp = []
         sc_head = ""

@@ -6,6 +6,16 @@ from . import assertion
 
 
 # publics
+def containsWordsIn(target: str, words: (str, list, tuple)) -> bool:
+    if isinstance(words, str):
+        return words in target
+    else:
+        for w in assertion.is_list(words):
+            if w in target:
+                return True
+        else:
+            return False
+
 def dict_sorted(origin: dict, is_reverse: bool=True) -> dict:
     return dict(sorted(origin.items(), key=lambda x:x[0], reverse=is_reverse))
 

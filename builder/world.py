@@ -4,7 +4,7 @@
 from typing import Any
 from . import assertion
 from . import __DEF_LAYER__
-from .action import Action, ActType, TagAction, TagType
+from .action import Action, ActType, TagAction, TagType, Layer
 from .basedata import BaseData
 from .chapter import Chapter
 from .chara import Chara
@@ -46,6 +46,7 @@ class World(UtilityDict):
         self._isConstractWords = False
         self._words = {}
         self._rubis = {}
+        self._layers = {}
 
     @property
     def mecabdict(self): return self._mecabdict
@@ -62,6 +63,9 @@ class World(UtilityDict):
 
     @property
     def rubis(self): return self._rubis
+
+    @property
+    def layers(self): return self._layers
 
     # creations
     def chapter(self, *args, **kwargs):
@@ -115,6 +119,10 @@ class World(UtilityDict):
                 _rubtype(val[3] if len(val) >= 4 else None))
         return self
 
+    def appendLayer(self, key: str, val: Any):
+        self._layers[key] = Layer(*val)
+        return self
+
     def set_charas(self, charas: list):
         return self._setItemsFrom(charas, self.append_chara)
 
@@ -139,6 +147,11 @@ class World(UtilityDict):
     def setRubis(self, rubis: list):
         for v in assertion.is_list(rubis):
             self.appendRubi(v[0], v)
+        return self
+
+    def setLayers(self, layers: list):
+        for v in assertion.is_list(layers):
+            self.appendLayer(v[0], v[1:])
         return self
 
     def set_db(self, persons: list, charas: list,
@@ -231,7 +244,7 @@ class World(UtilityDict):
         '''To build this story world.
         '''
         from .buildtool import Build
-        bd = Build(val, self.words, self.rubis, self.mecabdict)
+        bd = Build(val, self.words, self.rubis, self.layers, self.mecabdict)
         return 0 if bd.output_story() else 1
 
     # private

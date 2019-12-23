@@ -256,6 +256,7 @@ def world():
             cnf.ITEMS,
             cnf.WORDS)
     w.setRubis(cnf.RUBIS)
+    w.setLayers(cnf.LAYERS)
     set_stages(w)
     return w
 

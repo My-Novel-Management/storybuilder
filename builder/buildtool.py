@@ -27,11 +27,14 @@ class Build(object):
     __EXTENSION__ = "md" # NOTE: currently markdown only
     __BUILD_DIR__ = "build"
 
-    def __init__(self, story: Story, world_dict: dict, rubi_dict: dict,
+    def __init__(self, story: Story, world_dict: dict,
+            rubi_dict: dict,
+            layer_dict: dict,
             opt_dic: str="",
             is_debug_test: bool=False):
         self._story = Build._validatedStory(story)
         self._rubis = dict_sorted(assertion.is_dict(rubi_dict))
+        self._layers = dict_sorted(assertion.is_dict(layer_dict))
         self._words = assertion.is_dict(world_dict)
         self._filename = Build.__FILENAME__
         self._options = _options_parsed(is_debug_test)
@@ -93,6 +96,12 @@ class Build(object):
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info failed!!")
+                return is_succeeded
+            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
+                    self._layers,
+                    is_debug)
+            if not is_succeeded:
+                print("ERROR: output a detail info by words failed!!")
                 return is_succeeded
 
         if options.analyze:
@@ -183,7 +192,19 @@ class Build(object):
                 + acts_percent + [""] \
                 + scenes_actspercent + [""] \
                 + flaginfo
-        return self.outputOn(res, filename, "_info", self._extension, self._builddir, is_debug)
+        return self.outputOn(res, filename, "_info0", self._extension, self._builddir, is_debug)
+
+    def toDetailByWords(self, parser: Parser, analyzer: Analyzer, filename: str,
+            layers: dict,
+            is_debug: bool) -> bool: # pragma: no cover
+        tmp = []
+        for k,v in layers.items():
+            tmp.append([f"\n## About {k}:{v.name}\n"])
+            tmp.append(analyzer.descsHasWords(parser.src, v.words))
+        res = [f"# Analyzed info by words of {parser.src.title}\n"] \
+                + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
+        return self.outputOn(res, filename, "_info1", self._extension, self._builddir,
+                is_debug)
 
     def to_dialogue_info(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover

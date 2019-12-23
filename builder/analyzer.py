@@ -18,6 +18,7 @@ from .parser import Parser
 from .person import Person
 from .scene import Scene
 from .story import Story
+from .strutils import containsWordsIn
 from .utils import strOfDescription, toSomething, hasTrueList, isDialogue, personsSorted, flagsSorted
 
 
@@ -78,6 +79,15 @@ class Analyzer(object):
                 chapterFnc=_descriptionContainsWordInChapter,
                 episodeFnc=_descriptionContainsWordInEpisode,
                 sceneFnc=_descriptionContainsWordInScene,
+                src=src)
+
+    def descsHasWords(self, src: StoryContainers, words: (str, list, tuple)) -> list:
+        return toSomething(self,
+                words,
+                storyFnc=_descsHasWordsIn,
+                chapterFnc=_descsHasWordsInChapter,
+                episodeFnc=_descsHasWordsInEpisode,
+                sceneFnc=_descsHasWordsInScene,
                 src=src)
 
     def descsManupaperRowCount(self, src: StoryContainers, columns: int) -> int:
@@ -618,6 +628,34 @@ def _outlineContainsWordInAction(action: AllActions, word: str) -> bool:
 
 
 ## extractor
+''' description list with target words
+'''
+def _descsHasWordsIn(story: Story, words: (str, list, tuple)) -> list:
+    return list(chain.from_iterable(_descsHasWordsInChapter(v, words) for v in story.chapters))
+
+def _descsHasWordsInChapter(chapter: Chapter, words: (str, list, tuple)) -> list:
+    return list(chain.from_iterable(_descsHasWordsInEpisode(v, words) for v in chapter.episodes))
+
+def _descsHasWordsInEpisode(episode: Episode, words: (str, list, tuple)) -> list:
+    return list(chain.from_iterable(_descsHasWordsInScene(v, words) for v in episode.scenes))
+
+def _descsHasWordsInScene(scene: Scene, words: (str, list, tuple)) -> list:
+    return list(chain.from_iterable(_descsHasWordsInAction(v, words) for v in scene.actions))
+
+def _descsHasWordsInAction(action: AllActions, words: (str, list, tuple)) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_descsHasWordsInAction(v, words) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        if isinstance(action.description, NoDesc):
+            return []
+        else:
+            tmp = strOfDescription(action)
+            return [tmp] if containsWordsIn(tmp, words) else []
+
+''' dialogues each person
+'''
 def _dialoguesOfPersonIn(story: Story, person: Person) -> list:
     return list(chain.from_iterable(_dialoguesOfPersonInChapter(v, person) for v in story.chapters))
 
