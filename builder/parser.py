@@ -185,7 +185,7 @@ def _toDescsWithRubiFrom(src: list, words: dict) -> list:
                 elif k in desc and not f"｜{k}" in desc and not f"{k}《" in desc:
                     if w.exclusions and _check_exclude(desc, w.exclusions):
                         continue
-                    desc = desc.replace(k, w.rubi)
+                    desc = desc.replace(k, w.rubi, 1)
                     if w.rubi_type is RubiType.ONCE:
                         discards.append(k)
             tmp.append(desc)
