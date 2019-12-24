@@ -21,7 +21,6 @@ from .analyzer import Analyzer
 from .converter import Converter
 from .extractor import Extractor
 from .formatter import Formatter
-from .chara import Chara
 from .person import Person
 
 
@@ -330,8 +329,6 @@ class Build(object):
         for k, v in assertion.is_instance(world, World).items():
             if k in ('stage', 'day', 'time', 'item', 'word'):
                 continue
-            if isinstance(v, Chara):
-                tmp_persons.append((k, v.name))
             elif isinstance(v, Person):
                 tmp_persons.append((f"n_{k}", v.name))
                 tmp_persons.append((f"fn_{k}", v.firstname))

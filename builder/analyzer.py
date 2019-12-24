@@ -10,7 +10,6 @@ from . import assertion
 from .action import Action, ActType, TagAction, TagType
 from .basesubject import NoSubject
 from .chapter import Chapter
-from .chara import Chara
 from .combaction import CombAction
 from .description import Description, DescType, NoDesc
 from .episode import Episode
@@ -26,7 +25,7 @@ from .utils import strOfDescription, toSomething, hasTrueList, isDialogue, perso
 ## define type
 AllActions = (Action, CombAction, TagAction)
 BaseActions = (Action, TagAction)
-TargetPerson = (Person, Chara, NoSubject)
+TargetPerson = (Person, NoSubject)
 AllFlags = (Flag, NoFlag, NoDeflag)
 StoryContainers = (Story, Chapter, Episode, Scene)
 

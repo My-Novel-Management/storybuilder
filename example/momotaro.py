@@ -250,7 +250,7 @@ def world():
     """Create a world.
     """
     w = World(2)
-    w.set_db(cnf.PERSONS, cnf.CHARAS,
+    w.set_db(cnf.PERSONS,
             cnf.STAGES,
             cnf.DAYS, cnf.TIMES,
             cnf.ITEMS,

@@ -12,7 +12,6 @@ import test_basedata
 import test_basesubject
 import test_buildtool
 import test_chapter
-import test_chara
 import test_combaction
 import test_converter
 import test_day
@@ -54,7 +53,6 @@ def suite():
         unittest.makeSuite(test_strutils.MethodsTest),
         unittest.makeSuite(test_utils.MethodsTest),
         # data type
-        unittest.makeSuite(test_chara.CharaTest),
         unittest.makeSuite(test_day.DayTest),
         unittest.makeSuite(test_flag.FlagTest),
         unittest.makeSuite(test_flag.NoFlagTest),

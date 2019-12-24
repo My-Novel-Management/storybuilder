@@ -34,9 +34,6 @@ PERSONS = (
         ("pheasant", "雉子", "", 17, "female", "雉", "me:わたし"),
         )
 
-CHARAS = (
-        )
-
 STAGES = (
         # Tag / 名前 / 紹介
         ("river", "川辺"),

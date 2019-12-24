@@ -7,7 +7,6 @@ from . import __DEF_LAYER__
 from .action import Action, ActType, TagAction, TagType, Layer
 from .basedata import BaseData
 from .chapter import Chapter
-from .chara import Chara
 from .combaction import CombAction
 from .day import Day
 from .description import Rubi, RubiType
@@ -20,6 +19,10 @@ from .story import Story
 from .stage import Stage
 from .time import Time
 from .word import Word
+
+
+## defines
+Subjects = (str, Person, None)
 
 
 class UtilityDict(dict):
@@ -89,9 +92,6 @@ class World(UtilityDict):
         return Story(*args, **kwargs)
 
     # db management
-    def append_chara(self, key: str, val: Any):
-        return self._appendOne(key, val, self, Chara)
-
     def append_day(self, key: str, val: Any):
         return self._appendOne(key, val, self.day, Day)
 
@@ -154,13 +154,11 @@ class World(UtilityDict):
             self.appendLayer(v[0], v[1:])
         return self
 
-    def set_db(self, persons: list, charas: list,
+    def set_db(self, persons: list,
             stages: list, days: list, times: list,
             items: list, words: list): # pragma: no cover
         if persons:
             self.set_persons(persons)
-        if charas:
-            self.set_charas(charas)
         if items:
             self.set_items(items)
         if stages:
@@ -180,43 +178,43 @@ class World(UtilityDict):
     def combine(self, *args):
         return CombAction(*args)
 
-    def act(self, subject: [str, Person, Chara, None],
+    def act(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.ACT, layer=layer)
 
-    def be(self, subject: [Person, Chara, None],
+    def be(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.BE, layer=layer)
 
-    def come(self, subject: [Person, Chara, None],
+    def come(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.COME, layer=layer)
 
-    def go(self, subject: [Person, Chara, None],
+    def go(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.GO, layer=layer)
 
-    def have(self, subject: [Person, Chara, None],
+    def have(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.HAVE, layer=layer)
 
-    def hear(self, subject: [Person, Chara, None],
+    def hear(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.HEAR, layer=layer)
 
-    def look(self, subject: [Person, Chara, None],
+    def look(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.LOOK, layer=layer)
 
-    def move(self, subject: [Person, Chara, None],
+    def move(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.MOVE, layer=layer)
 
-    def talk(self, subject: [Person, Chara, None],
+    def talk(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.TALK, layer=layer)
 
-    def think(self, subject: [Person, Chara, None],
+    def think(self, subject: Subjects,
             outline: str="", layer: str=__DEF_LAYER__):
         return Action(subject, outline, act_type=ActType.THINK, layer=layer)
 

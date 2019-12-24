@@ -2,16 +2,17 @@
 """Define action class.
 """
 from enum import Enum
+from typing import Optional
 from . import assertion
 from .basedata import BaseData
 from .description import Description, NoDesc, DescType
 from .flag import Flag, NoFlag, NoDeflag
 from .basesubject import NoSubject
 from .person import Person
-from .chara import Chara
 from .who import Who
 from . import __DEF_PRIORITY__, __MAX_PRIORYTY__, __MIN_PRIORITY__
 from . import __DEF_LAYER__, __MAIN_LAYER__
+
 
 class ActType(Enum):
     """Action type.
@@ -46,7 +47,7 @@ class Action(BaseData):
     __NAME__ = "__action__"
     __nextid__ = 1
 
-    def __init__(self, subject: [Person, Chara, None],
+    def __init__(self, subject: Optional[Person],
             outline: str="", act_type: ActType=ActType.ACT,
             layer: str=__DEF_LAYER__,
             inheritedId: int=0):
@@ -165,10 +166,10 @@ class Action(BaseData):
         Action.__nextid__ += 1
         return tmp
 
-    def _validatedSubject(sub: [str, Person, Chara, None]):
+    def _validatedSubject(sub: (str, Person, None)):
         if isinstance(sub, str):
             return Who()
-        elif isinstance(sub, (Person, Chara, Who)):
+        elif isinstance(sub, (Person, Who)):
             return sub
         else:
             return NoSubject()
