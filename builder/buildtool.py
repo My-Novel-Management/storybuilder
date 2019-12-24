@@ -97,16 +97,18 @@ class Build(object):
         if options.info:
             # NOTE:
             #   0. char count
-            #   1. words layers
-            #   2. stage layers
-            #   3. fashion layers
-            #   4. food layers
             is_succeeded = self.to_detail_info(parser, analyzer, filename,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info failed!!")
                 return is_succeeded
 
+        if options.detail:
+            # NOTE:
+            #   1. words layers
+            #   2. stage layers
+            #   3. fashion layers
+            #   4. food layers
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     self._layers,
                     "Words", 1,
@@ -352,7 +354,8 @@ def _options_parsed(is_debug_test: bool): # pragma: no cover
     parser.add_argument('-d', '--description', help="output the novel", action='store_true')
     # TODO: action view
     parser.add_argument('-a', '--action', help="output the monitoring action", action='store_true')
-    parser.add_argument('-i', '--info', help="output adding the detail info", action='store_true')
+    parser.add_argument('-i', '--info', help="output the abstract info", action='store_true')
+    parser.add_argument('--detail', help="output the detail informations", action='store_true')
     parser.add_argument('-z', '--analyze', help="output the analyzed info", action='store_true')
     parser.add_argument('-l', '--layer', help="output using the layer", action='store_true')
     # TODO: character info
