@@ -41,7 +41,7 @@ class Build(object):
         self._layers = dict_sorted(assertion.is_dict(layer_dict))
         self._words = assertion.is_dict(world_dict)
         self._filename = Build.__FILENAME__
-        self._options = _options_parsed(is_debug_test)
+        self._options = _optionsParsed(is_debug_test)
         self._extension = Build.__EXTENSION__
         self._builddir = Build.__BUILD_DIR__
         self._mecabdictdir = assertion.is_str(opt_dic)
@@ -52,7 +52,7 @@ class Build(object):
         return Build._wordsFrom(world)
 
     # methods
-    def output_story(self): # pragma: no cover
+    def outputStory(self): # pragma: no cover
         is_succeeded = True
         options = self._options
         filename = self._filename # TODO: ファイル名指定できるようにする
@@ -71,19 +71,19 @@ class Build(object):
         analyzer = Analyzer(_mecabdir)
 
         if options.outline:
-            is_succeeded = self.to_outline(parser, filename, is_debug)
+            is_succeeded = self.toOutline(parser, filename, is_debug)
             if not is_succeeded:
                 print("ERROR: output a outline failed!!")
                 return is_succeeded
 
         if options.scenario:
-            is_succeeded = self.to_scenario(parser, filename, is_comment, is_debug)
+            is_succeeded = self.toScenario(parser, filename, is_comment, is_debug)
             if not is_succeeded:
                 print("ERROR: output a scenario failed!!")
                 return is_succeeded
 
         if options.description:
-            is_succeeded = self.to_description(parser, filename, formattype,
+            is_succeeded = self.toDescription(parser, filename, formattype,
                     self._rubis,
                     is_comment, options.rubi, is_debug)
             if not is_succeeded:
@@ -97,7 +97,7 @@ class Build(object):
         if options.info:
             # NOTE:
             #   0. char count
-            is_succeeded = self.to_detail_info(parser, analyzer, filename,
+            is_succeeded = self.toDetailInfo(parser, analyzer, filename,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info failed!!")
@@ -143,14 +143,14 @@ class Build(object):
 
         if options.analyze:
             # TODO: analyze documents
-            is_succeeded = self.to_analyzed_info(parser, analyzer, filename,
+            is_succeeded = self.toAnalyzedInfo(parser, analyzer, filename,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output an analyzed info failed!!")
                 return is_succeeded
 
         if options.layer:
-            is_succeeded = self.to_layer(parser, filename, is_debug)
+            is_succeeded = self.toLayer(parser, filename, is_debug)
             if not is_succeeded:
                 print("ERROR: output a description failed!!")
                 return is_succeeded
@@ -160,7 +160,7 @@ class Build(object):
             pass
 
         if options.dialogue:
-            is_succeeded = self.to_dialogue_info(parser, analyzer, filename,
+            is_succeeded = self.toDialogueInfo(parser, analyzer, filename,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a dialogue info failed!!")
@@ -171,18 +171,18 @@ class Build(object):
             pass
 
         # total info (always display)
-        is_succeeded = self.to_total_info(parser, analyzer)
+        is_succeeded = self.toTotalInfo(parser, analyzer)
 
         return is_succeeded
 
-    def to_analyzed_info(self, parser: Parser, analyzer: Analyzer, filename: str,
+    def toAnalyzedInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
         # NOTE: 解析結果
         freq = analyzer.frequency_words(parser.src)
         res = freq
         return self.outputOn(res, filename, "_anal", self._extension, self._builddir, is_debug)
 
-    def to_description(self, parser: Parser, filename: str, formattype: str,
+    def toDescription(self, parser: Parser, filename: str, formattype: str,
             rubi_dict: dict,
             is_comment: bool, rubi: bool, is_debug: bool): # pragma: no cover
         res = Formatter().toDescriptions(parser.toDescriptions(is_comment))
@@ -197,7 +197,7 @@ class Build(object):
             res = Formatter().toDescriptionsAsWeb(res)
         return self.outputOn(res, filename, "", self._extension, self._builddir, is_debug)
 
-    def to_detail_info(self, parser: Parser, analyzer: Analyzer, filename: str,
+    def toDetailInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
         # TODO: 最初にタイトルから章やシーンリスト
         # TODO: 文字数に続いて各シーンの簡易情報
@@ -245,7 +245,7 @@ class Build(object):
         return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
                 is_debug)
 
-    def to_dialogue_info(self, parser: Parser, analyzer: Analyzer, filename: str,
+    def toDialogueInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
             is_debug: bool): # pragma: no cover
         # NOTE: dialogue count and list
         info = Formatter().toDialoguesInfo(
@@ -254,7 +254,7 @@ class Build(object):
                 + info
         return self.outputOn(res, filename, "_dial", self._extension, self._builddir, is_debug)
 
-    def to_layer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
+    def toLayer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
         res = Formatter().toDescriptionsAsLayer(parser.toDescriptionsAsLayer())
         res_outline = Formatter().toOutlinesAsLayer(parser.toOutlinesAsLayer())
         if is_debug:
@@ -262,26 +262,26 @@ class Build(object):
         return self.outputOn(res, filename, "_lay", self._extension, self._builddir, is_debug) \
                 and self.outputOn(res_outline, filename, "_layO", self._extension, self._builddir, is_debug)
 
-    def to_outline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
+    def toOutline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
         res = Formatter().toOutlines(parser.toOutlines())
         return self.outputOn(res, filename, "_out", self._extension, self._builddir, is_debug)
 
-    def to_scenario(self, parser: Parser, filename: str, is_comment: bool,
+    def toScenario(self, parser: Parser, filename: str, is_comment: bool,
             is_debug: bool): # pragma: no cover
         res = Formatter().toScenarios(parser.toScenarios())
         return self.outputOn(res, filename, "_sc", self._extension, self._builddir, is_debug)
 
-    def to_total_info(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
+    def toTotalInfo(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
         charcounts = Formatter().toCharactersInfo(
                 analyzer.charactersCount(parser.src))
-        return Build._out_to_console(charcounts)
+        return Build._outToConsole(charcounts)
 
     def outputOn(self, data: list, filename: str, suffix: str, extention: str,
             builddir: str, is_debug: bool): # pragma: no cover
         if is_debug:
-            return Build._out_to_console(data)
+            return Build._outToConsole(data)
         else:
-            return Build._out_to_file(data, filename, suffix, extention, builddir)
+            return Build._outToFile(data, filename, suffix, extention, builddir)
 
     # private
     def _validatedStory(story: Story):
@@ -313,13 +313,13 @@ class Build(object):
         tmp_words = [(f"w_{k}", v.name) for k,v in world.word.items()]
         return dict_sorted(dict(tmp_persons + tmp_stages + tmp_items + tmp_words))
 
-    def _out_to_console(data: list): # pragma: no cover
+    def _outToConsole(data: list): # pragma: no cover
         is_succeeded = True
         for v in data:
             print(v)
         return is_succeeded
 
-    def _out_to_file(data: list, filename: str, suffix: str, extention: str,
+    def _outToFile(data: list, filename: str, suffix: str, extention: str,
             builddir: str): # pragma: no cover
         is_succeeded = True
         if not os.path.isdir(builddir):
@@ -341,7 +341,7 @@ def _layerDictFrom(data: list) -> dict:
         tmp[k] = Layer(*val)
     return tmp
 
-def _options_parsed(is_debug_test: bool): # pragma: no cover
+def _optionsParsed(is_debug_test: bool): # pragma: no cover
     '''Get and setting a commandline option.
 
     Returns:
