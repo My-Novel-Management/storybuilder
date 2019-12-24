@@ -2,6 +2,7 @@
 """The build tool.
 """
 from __future__ import print_function
+from collections import namedtuple
 from itertools import chain
 import os
 import argparse
@@ -22,6 +23,10 @@ from .converter import Converter
 from .extractor import Extractor
 from .formatter import Formatter
 from .person import Person
+
+
+## defines
+DataPack = namedtuple('DataPack', ('head', 'body'))
 
 
 class Build(object):
@@ -174,6 +179,12 @@ class Build(object):
             if not is_succeeded:
                 print("ERROR: output an analyzed info failed!!")
                 return is_succeeded
+            ## kanji
+            is_succeeded = self.toAnalyzedKanji(parser, analyzer, filename,
+                    is_debug)
+            if not is_succeeded:
+                print("ERROR: output an analyzed info (kanji) failed!!")
+                return is_succeeded
 
         if options.layer:
             is_succeeded = self.toLayer(parser, filename, is_debug)
@@ -206,7 +217,28 @@ class Build(object):
         # NOTE: 解析結果
         freq = analyzer.frequency_words(parser.src)
         res = freq
-        return self.outputOn(res, filename, "_anal", self._extension, self._builddir, is_debug)
+        return self.outputOn(res, filename, "_anal0", self._extension, self._builddir, is_debug)
+
+    def toAnalyzedKanji(self, parser: Parser, analyzer: Analyzer, filename: str,
+            is_debug: bool) -> bool: # pragma: no cover
+        total_tmp = []
+        ## totals
+        total_tmp.append(Formatter().toKanjiPercentInfo(
+            analyzer.kanjiPercent(parser.src)
+            ))
+        ## each scenes
+        scenes = Extractor(parser.src).scenes
+        sc_tmp = []
+        for v in scenes:
+            sc_tmp.append([f"## Scene: {v.title}",])
+            sc_tmp.append(Formatter().toKanjiPercentInfo(
+                analyzer.kanjiPercent(v)
+                ))
+        res = [f"# Analyzed kanji and kana balance of {parser.src.title}"] \
+                + list(chain.from_iterable(total_tmp)) \
+                + ["--------" * 8] \
+                + list(chain.from_iterable(sc_tmp))
+        return self.outputOn(res, filename, "_anal1", self._extension, self._builddir, is_debug)
 
     def toDescription(self, parser: Parser, filename: str, formattype: str,
             rubi_dict: dict,

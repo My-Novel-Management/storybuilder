@@ -5,6 +5,10 @@ import re
 from . import assertion
 
 
+## defines
+R_Kan = re.compile("[一-龥]")
+
+
 # publics
 def containsWordsIn(target: str, words: (str, list, tuple)) -> bool:
     if isinstance(words, str):
@@ -27,6 +31,9 @@ def duplicate_bracket_chop_and_replaceed(target: str) -> str:
 
 def extraspace_chopped(target: str) -> str:
     return re.sub(r'([、。」])[　](.)', r'\1\2', assertion.is_str(target))
+
+def kanjiOf(target: str) -> list:
+    return R_Kan.findall(target)
 
 def str_duplicated_chopped(target: str):
     # NOTE:

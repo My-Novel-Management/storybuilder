@@ -18,7 +18,7 @@ from .parser import Parser
 from .person import Person
 from .scene import Scene
 from .story import Story
-from .strutils import containsWordsIn
+from .strutils import containsWordsIn, kanjiOf
 from .utils import strOfDescription, toSomething, hasTrueList, isDialogue, personsSorted, flagsSorted
 
 
@@ -79,6 +79,15 @@ class Analyzer(object):
                 chapterFnc=_chaptersCountInChapter,
                 episodeFnc=_chaptersCountInEpisode,
                 sceneFnc=_chaptersCountInScene,
+                src=src)
+
+    def charsCount(self, src: StoryContainers, isOutline: bool) -> int:
+        return toSomething(self,
+                isOutline,
+                storyFnc=_charsCountIn,
+                chapterFnc=_charsCountInChapter,
+                episodeFnc=_charsCountInEpisode,
+                sceneFnc=_charsCountInScene,
                 src=src)
 
     def descsContainsWord(self, src: StoryContainers, word: str) -> bool:
@@ -178,6 +187,15 @@ class Analyzer(object):
                     sceneFnc=_genGramPartWordsInScene,
                     src=src,
                 ))
+
+    def kanjiCount(self, src: StoryContainers, isOutline: bool) -> int:
+        return toSomething(self,
+                isOutline,
+                storyFnc=_kanjiCountIn,
+                chapterFnc=_kanjiCountInChapter,
+                episodeFnc=_kanjiCountInEpisode,
+                sceneFnc=_kanjiCountInScene,
+                src=src)
 
     def lookingOfPerson(self, src: StoryContainers, person: Person, isOutline: bool) -> list:
         return toSomething(self,
@@ -348,6 +366,14 @@ class Analyzer(object):
             tmp.append((v.name, self.dialoguesOfPerson(src, v)))
         return tmp
 
+    def kanjiPercent(self, src: StoryContainers) -> dict:
+        return {
+                'desc_total': self.charsCount(src, False),
+                'outline_total': self.charsCount(src, True),
+                'desc_kanji': self.kanjiCount(src, False),
+                'outline_kanji': self.kanjiCount(src, True),
+                }
+
     # main analyzing methods
     def frequency_words(self, story: Story):
         # TODO: all story source
@@ -456,7 +482,34 @@ def _chaptersCountInEpisode(episode: Episode) -> int:
 def _chaptersCountInScene(scene: Scene) -> int:
     return 0
 
-'''descriptions count
+''' characters count
+'''
+def _charsCountIn(story: Story, isOutline: bool) -> int:
+    return sum(_charsCountInChapter(v, isOutline) for v in story.chapters)
+
+def _charsCountInChapter(chapter: Chapter, isOutline: bool) -> int:
+    return sum(_charsCountInEpisode(v, isOutline) for v in chapter.episodes)
+
+def _charsCountInEpisode(episode: Episode, isOutline: bool) -> int:
+    return sum(_charsCountInScene(v, isOutline) for v in episode.scenes)
+
+def _charsCountInScene(scene: Scene, isOutline: bool) -> int:
+    return sum(_charsCountInAction(v, isOutline) for v in scene.actions)
+
+def _charsCountInAction(action: AllActions, isOutline: bool) -> int:
+    if isinstance(action, CombAction):
+        return sum(_charsCountInAction(v, isOutline) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return 0
+    else:
+        if isOutline:
+            return len(action.outline)
+        elif not isinstance(action.description, NoDesc):
+            return len(strOfDescription(action))
+        else:
+            return 0
+
+''' descriptions count
 '''
 def _descsCountIn(story: Story) -> int:
     return sum(_descsCountInChapter(v) for v in story.chapters)
@@ -565,6 +618,31 @@ def _flagsCountInAction(action: AllActions) -> int:
         return 0
     else:
         return len([v for v in (action.getFlag(), action.getDeflag()) if not isinstance(v, (NoFlag, NoDeflag))])
+
+''' kanji count
+'''
+def _kanjiCountIn(story: Story, isOutline: bool) -> int:
+    return sum(_kanjiCountInChapter(v, isOutline) for v in story.chapters)
+
+def _kanjiCountInChapter(chapter: Chapter, isOutline: bool) -> int:
+    return sum(_kanjiCountInEpisode(v, isOutline) for v in chapter.episodes)
+
+def _kanjiCountInEpisode(episode: Episode, isOutline: bool) -> int:
+    return sum(_kanjiCountInScene(v, isOutline) for v in episode.scenes)
+
+def _kanjiCountInScene(scene: Scene, isOutline: bool) -> int:
+    return sum(_kanjiCountInAction(v, isOutline) for v in scene.actions)
+
+def _kanjiCountInAction(action: AllActions, isOutline: bool) -> int:
+    if isinstance(action, CombAction):
+        return sum(_kanjiCountInAction(v, isOutline) for v in action.actions)
+    elif isinstance(action, TagAction):
+        return 0
+    else:
+        if isOutline:
+            return len(kanjiOf(action.outline))
+        else:
+            return len(kanjiOf(strOfDescription(action)))
 
 '''outlines count
 '''

@@ -152,6 +152,18 @@ class Formatter(object):
             tmp.append(f"    - {v.info}")
         return tmp
 
+    def toKanjiPercentInfo(self, data: dict) -> list:
+        total = data['desc_total']
+        kanji = data['desc_kanji']
+        ka_percent = kanji / total * 100 if total else 0
+        out_total = data['outline_total']
+        out_kanji = data['outline_kanji']
+        out_percent = out_kanji / out_total * 100 if out_total else 0
+        return [
+                f"\n* Descriptions: {ka_percent:.2f}% [{kanji} / {total}]",
+                f"* Outlines: {out_percent:.2f}% [{out_kanji} / {out_total}]",
+                ]
+
     def toLayersInfo(self, data: list) -> list:
         tmp = []
         for v in data:
