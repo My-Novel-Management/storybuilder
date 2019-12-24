@@ -39,8 +39,8 @@ STAGES = (
         ("river", "川辺"),
         ("home", "太郎の家"),
         ("vila", "村"),
-        ("onstreet", "路上"),
-        ("onship", "船"),
+        ("street", "路上"),
+        ("ship", "船"),
         ("island", "鬼ヶ島", "村からは十日かかる"),
         )
 

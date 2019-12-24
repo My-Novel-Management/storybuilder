@@ -246,7 +246,7 @@ def _toReplacePronounFromEpisode(episode: Episode) -> Episode:
 
 def _toReplacePronounFromScene(scene: Scene) -> Scene:
     tmp = []
-    cur = NoSubject()
+    cur = scene.camera if isinstance(scene.camera, Person) else NoSubject()
     for v in scene.actions:
         act, cur = _toReplacePronounFromAction(v, cur)
         tmp.append(act)
