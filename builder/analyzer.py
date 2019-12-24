@@ -44,6 +44,15 @@ class Analyzer(object):
         self.tokenizer.parse('')
 
     ## base analyzing
+    def actionInfoOnLayer(self, src: StoryContainers, layer: str, isOutline: bool) -> list: # pragma: no cover
+        return toSomething(self,
+                layer, isOutline,
+                storyFnc=_actInfosOnLayerIn,
+                chapterFnc=_actInfosOnLayerInChapter,
+                episodeFnc=_actInfosOnLayerInEpisode,
+                sceneFnc=_actInfosOnLayerInScene,
+                src=src)
+
     def actionsCount(self, src: StoryContainers) -> int:
         return toSomething(self,
                 storyFnc=_actionsCountIn,
@@ -170,6 +179,15 @@ class Analyzer(object):
                     src=src,
                 ))
 
+    def lookingOfPerson(self, src: StoryContainers, person: Person, isOutline: bool) -> list:
+        return toSomething(self,
+                person, isOutline,
+                storyFnc=_lookingOfPersonIn,
+                chapterFnc=_lookingOfPersonInChapter,
+                episodeFnc=_lookingOfPersonInEpisode,
+                sceneFnc=_lookingOfPersonInScene,
+                src=src)
+
     def outlineContainsWord(self, src: StoryContainers, word: str) -> bool:
         return toSomething(self,
                 word,
@@ -187,6 +205,15 @@ class Analyzer(object):
                 sceneFnc=_outlinesCountInScene,
                 src=src)
 
+    def outlinesHasWords(self, src: StoryContainers, words: (str, list, tuple)) -> list:
+        return toSomething(self,
+                words,
+                storyFnc=_outlinesHasWordsIn,
+                chapterFnc=_outlinesHasWordsInChapter,
+                episodeFnc=_outlinesHasWordsInEpisode,
+                sceneFnc=_outlinesHasWordsInScene,
+                src=src)
+
     def outlinesManupaperRowCount(self, src: StoryContainers, columns: int) -> int:
         return toSomething(self,
                 columns,
@@ -194,6 +221,15 @@ class Analyzer(object):
                 chapterFnc=_outlinesManupaperRowCountInChapter,
                 episodeFnc=_outlinesManupaperRowCountInEpisode,
                 sceneFnc=_outlinesManupaperRowCountInScene,
+                src=src)
+
+    def outlinesOfPerson(self, src: StoryContainers, person: Person) -> list:
+        return toSomething(self,
+                person,
+                storyFnc=_outlinesOfPersonIn,
+                chapterFnc=_outlinesOfPersonInChapter,
+                episodeFnc=_outlinesOfPersonInEpisode,
+                sceneFnc=_outlinesOfPersonInScene,
                 src=src)
 
     def personsFrom(self, src: StoryContainers) -> list:
@@ -637,6 +673,34 @@ def _outlineContainsWordInAction(action: AllActions, word: str) -> bool:
 
 
 ## extractor
+''' outline or description list by layer
+'''
+def _actInfosOnLayerIn(story: Story, layer: str, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_actInfosOnLayerInChapter(v, layer, isOutline, pid) for v in story.chapters))
+
+def _actInfosOnLayerInChapter(chapter: Chapter, layer: str, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_actInfosOnLayerInEpisode(v, layer, isOutline, pid) for v in chapter.episodes))
+
+def _actInfosOnLayerInEpisode(episode: Episode, layer: str, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_actInfosOnLayerInScene(v, layer, isOutline, pid) for v in episode.scenes))
+
+def _actInfosOnLayerInScene(scene: Scene, layer: str, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_actInfosOnLayerInAction(v, layer, isOutline, scene.sceneId) for v in scene.actions))
+
+def _actInfosOnLayerInAction(action: AllActions, layer: str, isOutline: bool, pid: int=0) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_actInfosOnLayerInAction(v, layer, isOutline, pid) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        if action.layer != layer:
+            return []
+        elif not isOutline and isinstance(action.description, NoDesc):
+            return []
+        else:
+            tmp = action.outline if isOutline else strOfDescription(action)
+            return [valWithIdPacked(pid, action, tmp)]
+
 ''' description list with target words
 '''
 def _descsHasWordsIn(story: Story, words: (str, list, tuple), pid: int=0) -> list:
@@ -733,6 +797,84 @@ def _flagsFromInAction(action: AllActions) -> list:
         return []
     else:
         return [action.getFlag(), action.getDeflag()]
+
+'''looking of person list
+'''
+def _lookingOfPersonIn(story: Story, person: Person, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_lookingOfPersonInChapter(v, person, isOutline, pid) for v in story.chapters))
+
+def _lookingOfPersonInChapter(chapter: Chapter, person: Person, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_lookingOfPersonInEpisode(v, person, isOutline, pid) for v in chapter.episodes))
+
+def _lookingOfPersonInEpisode(episode: Episode, person: Person, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_lookingOfPersonInScene(v, person, isOutline, pid) for v in episode.scenes))
+
+def _lookingOfPersonInScene(scene: Scene, person: Person, isOutline: bool, pid: int=0) -> list:
+    return list(chain.from_iterable(_lookingOfPersonInAction(v, person, isOutline, scene.sceneId) for v in scene.actions))
+
+def _lookingOfPersonInAction(action: AllActions, person: Person, isOutline: bool, pid: int=0) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_lookingOfPersonInAction(v, person, isOutline, pid) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        if isinstance(action.subject, NoSubject):
+            return []
+        elif not isOutline and isinstance(action.description, NoDesc):
+            return []
+        elif action.act_type in (ActType.BE, ActType.LOOK):
+            tmp = action.outline if isOutline else strOfDescription(action)
+            return [valWithIdPacked(pid, action, tmp)] if action.subject.equals(person) else []
+        else:
+            return []
+
+'''outline list with target words
+'''
+def _outlinesHasWordsIn(story: Story, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesHasWordsInChapter(v, words, pid) for v in story.chapters))
+
+def _outlinesHasWordsInChapter(chapter: Chapter, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesHasWordsInEpisode(v, words, pid) for v in chapter.episodes))
+
+def _outlinesHasWordsInEpisode(episode: Episode, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesHasWordsInScene(v, words, pid) for v in episode.scenes))
+
+def _outlinesHasWordsInScene(scene: Scene, words: (str, list, tuple), pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesHasWordsInAction(v, words, scene.sceneId) for v in scene.actions))
+
+def _outlinesHasWordsInAction(action: AllActions, words: (str, list, tuple), pid: int=0) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_outlinesHasWordsInAction(v, words, pid) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        tmp = action.outline
+        return [valWithIdPacked(pid, action, tmp)] if containsWordsIn(tmp, words) else []
+
+'''outline list by person
+'''
+def _outlinesOfPersonIn(story: Story, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesOfPersonInChapter(v, person, pid) for v in story.chapters))
+
+def _outlinesOfPersonInChapter(chapter: Chapter, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesOfPersonInEpisode(v, person, pid) for v in chapter.episodes))
+
+def _outlinesOfPersonInEpisode(episode: Episode, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesOfPersonInScene(v, person, pid) for v in episode.scenes))
+
+def _outlinesOfPersonInScene(scene: Scene, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_outlinesOfPersonInAction(v, person, scene.sceneId) for v in scene.actions))
+
+def _outlinesOfPersonInAction(action: AllActions, person: Person, pid: int=0) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_outlinesOfPersonInAction(v, person, pid) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        if isinstance(action.subject, NoSubject):
+            return []
+        else:
+            return [valWithIdPacked(pid, action, action.outline)] if action.subject.equals(person) else []
 
 '''persons list from
 '''

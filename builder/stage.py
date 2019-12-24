@@ -10,16 +10,21 @@ class Stage(BaseData):
     """Data type of a stage.
     """
     __NOTE__ = "nothing"
-    def __init__(self, name: str, note: str=__NOTE__):
+    def __init__(self, name: str, note: str=__NOTE__, skin=None):
         super().__init__(name)
         self._note = assertion.is_str(note)
         self._items = ()
+        from .skin import StageSkin
+        self._skin = skin if skin else StageSkin(self)
 
     @property
     def items(self): return self._items
 
     @property
     def note(self): return self._note
+
+    @property
+    def skin(self): return self._skin
 
     def add(self, *args):
         """
@@ -33,7 +38,8 @@ class Stage(BaseData):
         # TODO: parent and child
         return Stage(
                 name if name != self.name else self.name,
-                note if note and note != self.note else self.note)
+                note if note and note != self.note else self.note,
+                skin=self.skin)
 
     # privates
     def _validatedItems(*args):

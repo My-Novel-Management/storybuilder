@@ -24,7 +24,8 @@ class Person(BaseSubject):
     __NOTE__ = "nothing"
 
     def __init__(self, name: str, fullname: str, age: int, sex: str, job: str,
-            calling: [dict, str]=__CALLING__, note: str=__NOTE__):
+            calling: [dict, str]=__CALLING__, note: str=__NOTE__,
+            skin=None):
         super().__init__(name)
         _fullname = fullname if fullname and isinstance(fullname, str) else name
         self._lastname, self._firstname = divided_by_splitter(_fullname)
@@ -35,6 +36,8 @@ class Person(BaseSubject):
         self._job = assertion.is_str(job)
         self._note = assertion.is_str(note)
         self._calling = Person._appendedBaseCalling(str_to_dict_by_splitter(calling), name)
+        from .skin import PersonSkin
+        self._skin = skin if skin else PersonSkin(self)
         # TODO: 髪色や髪型などはskinみたいなデータ型を作るか、itemを流用して
         #       後付できるようにする
         #       stageなどの設定と同じ
@@ -102,6 +105,9 @@ class Person(BaseSubject):
     @property
     def calling(self): return self._calling
 
+    @property
+    def skin(self): return self._skin
+
     def inherited(self, name: str, fullname: str=None, age: int=None, sex: str=None,
             job: str=None, calling: [dict, str]=None, note: str=None):
         return Person(name,
@@ -110,7 +116,8 @@ class Person(BaseSubject):
                 assertion.is_str(sex) if sex else self.sex,
                 assertion.is_str(job) if job else self.job,
                 assertion.is_instance(calling, (str, dict)) if calling else self.calling,
-                assertion.is_str(note) if note else self.note
+                assertion.is_str(note) if note else self.note,
+                skin=self.skin,
                 )
     # privets
     def _appendedBaseCalling(origin: dict, name: str):

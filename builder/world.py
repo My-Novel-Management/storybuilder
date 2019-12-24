@@ -15,6 +15,7 @@ from .flag import Flag
 from .item import Item
 from .person import Person
 from .scene import Scene
+from .skin import PersonSkin
 from .story import Story
 from .stage import Stage
 from .time import Time
@@ -35,6 +36,8 @@ class UtilityDict(dict):
 class World(UtilityDict):
     """World class.
     """
+    # TODO:
+    #   methods name convert camelCase
     MECAB_NEWDICT1 = "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
     MECAB_NEWDICT2 = "-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd"
 
@@ -122,9 +125,6 @@ class World(UtilityDict):
     def appendLayer(self, key: str, val: Any):
         self._layers[key] = Layer(*val)
         return self
-
-    def set_charas(self, charas: list):
-        return self._setItemsFrom(charas, self.append_chara)
 
     def set_days(self, days: list):
         return self._setItemsFrom(days, self.append_day)
@@ -251,8 +251,19 @@ class World(UtilityDict):
         if body is self:
             self.__setitem__(assertion.is_str(key), self._dataFrom(val, datatype))
         else:
+            tmp = self._dataFrom(val, datatype)
             assertion.is_instance(body, UtilityDict).__setitem__(
-                    assertion.is_str(key), self._dataFrom(val, datatype))
+                    assertion.is_str(key), tmp)
+            # TODO:
+            #   stage is On prefix only
+            #   day is In prefix only
+            #   time is At prefix only
+            if isinstance(tmp, Stage):
+                self.__setitem__('on_' + key, tmp)
+            elif isinstance(tmp, Day):
+                self.__setitem__('in_' + key, tmp)
+            elif isinstance(tmp, Time):
+                self.__setitem__('at_' + key, tmp)
         return self
 
     def _dataFrom(self, val: Any, datatype: BaseData):

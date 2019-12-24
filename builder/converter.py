@@ -191,7 +191,10 @@ def _toLayerFromScene(scene: Scene) -> Scene:
 def _toLayerFromAction(action: AllActions,
         layer: str) -> (Tuple[Action, str], Tuple[TagAction, str], Tuple[CombAction, str]):
     def _set_layer(action: AllActions, layer: str):
-        return action.setLayer(layer) if action.layer == __DEF_LAYER__ or action.layer != layer else action
+        if action.layer != __DEF_LAYER__:
+            return action
+        else:
+            return action.setLayer(layer)
     if isinstance(action, CombAction):
         tmp = []
         cur = layer
@@ -210,7 +213,7 @@ def _toLayerFromAction(action: AllActions,
         return tmp, tmp.layer
     else:
         tmp = _set_layer(action, layer)
-        return tmp, tmp.layer
+        return tmp, layer
 
 ''' replace pronoun
 '''

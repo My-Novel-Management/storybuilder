@@ -58,6 +58,7 @@ def sc_birth(w: World):
     r = Writer(w.granma)
     s.add(
         w.be(None, "午後").d("その昼のことだ"),
+        w.on_home.skin.getBody(1).d("粗末な家だった"),
         r.sit().d("畳の上に座り込んでいた"),
         w.look(w.granma, "夫に桃のことを相談").d("$Sは桃を拾ったのだがどうすべきかと相談をしてみた"),
         w.talk(w.granpa, "中を見てみよう").t("こりゃあデカいな",
@@ -79,6 +80,8 @@ def sc_know_deamon(w: World):
     s.setStage(w.stage.vila).setDay(w.day.rumor).setTime(w.time.afternoon)
     s.add(
         w.be(None, "桃太郎は成長した").d("桃太郎はすくすく成長し、あっという間に大きくなった"),
+        w.taro.skin.getFace(0),
+        w.taro.skin.getBody(1),
         w.combine(
         w.act(w.taro, "村の中を歩いている").d("ある日、村の中を歩いていると、"),
         w.hear("鬼の噂を聞く").flag("鬼の噂").d("村人が集まってこそこそと何やら話している",
@@ -243,6 +246,14 @@ def ch_sub(w: World):
 def set_stages(w: World):
     """Set stages.
     """
+    w.on_home.skin.addBody("板張りの床",
+            "藁葺の粗末な屋根")
+    return w
+
+def set_persons(w: World):
+    ## 桃太郎
+    w.taro.skin.addFace("つるりとしたイケメンフェイス")
+    w.taro.skin.addBody("長身", "筋肉質", "分厚い胸板")
     return w
 
 ## main
@@ -257,6 +268,7 @@ def world():
             cnf.WORDS)
     w.setRubis(cnf.RUBIS)
     w.setLayers(cnf.LAYERS)
+    set_persons(w)
     set_stages(w)
     return w
 

@@ -51,6 +51,14 @@ class Action(BaseData):
             outline: str="", act_type: ActType=ActType.ACT,
             layer: str=__DEF_LAYER__,
             inheritedId: int=0):
+        '''
+        Args:
+            subject: a subject
+            outline: an outline
+            act_type: an act type
+            layer: a layer
+            inheritedId: a specific argument for inheritetion
+        '''
         super().__init__(Action.__NAME__)
         _subject_is_str = isinstance(subject, str)
         self._subject = Action._validatedSubject(subject)

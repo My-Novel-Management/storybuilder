@@ -7,9 +7,9 @@ import os
 import argparse
 import re
 from . import __DEF_PRIORITY__
-from . import STAGE_LAYERS
-from . import FASHION_LAYERS
-from . import FOOD_LAYERS
+from . import STAGE_LAYERS, __STAGE_LAYER__
+from . import FASHION_LAYERS, __FASHION_LAYER__
+from . import FOOD_LAYERS, __FOOD_LAYER__
 from . import assertion
 from .action import Layer
 from .basesubject import NoSubject
@@ -109,36 +109,59 @@ class Build(object):
             #   2. stage layers
             #   3. fashion layers
             #   4. food layers
+            #
+            info_num = 1
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     self._layers,
-                    "Words", 1,
+                    "Words", info_num,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info1(words) failed!!")
                 return is_succeeded
 
+            info_num += 1
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     _layerDictFrom(STAGE_LAYERS),
-                    "Stages", 2,
+                    "Stages", info_num,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info2(stages) failed!!")
                 return is_succeeded
 
+            info_num += 1
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     _layerDictFrom(FASHION_LAYERS),
-                    "Fashions", 3,
+                    "Fashions", info_num,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info3(fashions) failed!!")
                 return is_succeeded
 
+            info_num += 1
             is_succeeded = self.toDetailByWords(parser, analyzer, filename,
                     _layerDictFrom(FOOD_LAYERS),
-                    "Foods", 4,
+                    "Foods", info_num,
                     is_debug)
             if not is_succeeded:
                 print("ERROR: output a detail info4(foods) failed!!")
+                return is_succeeded
+
+            info_num += 1
+            is_succeeded = self.toDetailByLayer(parser, analyzer, filename,
+                    "Stage-Layer", __STAGE_LAYER__,
+                    info_num,
+                    is_debug)
+            if not is_succeeded:
+                print(f"ERROR: output a detail info{info_num}(stage layer) failed!!")
+                return is_succeeded
+
+            info_num += 1
+            is_succeeded = self.toDetailByLayer(parser, analyzer, filename,
+                    "Fashion-Layer", __FASHION_LAYER__,
+                    info_num,
+                    is_debug)
+            if not is_succeeded:
+                print(f"ERROR: output a detail info{info_num}(stage layer) failed!!")
                 return is_succeeded
 
         if options.person:
@@ -243,6 +266,23 @@ class Build(object):
         for k,v in layers.items():
             tmp.append([("Title", f"\n## About {k}:{v.name}\n")])
             tmp.append(analyzer.descsHasWords(parser.src, v.words))
+        tmp.append([("Head", "--------"*8)])
+        for k,v in layers.items():
+            tmp.append([("Title", f"\n## About {k}:{v.name}\n")])
+            tmp.append(analyzer.outlinesHasWords(parser.src, v.words))
+        res = [f"# Analyzed {title} info of {parser.src.title}\n"] \
+                + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
+        return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
+                is_debug)
+
+    def toDetailByLayer(self, parser: Parser, analyzer: Analyzer, filename: str,
+            title: str, layer: str, num: int,
+            is_debug: bool) -> bool: # pragma: no cover
+        tmp = []
+        tmp.append([("Title", f"\n## Descriptions {layer}\n")])
+        tmp.append(analyzer.actionInfoOnLayer(parser.src, layer, False))
+        tmp.append([("Title", f"\n## Outlines {layer}\n")])
+        tmp.append(analyzer.actionInfoOnLayer(parser.src, layer, True))
         res = [f"# Analyzed {title} info of {parser.src.title}\n"] \
                 + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
         return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
@@ -289,6 +329,15 @@ class Build(object):
             tmp.append(analyzer.descriptionsOfPerson(parser.src, v))
             tmp.append([("Head", f"\n* Dialogues")])
             tmp.append(analyzer.dialoguesOfPerson(parser.src, v))
+            tmp.append([("Head", f"\n* Lookings")])
+            tmp.append(analyzer.lookingOfPerson(parser.src, v, False))
+            tmp.append([("Head", "--------"*8)])
+            tmp.append([("Head", f"\n* Outline contains words")])
+            tmp.append(analyzer.outlinesHasWords(parser.src, lay.words))
+            tmp.append([("Head", f"\n* Outline subject actions")])
+            tmp.append(analyzer.outlinesOfPerson(parser.src, v))
+            tmp.append([("Head", f"\n* Outlines lookings")])
+            tmp.append(analyzer.lookingOfPerson(parser.src, v, True))
             res = Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
             is_succeeded = self.outputOn(res, v.name, "", self._extension, builddir, is_debug)
             if not is_succeeded:

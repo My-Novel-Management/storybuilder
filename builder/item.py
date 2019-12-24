@@ -10,7 +10,7 @@ class Item(BaseData):
     """
     __NOTE__ = "なし"
 
-    def __init__(self, name: str, note: str=__NOTE__):
+    def __init__(self, name: str, note: str=__NOTE__, skin=None):
         """
         Args:
             name (str): an item name.
@@ -18,6 +18,11 @@ class Item(BaseData):
         """
         super().__init__(name)
         self._note = assertion.is_str(note)
+        from .skin import ItemSkin
+        self._skin = skin if skin else ItemSkin(self)
 
     @property
     def note(self): return self._note
+
+    @property
+    def skin(self): return self._skin

@@ -11,7 +11,7 @@ __MAIN_LAYER__ = "__main__"
 __STAGE_LAYER__ = "__stage__"
 __FASHION_LAYER__ = "__fashion__"
 __FOOD_LAYER__ = "__food__"
-
+__ITEM_LAYER__ = "__item__"
 
 ## meta data
 STAGE_LAYERS = (
