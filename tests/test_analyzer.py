@@ -132,13 +132,17 @@ class AnalyzerTest(unittest.TestCase):
                 (False, Story("test", Chapter("c1", Episode("e1","",
                     Scene("s1","",
                         Action(self.taro).t("test"))))),
-                    self.taro, ["test",]),
+                    self.taro, "test",),
                 (False, Scene("s1","",
                     Action(self.taro)),
                     self.taro, []),
                 ]
         def _checkcode(v, p, expect):
-            self.assertEqual(self.az.dialoguesOfPerson(v, p), expect)
+            tmp = self.az.dialoguesOfPerson(v, p)
+            if tmp:
+                self.assertEqual(tmp[0][1], expect)
+            else:
+                self.assertEqual(tmp, expect)
         validated_testing_withfail(self, "dialoguesOfPerson", _checkcode, data)
 
     def test_flagsCount(self):

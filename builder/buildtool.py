@@ -12,6 +12,7 @@ from . import FASHION_LAYERS
 from . import FOOD_LAYERS
 from . import assertion
 from .action import Layer
+from .basesubject import NoSubject
 from .world import World
 from .story import Story
 from .parser import Parser
@@ -141,6 +142,9 @@ class Build(object):
                 print("ERROR: output a detail info4(foods) failed!!")
                 return is_succeeded
 
+        if options.person:
+            is_succeeded = self.toPersonInfo(parser, analyzer, filename, is_debug)
+
         if options.analyze:
             # TODO: analyze documents
             is_succeeded = self.toAnalyzedInfo(parser, analyzer, filename,
@@ -266,6 +270,32 @@ class Build(object):
         res = Formatter().toOutlines(parser.toOutlines())
         return self.outputOn(res, filename, "_out", self._extension, self._builddir, is_debug)
 
+    def toPersonInfo(self, parser: Parser, analyzer: Analyzer, filename: str, is_debug: bool) -> bool: # pragma: no cover
+        is_succeeded = False
+        builddir = self._builddir + "/person"
+        persons = Extractor(parser.src).persons
+        def _buildLayer(p: Person):
+            tmp = Layer(p.name,
+                    (p.name, p.fullname, p.lastname, p.firstname))
+            return tmp
+        for v in persons:
+            if isinstance(v, NoSubject):
+                continue
+            lay = _buildLayer(v)
+            tmp = []
+            tmp.append([("Title", f"\n## About {v.name}\n")])
+            tmp.append([("Head", f"* Contains words")])
+            tmp.append(analyzer.descsHasWords(parser.src, lay.words))
+            tmp.append([("Head", f"\n* Subject actions")])
+            tmp.append(analyzer.descriptionsOfPerson(parser.src, v))
+            tmp.append([("Head", f"\n* Dialogues")])
+            tmp.append(analyzer.dialoguesOfPerson(parser.src, v))
+            res = Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
+            is_succeeded = self.outputOn(res, v.name, "", self._extension, builddir, is_debug)
+            if not is_succeeded:
+                raise AssertionError(f"person (v.name) info output error: ", v)
+        return is_succeeded
+
     def toScenario(self, parser: Parser, filename: str, is_comment: bool,
             is_debug: bool): # pragma: no cover
         res = Formatter().toScenarios(parser.toScenarios())
@@ -360,7 +390,7 @@ def _optionsParsed(is_debug_test: bool): # pragma: no cover
     parser.add_argument('-l', '--layer', help="output using the layer", action='store_true')
     # TODO: character info
     parser.add_argument('-p', '--person', help="output characters info", action='store_true')
-    parser.add_argument('-c', '--dialogue', help="output character dialogues and conversations", action='store_true')
+    parser.add_argument('--dialogue', help="output character dialogues and conversations", action='store_true')
     # TODO: help
     # TODO: version info
     parser.add_argument('-v', '--version', help="display this version", action='store_true')

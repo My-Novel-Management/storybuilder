@@ -4,6 +4,7 @@
 import re
 from collections import Counter
 from itertools import chain
+from typing import Any
 import MeCab
 from . import assertion
 from .action import Action, ActType, TagAction, TagType
@@ -105,6 +106,15 @@ class Analyzer(object):
                 chapterFnc=_descsCountInChapter,
                 episodeFnc=_descsCountInEpisode,
                 sceneFnc=_descsCountInScene,
+                src=src)
+
+    def descriptionsOfPerson(self, src: StoryContainers, person: Person) -> list:
+        return toSomething(self,
+                person,
+                storyFnc=_descriptionsOfPersonIn,
+                chapterFnc=_descriptionsOfPersonInChapter,
+                episodeFnc=_descriptionsOfPersonInEpisode,
+                sceneFnc=_descriptionsOfPersonInScene,
                 src=src)
 
     def dialoguesCount(self, src: StoryContainers, person: Person) -> int:
@@ -652,34 +662,56 @@ def _descsHasWordsInAction(action: AllActions, words: (str, list, tuple), pid: i
             return []
         else:
             tmp = strOfDescription(action)
-            return [(f"{pid}-{action.actId}", tmp)] if containsWordsIn(tmp, words) else []
+            return [valWithIdPacked(pid, action, tmp)] if containsWordsIn(tmp, words) else []
 
-''' dialogues each person
+''' description each person
 '''
-def _dialoguesOfPersonIn(story: Story, person: Person) -> list:
-    return list(chain.from_iterable(_dialoguesOfPersonInChapter(v, person) for v in story.chapters))
+def _descriptionsOfPersonIn(story: Story, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_descriptionsOfPersonInChapter(v, person, pid) for v in story.chapters))
 
-def _dialoguesOfPersonInChapter(chapter: Chapter, person: Person) -> list:
-    return list(chain.from_iterable(_dialoguesOfPersonInEpisode(v, person) for v in chapter.episodes))
+def _descriptionsOfPersonInChapter(chapter: Chapter, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_descriptionsOfPersonInEpisode(v, person, pid) for v in chapter.episodes))
 
-def _dialoguesOfPersonInEpisode(episode: Episode, person: Person) -> list:
-    return list(chain.from_iterable(_dialoguesOfPersonInScene(v, person) for v in episode.scenes))
+def _descriptionsOfPersonInEpisode(episode: Episode, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_descriptionsOfPersonInScene(v, person, pid) for v in episode.scenes))
 
-def _dialoguesOfPersonInScene(scene: Scene, person: Person) -> list:
-    return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person) for v in scene.actions))
+def _descriptionsOfPersonInScene(scene: Scene, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_descriptionsOfPersonInAction(v, person, scene.sceneId) for v in scene.actions))
 
-def _dialoguesOfPersonInAction(action: AllActions, person: Person) -> list:
-    def _exceptNoDesc(act: Action):
-        if isinstance(act.description, NoDesc):
-            return ""
-        else:
-            return strOfDescription(act)
+def _descriptionsOfPersonInAction(action: AllActions, person: Person, pid: int=0) -> list:
     if isinstance(action, CombAction):
-        return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person) for v in action.actions))
+        return list(chain.from_iterable(_descriptionsOfPersonInAction(v, person, pid) for v in action.actions))
     elif isinstance(action, TagAction):
         return []
     else:
-        return [_exceptNoDesc(action)] if (isDialogue(action) and isinstance(action.subject, Person) and action.subject.equals(person)) else []
+        if isinstance(action.subject, NoSubject) or isinstance(action.description, NoDesc):
+            return []
+        else:
+            return [valWithIdPacked(pid, action, strOfDescription(action))] if action.subject.equals(person) else []
+
+''' dialogues each person
+'''
+def _dialoguesOfPersonIn(story: Story, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInChapter(v, person, pid) for v in story.chapters))
+
+def _dialoguesOfPersonInChapter(chapter: Chapter, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInEpisode(v, person, pid) for v in chapter.episodes))
+
+def _dialoguesOfPersonInEpisode(episode: Episode, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInScene(v, person, pid) for v in episode.scenes))
+
+def _dialoguesOfPersonInScene(scene: Scene, person: Person, pid: int=0) -> list:
+    return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person, scene.sceneId) for v in scene.actions))
+
+def _dialoguesOfPersonInAction(action: AllActions, person: Person, pid: int=0) -> list:
+    if isinstance(action, CombAction):
+        return list(chain.from_iterable(_dialoguesOfPersonInAction(v, person, pid) for v in action.actions))
+    elif isinstance(action, TagAction):
+        return []
+    else:
+        if isinstance(action.subject, NoSubject) or isinstance(action.description, NoDesc):
+            return []
+        return [valWithIdPacked(pid, action, strOfDescription(action))] if (isDialogue(action) and action.subject.equals(person)) else []
 
 '''flags list from
 '''
@@ -756,6 +788,10 @@ def _genGramPartWordsInAction(action: AllActions, az: Analyzer, gram: str,
             return False
         tmp = [v[0] for v in tokens if _ifcond(v, gram, subinfo)]
         return tmp
+
+## utility
+def valWithIdPacked(pid: int, action: Action, val: Any) -> tuple:
+    return (f"{pid}-{action.actId}", val)
 
 ## math utility
 def int_ceiled(a: [int, float], b: [int, float]) -> int:
