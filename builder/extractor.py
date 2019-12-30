@@ -1,118 +1,172 @@
 # -*- coding: utf-8 -*-
-"""The extractor
+"""Define tool for extract
 """
+## public libs
 from itertools import chain
-from . import assertion
-from .action import Action, ActType, TagAction, TagType
-from .basesubject import NoSubject
-from .basedata import NoData
-from .chapter import Chapter
-from .combaction import CombAction
-from .description import Description, NoDesc
-from .episode import Episode
-from .flag import Flag, NoDeflag, NoFlag
-from .person import Person
-from .scene import Scene
-from .story import Story
+from typing import Optional, Tuple, Union
+## local libs
+from utils import assertion
+from utils.util_compare import equalsData
+from utils.util_str import containsWordsIn
+from utils.util_tools import toSomething
+## local files
+from builder.action import Action
+from builder.chapter import Chapter
+from builder.datapack import DataPack, titlePacked
+from builder.episode import Episode
+from builder.person import Person
+from builder.scene import Scene
+from builder.shot import Shot
+from builder.story import Story
 
 
-## define type hints
-AllActions = (Action, CombAction, TagAction)
-BaseActions = (Action, TagAction)
-Someone = (Person, NoSubject)
-StoryContainers = (Story, Chapter, Episode, Scene)
-
+## define types
+StoryLike = (Story, Chapter, Episode, Scene)
+WordLike = (str, list, tuple)
 
 class Extractor(object):
-    """Extractor class.
+    """The tool class for extract
     """
-    def __init__(self, src: StoryContainers):
-        self._src = assertion.is_instance(src, StoryContainers)
+    __NO_DATA__ = "__no_data__"
 
+    def __init__(self, src: StoryLike):
+        self._src = assertion.isInstance(src, StoryLike)
+
+    ## property
     @property
-    def src(self) -> StoryContainers:
+    def src(self) -> StoryLike:
         return self._src
 
     @property
-    def story(self) -> (Story, None):
-        return self._src if isinstance(self._src, Story) else None
+    def story(self) -> Story:
+        return self._src if isinstance(self._src, Story) else Story(self.__NO_DATA__)
 
     @property
-    def chapters(self) -> list:
-        if self.story:
-            return [v for v in self.story.chapters if isinstance(v, Chapter)]
-        elif isinstance(self.src, Chapter):
-            return [self.src]
+    def chapters(self) -> Tuple[Chapter, ...]:
+        if isinstance(self._src, (Episode, Scene)):
+            return ()
+        elif isinstance(self._src, Chapter):
+            return (self._src,)
         else:
-            return []
+            return self.story.chapters
 
     @property
-    def episodes(self) -> list:
-        def _episodes(chapter: Chapter):
-            return [v for v in chapter.episodes if isinstance(v, Episode)]
-        if self.chapters:
-            return list(chain.from_iterable(_episodes(v) for v in self.chapters))
-        elif isinstance(self.src, Episode):
-            return [self.src]
+    def episodes(self) -> Tuple[Episode, ...]:
+        if isinstance(self._src, Scene):
+            return ()
+        elif isinstance(self._src, Episode):
+            return (self._src,)
         else:
-            return []
+            return tuple(chain.from_iterable(v.episodes for v in self.chapters))
 
     @property
-    def scenes(self) -> list:
-        def _scenes(episode: Episode):
-            return [v for v in episode.scenes if isinstance(v, Scene)]
-        if self.episodes:
-            return list(chain.from_iterable(_scenes(v) for v in self.episodes))
-        elif isinstance(self.src, Scene):
-            return [self.src]
+    def scenes(self) -> Tuple[Scene, ...]:
+        if isinstance(self._src, Scene):
+            return (self._src,)
         else:
-            return []
+            return tuple(chain.from_iterable(v.scenes for v in self.episodes))
 
     @property
-    def actions(self) -> list:
-        def _extract_acts(action: AllActions):
-            if isinstance(action, CombAction):
-                return [v for v in action.actions if isinstance(v, Action)]
-            else:
-                return [action]
-        def _actions(scene: Scene):
-            return chain.from_iterable(_extract_acts(v) for v in scene.actions if isinstance(v, AllActions))
-        return list(chain.from_iterable(_actions(v) for v in self.scenes))
+    def actions(self) -> Tuple[Action, ...]:
+        return tuple(chain.from_iterable(v.actions for v in self.scenes))
 
     @property
-    def outlines(self) -> list:
-        if self.actions:
-            return [v.outline for v in self.actions if v.outline]
+    def alldirections(self) -> Tuple[Union[str, Shot], ...]:
+        return tuple(chain.from_iterable(v.acts for v in self.actions))
+
+    @property
+    def directions(self) -> Tuple[str, ...]:
+        return tuple(v for v in self.alldirections if not isinstance(v, Shot))
+
+    @property
+    def shots(self) -> Tuple[Shot, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Shot))
+
+    @property
+    def persons(self) -> Tuple[Person, ...]:
+        return tuple(v.subject for v in self.actions if isinstance(v.subject, Person))
+
+    ## methods
+    def descsHasWord(self, words: dict, src: StoryLike=None) -> Tuple[DataPack, ...]:
+        return toSomething(self,
+                words,
+                storyFnc=_descsHasWordIn,
+                chapterFnc=_descsHasWordInChapter,
+                episodeFnc=_descsHasWordInEpisode,
+                sceneFnc=_descsHasWordInScene,
+                src=src if src else self.src)
+
+    def dialoguesOfPerson(self, person: Person, src: StoryLike=None) -> Tuple[DataPack, ...]:
+        return toSomething(self,
+                person,
+                storyFnc=_dialoguesOfPersonIn,
+                chapterFnc=_dialoguesOfPersonInChapter,
+                episodeFnc=_dialoguesOfPersonInEpisode,
+                sceneFnc=_dialoguesOfPersonInScene,
+                src=src if src else self.src)
+
+    def getChapter(self, num: int=0) -> Optional[Chapter]:
+        if num < len(self.chapters):
+            return self.chapters[num]
         else:
-            return []
+            return None
 
-    @property
-    def descriptions(self) -> list:
-        if self.actions:
-            return [v.description for v in self.actions if not isinstance(v.description, NoDesc)]
+    def getEpisode(self, num: int=0) -> Optional[Episode]:
+        if num < len(self.episodes):
+            return self.episodes[num]
         else:
-            return []
+            return None
 
-    @property
-    def persons(self) -> list:
-        return list(set(v.subject for v in self.actions if hasattr(v, "subject")))
-
-    @property
-    def stages(self) -> list:
-        return list(set(v.stage for v in self.scenes if not isinstance(v.stage, NoData)))
-
-    @property
-    def days(self) -> list:
-        return list(set(v.day for v in self.scenes if not isinstance(v.day, NoData)))
-
-    @property
-    def times(self) -> list:
-        return list(set(v.time for v in self.scenes if not isinstance(v.time, NoData)))
-
-    @property
-    def flags(self) -> list:
-        if self.actions:
-            return [v.getFlag() for v in self.actions if not isinstance(v.getFlag(), NoFlag)] \
-                    + [v.getDeflag() for v in self.actions if not isinstance(v.getDeflag(), NoDeflag)]
+    def getScene(self, num: int=0) -> Optional[Scene]:
+        if num < len(self.scenes):
+            return self.scenes[num]
         else:
-            return []
+            return None
+
+## privates
+''' descs has word
+'''
+def _descsHasWordIn(story: Story, words: WordLike) -> Tuple[DataPack, ...]:
+    return (titlePacked(story),) + tuple(
+            chain.from_iterable(_descsHasWordInChapter(v, words) for v in story.chapters))
+
+def _descsHasWordInChapter(chapter: Chapter, words: WordLike) -> Tuple[DataPack, ...]:
+    return (titlePacked(chapter),) + tuple(
+            chain.from_iterable(_descsHasWordInEpisode(v, words) for v in chapter.episodes))
+
+def _descsHasWordInEpisode(episode: Episode, words: WordLike) -> Tuple[DataPack, ...]:
+    return (titlePacked(episode),) + tuple(
+            chain.from_iterable(_descsHasWordInScene(v, words) for v in episode.scenes))
+
+def _descsHasWordInScene(scene: Scene, words: WordLike) -> Tuple[DataPack, ...]:
+    res = []
+    for act in scene.actions:
+        tmp = []
+        for shot in [v for v in act.acts if isinstance(v, Shot)]:
+            for info in shot.infos:
+                if containsWordsIn(info, words):
+                    tmp.append(info)
+        res.append(DataPack(f"{act.subject.name}:{act.doing}", "/".join(tmp)))
+    return (titlePacked(scene),) + tuple(res)
+
+''' dialogues of person
+'''
+def _dialoguesOfPersonIn(story: Story, person: Person) -> Tuple[DataPack, ...]:
+    return (titlePacked(story),) + tuple(
+            chain.from_iterable(_dialoguesOfPersonInChapter(v, person) for v in story.chapters))
+
+def _dialoguesOfPersonInChapter(chapter: Chapter, person: Person) -> Tuple[DataPack, ...]:
+    return (titlePacked(chapter),) + tuple(
+            chain.from_iterable(_dialoguesOfPersonInEpisode(v, person) for v in chapter.episodes))
+
+def _dialoguesOfPersonInEpisode(episode: Episode, person: Person) -> Tuple[DataPack, ...]:
+    return (titlePacked(episode),) + tuple(
+            chain.from_iterable(_dialoguesOfPersonInScene(v, person) for v in episode.scenes))
+
+def _dialoguesOfPersonInScene(scene: Scene, person: Person) -> Tuple[DataPack, ...]:
+    res = []
+    for act in scene.actions:
+        if equalsData(act.subject, person):
+            for shot in [v for v in act.acts if isinstance(v, Shot)]:
+                res.append(DataPack("dialogue", "/".join(v for v in shot.infos)))
+    return (titlePacked(scene),) + tuple(res)

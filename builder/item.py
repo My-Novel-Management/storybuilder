@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""Define an item class.
+"""Define data type of item
 """
-from . import assertion
-from .basedata import BaseData
+## public libs
+## local libs
+from utils import assertion
+## local files
+from builder.basedata import BaseData
 
 
 class Item(BaseData):
-    """Data type of an item.
+    """The data class of item.
+
+    Attributes:
+        name (str): a item name
+        note (str): 0. a note
     """
-    __NOTE__ = "なし"
+    def __init__(self, name: str, note: str=""):
+        super().__init__(name,
+                (assertion.isStr(note),
+                    ))
 
-    def __init__(self, name: str, note: str=__NOTE__, skin=None):
-        """
-        Args:
-            name (str): an item name.
-            note (str): a note.
-        """
-        super().__init__(name)
-        self._note = assertion.is_str(note)
-        from .skin import ItemSkin
-        self._skin = skin if skin else ItemSkin(self)
-
+    ## property
     @property
-    def note(self): return self._note
-
-    @property
-    def skin(self): return self._skin
+    def note(self) -> str:
+        return self.data[0]

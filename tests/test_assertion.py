@@ -2,8 +2,8 @@
 """Test: action.py
 """
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder import assertion
+from testutils import printTestTitle, validatedTestingWithFail
+from utils import assertion
 
 
 _FILENAME = "assertion.py"
@@ -13,38 +13,48 @@ class MethodsTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "assertion utility")
+        printTestTitle(_FILENAME, "assertion utility")
 
-    def test_is_between(self):
+    def test_hasKey(self):
+        data = [
+                (False, "k", {"k":1,"d":2},
+                    1),
+                (True, "a", {"k":1,"d":2},
+                    1),
+                ]
+        validatedTestingWithFail(self, "hasKey",
+                lambda k,v,expect: self.assertEqual(assertion.hasKey(k,v), expect), data)
+
+    def test_isBetween(self):
         data = [
                 (False, 10, 100, 1, 10,),
                 (True, -1, 100, 1, 10,),
                 (True, 100, 50, 1, 100,),
                 ]
-        validated_testing_withfail(self, "is_between",
+        validatedTestingWithFail(self, "isBetween",
                 lambda v,mx,mn, expect: self.assertEqual(
-                    assertion.is_between(v, mx, mn), expect), data)
+                    assertion.isBetween(v, mx, mn), expect), data)
 
-    def test_is_bool(self):
+    def test_isBool(self):
         data = [
                 (False, True, True,),
                 (False, False, False,),
                 (True, ["test"], True,),
                 ]
-        validated_testing_withfail(self, "is_bool",
+        validatedTestingWithFail(self, "isBool",
                 lambda v, expect: self.assertEqual(
-                    assertion.is_bool(v), expect), data)
+                    assertion.isBool(v), expect), data)
 
-    def test_is_dict(self):
+    def test_isDict(self):
         data = [
                 (False, {"test": "1"}, {"test": "1"},),
                 (True, ["test", "1"], ["test", "1"],),
                 ]
-        validated_testing_withfail(self, "is_dict",
+        validatedTestingWithFail(self, "isDict",
                 lambda v, expect: self.assertEqual(
-                    assertion.is_dict(v), expect), data)
+                    assertion.isDict(v), expect), data)
 
-    def test_is_instance(self):
+    def test_isInstance(self):
         class Taro(object):
             def __init__(self, name: str):
                 self._name = name
@@ -56,49 +66,49 @@ class MethodsTest(unittest.TestCase):
                 (False, taro1, Taro, taro1,),
                 (True, taro1, Hanako, taro1,),
                 ]
-        validated_testing_withfail(self, "is_instance",
+        validatedTestingWithFail(self, "isInstance",
                 lambda v,cls,expect: self.assertEqual(
-                    assertion.is_instance(v, cls), expect), data)
+                    assertion.isInstance(v, cls), expect), data)
 
-    def test_is_int(self):
+    def test_isInt(self):
         data = [
                 (False, 1, 1,),
                 (True, "1", "1",),
                 ]
-        validated_testing_withfail(self, "is_int",
+        validatedTestingWithFail(self, "isInt",
                 lambda v, expect: self.assertEqual(
-                    assertion.is_int(v), expect), data)
+                    assertion.isInt(v), expect), data)
 
-    def test_is_int_or_str(self):
+    def test_isIntOrStr(self):
         data = [
                 (False, 1, 1,),
                 (False, "1", "1",),
                 (True, [1, 2], [1, 2],),
                 ]
-        validated_testing_withfail(self, "is_int_or_str",
+        validatedTestingWithFail(self, "isIntOrStr",
                 lambda v,expect: self.assertEqual(
-                    assertion.is_int_or_str(v), expect), data)
+                    assertion.isIntOrStr(v), expect), data)
 
-    def test_is_list(self):
+    def test_isList(self):
         data = [
                 (False, [1,2,3], True, [1,2,3],),
                 (False, (1,2,3), False, (1,2,3),),
                 (True, (1,2,3), True, (1,2,3),),
                 ]
-        validated_testing_withfail(self, "is_list",
+        validatedTestingWithFail(self, "isList",
                 lambda v,strict,expect: self.assertEqual(
-                    assertion.is_list(v, strict), expect), data)
+                    assertion.isList(v, strict), expect), data)
 
-    def test_is_str(self):
+    def test_isStr(self):
         data = [
                 (False, "1", "1",),
                 (True, 1, 1,),
                 ]
-        validated_testing_withfail(self, "is_str",
+        validatedTestingWithFail(self, "isStr",
                 lambda v,expect: self.assertEqual(
-                    assertion.is_str(v), expect), data)
+                    assertion.isStr(v), expect), data)
 
-    def test_is_subclass(self):
+    def test_isSubclass(self):
         class Taro(object):
             def __init__(self, name: str):
                 self._name = name
@@ -113,15 +123,15 @@ class MethodsTest(unittest.TestCase):
                 (False, hanako1, Taro, hanako1,),
                 (True, taro1, Hanako, taro1,),
                 ]
-        validated_testing_withfail(self, "is_subclass",
+        validatedTestingWithFail(self, "isSubclass",
                 lambda v,cls,expect: self.assertEqual(
-                    assertion.is_subclass(v,cls), expect), data)
+                    assertion.isSubclass(v,cls), expect), data)
 
-    def test_is_tuple(self):
+    def test_isTuple(self):
         data = [
                 (False, (1,2,3), (1,2,3),),
                 (True, [1,2,3], [1,2,3],),
                 ]
-        validated_testing_withfail(self, "is_tuple",
+        validatedTestingWithFail(self, "isTuple",
                 lambda v,expect: self.assertEqual(
-                    assertion.is_tuple(v), expect), data)
+                    assertion.isTuple(v), expect), data)

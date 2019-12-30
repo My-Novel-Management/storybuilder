@@ -1,288 +1,222 @@
 # -*- coding: utf-8 -*-
-"""For format class.
+"""Define tool for format
 """
-from itertools import chain
-from . import assertion
-from .scene import ScenarioType
-from .strutils import str_duplicated_chopped
+## public libs
+## local libs
+from utils import assertion
+## local files
+from builder import ActType, TagType
+from builder.datapack import DataPack
 
 
 class Formatter(object):
-    """The output format tools.
+    """The tool class for format
     """
 
-    # methods
-    def toActionPercentInfo(self, total: int, data: dict, prefix: str, idt: int=0,
-            isHead: bool=True) -> list:
-        heads = ""
-        vals = ""
-        indent1 = " " * 4 * (idt)
-        indent2 = " " * 4 * (idt + 1)
-        for k,v in data.items():
-            heads += f"{k:>6} /"
-            vals += f"{v:>5.2f}% /"
-        heads = f"{indent2}- {heads}\n" if isHead else ""
-        return [f"{indent1}* {prefix}: {total}",
-                f"{heads}{indent2}- {vals}",
+    ## methods
+    @classmethod
+    def toConte(cls, title: str, src: list) -> list:
+        tmp = []
+        ch_num, ep_num, sc_num = 1,1,1
+        for v in src:
+            assertion.isInstance(v, DataPack)
+            if "title" in v.head:
+                if "story" in v.head:
+                    tmp.append(f"# {v.body}\n")
+                elif "chapter" in v.head:
+                    tmp.append(f"\n## Ch-{ch_num}: {v.body}\n")
+                    ch_num += 1
+                elif "episode" in v.head:
+                    tmp.append(f"\n### Ep-{ep_num}: {v.body}\n")
+                    ep_num += 1
+                elif "scene" in v.head:
+                    tmp.append(f"\n** Sc-{sc_num}: {v.body} **\n")
+                    sc_num += 1
+            elif "setting" in v.head:
+                camera, stage, day, time = v.body.split(":")
+                tmp.append(f"○{stage}（{time}） - {day}/{camera}")
+            else:
+                h, name = v.head.split(":")
+                doing, body = v.body.split(":")
+                if f"{ActType.TALK.name}" in h:
+                    tmp.append(f"{name}「{body}」")
+                elif f"{ActType.THINK.name}" in h:
+                    tmp.append(f"{name}（{body}）")
+                elif f"{ActType.BE.name}" in h:
+                    tmp.append(f"    + [ {name} ] | {body}")
+                elif f"{ActType.DESTROY}" in h:
+                    tmp.append(f"    - [ {name} ] | {body}")
+                elif f"{ActType.WEAR.name}" in h:
+                    tmp.append(f"    + [ {name} ({body}) ]")
+                elif f"{ActType.TAKEOFF.name}" in h:
+                    tmp.append(f"    - [ {name} ({body}) ]")
+                elif f"{ActType.HAVE.name}" in h:
+                    tmp.append(f"    + [ {name} [{body}] ]")
+                elif f"{ActType.DISCARD.name}" in h:
+                    tmp.append(f"    - [ {name} [{body}] ]")
+                elif f"{ActType.MOVE.name}" in h:
+                    tmp.append(f"    <{name}> | {body}")
+                elif f"{ActType.GO.name}" in h:
+                    tmp.append(f"    - <<{name} | {body}")
+                elif f"{ActType.COME.name}" in h:
+                    tmp.append(f"    + >> [ {name} ] | {body}")
+                elif f"{ActType.HEAR}" in h:
+                    tmp.append(f"    ♪ {name}:{body}")
+                else:
+                    tmp.append(f"    {name}:{body}")
+        return [f"# {title}\n",
+                ] + tmp
+
+    @classmethod
+    def toDescription(cls, title: str, src: list) -> list:
+        tmp = []
+        ch_num, ep_num, sc_num = 1, 1, 1
+        for v in src:
+            assertion.isInstance(v, DataPack)
+            if "title" in v.head:
+                if "story" in v.head:
+                    tmp.append(f"# {v.body}\n")
+                elif "chapter" in v.head:
+                    tmp.append(f"\n## Ch-{ch_num}: {v.body}\n")
+                    ch_num += 1
+                elif "episode" in v.head:
+                    tmp.append(f"\n### Ep-{ep_num}: {v.body}\n")
+                    ep_num += 1
+                elif "scene" in v.head:
+                    tmp.append(f"\n** Sc-{sc_num}: {v.body} **\n")
+                    sc_num += 1
+            else:
+                if "dialogue" == v.head:
+                    tmp.append(f"「{v.body}」")
+                else:
+                    tmp.append(f"　{v.body}")
+        return [f"# {title}\n",
+                ] + tmp
+
+    @classmethod
+    def toGeneralInfo(cls, title: str, src: list) -> list:
+        # TODO? Shotのみでなく、Directionそのものの文字数も参考値出すか？
+        total, manupaper, rows, columns = 0, 0, 0, 0
+        chapters, episodes, scenes, actions = 0,0,0, 0
+        act_total = 0
+        acttypes = []
+        for v in src:
+            if assertion.isInstance(v, DataPack).head == "total":
+                total = v.body
+            elif v.head == "manupaper":
+                manupaper = v.body
+            elif v.head == "rows":
+                rows = v.body
+            elif v.head == "columns":
+                columns = v.body
+            elif v.head == "chapters":
+                chapters = v.body
+            elif v.head == "episodes":
+                episodes = v.body
+            elif v.head == "scenes":
+                scenes = v.body
+            elif v.head == "actions":
+                actions = v.body
+            elif "acttype" in v.head:
+                if "total" in v.head:
+                    act_total = v.body
+                else:
+                    acttypes.append(v.body)
+        papers = manupaper / rows if rows else 0
+        talk_idx = 0
+        for v in ActType:
+            if v is ActType.TALK:
+                break
+            talk_idx += 1
+        talk_percent = acttypes[talk_idx] / sum(acttypes) *100 if act_total else 0
+        action_info = ["--------" * 8, "\n",
+                f"## Action info: {act_total} / Dialogues: {talk_percent:.2f}%",
+                ] + sorted([f"- {t.name}: {v/act_total*100:.2f}%" for t, v in zip(ActType, acttypes)])
+        res = [f"# {title}\n",
+                f"## Total: {total}c / [{papers:.2f}p ({manupaper:.2f}ls) ]",
+                f"## Chapters: {chapters} / Episodes: {episodes} / Scenes: {scenes} / Actions: {actions}",
                 ]
+        if act_total:
+            return res + action_info
+        else:
+            return res
 
-    def toActionPercentInfoEachScenes(self, totals:list, data: list) -> list:
-        def _level(v):
-            if "Ch" in v: return 0
-            elif "Ep" in v: return 1
-            else: return 2
-        return list(chain.from_iterable(
-            self.toActionPercentInfo(t, v[1], v[0], _level(v[0]), False) for t,v in zip(totals, data)
-            ))
+    @classmethod
+    def toKanjiInfo(cls, title: str, src: list) -> list:
+        total, kanji = 0, 0
+        for v in src:
+            if "total" in assertion.isInstance(v, DataPack).head:
+                total = v.body
+            elif "kanji" in v.head:
+                kanji = v.body
+        percent = kanji / total *100 if total else 0
+        return [f"# {title}\n",
+                f"## Kanji: {percent:.2f}% - {kanji}c / {total}c"]
 
-    def toCharactersInfo(self, data: dict, prefix: str=None, idt: int=0) -> list:
-        desc_total = data["desc_total"]
-        outline_total = data["outline_total"]
-        estimated = data["estimated"]
-        desc_rows = data["desc_rows"]
-        outline_rows = data["outline_rows"]
-        columns = data["base_columns"]
-        rows = data["base_rows"]
-        desc_pp = desc_rows / rows
-        outline_pp = outline_rows / rows
-        indent = " " * 4 * idt
-        title = f"{indent}* {prefix}" if prefix else "* Characters"
-        return [title \
-                + f" - {desc_total}c [{desc_pp:0.2f}p ({desc_rows:0.2f}ls)]" \
-                + f" / Outline: {outline_total}c [{outline_pp:0.2f}p ({outline_rows:0.2f})ls]" \
-                + f"- Estimated: {estimated}c",
-                ]
-
-    def toCharactersInfoEachScenes(self, data: list) -> list:
+    @classmethod
+    def toOutline(cls, title: str, src: list) -> list:
         tmp = []
-        idt = 0
-        for v in data:
-            if "Ch" in v[0]:
-                idt = 0
-            elif "Ep" in v[0]:
-                idt = 1
+        ch_num, ep_num, sc_num = 1,1,1
+        for v in src:
+            assertion.isInstance(v, DataPack)
+            if "title" in v.head:
+                if "story" in v.head:
+                    tmp.append(f"# {v.body}\n")
+                elif "chapter" in v.head:
+                    tmp.append(f"\n## Ch-{ch_num}: {v.body}\n")
+                    ch_num += 1
+                elif "episode" in v.head:
+                    tmp.append(f"\n## Ep-{ep_num}: {v.body}\n")
+                    ep_num += 1
+                elif "scene" in v.head:
+                    tmp.append(f"\n** Sc-{sc_num}: {v.body} **\n")
+                    sc_num += 1
             else:
-                idt = 2
-            tmp.append(self.toCharactersInfo(v[1], v[0], idt))
-        return list(chain.from_iterable(tmp))
+                if v.body:
+                    tmp.append(f"    - {v.body}")
+        return [f"# {title}\n",
+                ] + tmp
 
-    def toDescriptions(self, data: list) -> list:
-        def _conv(v):
-            if "###" in v: return f"\n{v}\n"
-            elif "##" in v: return f"\n{v}\n"
-            elif "#" in v: return f"{v}\n"
-            elif "**" in v: return f"\n{v}\n"
-            else: return v
-        return [_conv(v) for v in data]
-
-    def toDescriptionsAsEstar(self, data: list) -> list:
+    @classmethod
+    def toLayerInfo(cls, title: str, src: list) -> list:
         tmp = []
-        indialogue = False
-        for v in assertion.is_list(data):
-            if "#" in v or "**" in v:
-                tmp.append(v)
+        ch_num, ep_num, sc_num = 1,1,1
+        count, dialogues = 0, 0
+        for v in src:
+            if "title" in assertion.isInstance(v, DataPack).head:
+                if "story" in v.head:
+                    tmp.append(f"# {v.body}\n")
+                elif "chapter" in v.head:
+                    tmp.append(f"* [in Ch-{ch_num}]: {v.body}")
+                    ch_num += 1
+                elif "episode" in v.head:
+                    tmp.append(f"* [in Ep-{ep_num}]: {v.body}")
+                    ep_num += 1
+                elif "scene" in v.head:
+                    tmp.append(f"* [in Sc-{sc_num}]: {v.body}")
+                    sc_num += 1
+            elif "head" in v.head:
+                tmp.append(f"\n## layer of {v.body}\n")
+            elif "hr" == v.head:
+                tmp.append(f"{'--------' * 8}\n")
+            elif "dialogue" in v.head:
+                tmp.append(f"    - 「{v.body}」")
+                dialogues += 1
             else:
-                cur = v.startswith(('「', '『'))
-                pre = "" if indialogue == cur else "\n"
-                tmp.append(pre + v + "\n")
-                indialogue = cur
-        return tmp
+                if v.body:
+                    tmp.append(f"    - {v.body}")
+                    count += 1
+        return [f"# {title}\n",
+                f"\n- Total: {count} / Dialogues: {dialogues}\n",
+                ] + tmp
 
-    def toDescriptionsAsLayer(self, data: list) -> list:
+    @classmethod
+    def toWordClassInfo(cls, title: str, src: list) -> list:
         tmp = []
-        title = data[0][1] if "__TITLE__" == assertion.is_list(data)[0][0] else "no title"
-        layers = []
-        for v in data[1:]:
-            head, lname = v[0].split(":")
-            layers.append(lname)
-        layers_sorted = sorted(list(set(layers)))
-        tmp.append(f"{title}\n")
-        for k in layers_sorted:
-            tmp.append("--------"*8)
-            tmp.append(f"## {k}\n")
-            head_title = ""
-            for v in data[1:]:
-                head, lname = v[0].split(":")
-                if lname == k:
-                    if head_title != head:
-                        tmp.append(f"* {head}")
-                        head_title = head
-                    tmp.append(f"    - {v[1]}")
-        return tmp
-
-    def toDescriptionsAsSmartphone(self, data: list) -> list:
-        tmp = []
-        for v in assertion.is_list(data):
-            if "#" in v or "**" in v:
-                tmp.append(v)
-            else:
-                tmp.append(f"{v}\n")
-        return tmp
-
-    def toDescriptionsAsWeb(self, data: list) -> list:
-        tmp = []
-        inDialogue = False
-        for v in assertion.is_list(data):
-            if "#" in v or "**" in v:
-                tmp.append(v)
-            else:
-                cur = v.startswith(('「', '『'))
-                pre = "" if inDialogue == cur else "\n"
-                tmp.append(pre + v)
-                inDialogue = cur
-        return tmp
-
-    def toDialoguesInfo(self, data: list) -> list:
-        tmp = []
-        for v in data:
-            tmp.append(f"* {v[0]}")
-            for d in v[1]:
-                tmp.append(f"    - {d}")
-        return tmp
-
-    def toFlagsInfo(self, data: list) -> list:
-        tmp = []
-        flags = [v for v in data if not v.isDeflag]
-        deflags = [v for v in data if v.isDeflag]
-        tmp.append("* Flags")
-        for v in flags:
-            tmp.append(f"    + {v.info}")
-        tmp.append("* Deflags")
-        for v in deflags:
-            tmp.append(f"    - {v.info}")
-        return tmp
-
-    def toKanjiPercentInfo(self, data: dict) -> list:
-        total = data['desc_total']
-        kanji = data['desc_kanji']
-        ka_percent = kanji / total * 100 if total else 0
-        out_total = data['outline_total']
-        out_kanji = data['outline_kanji']
-        out_percent = out_kanji / out_total * 100 if out_total else 0
-        return [
-                f"\n* Descriptions: {ka_percent:.2f}% [{kanji} / {total}]",
-                f"* Outlines: {out_percent:.2f}% [{out_kanji} / {out_total}]",
-                ]
-
-    def toLayersInfo(self, data: list) -> list:
-        tmp = []
-        for v in data:
-            if "Title" in v[0] or "Head" in v[0]:
-                tmp.append(v[1])
-            else:
-                tmp.append(f"    - {v[0]}:{v[1]}")
-        return tmp
-
-    def toOutlines(self, data: list) -> list:
-        tmp = []
-        sc_head = ""
-        inEpisode = False
-        inScene = False
-        for v in assertion.is_list(data):
-            if "###" in v:
-                tmp.append(f"\n{v}\n")
-                inEpisode = True
-            elif "##" in v:
-                tmp.append(f"\n{v}\n")
-            elif "#" in v:
-                tmp.append(f"{v}\n")
-            elif "**" in v:
-                sc_head = v
-                inScene = True
-            elif inEpisode:
-                tmp.append(f"\t{v}\n")
-                inEpisode = False
-            elif inScene:
-                tmp.append(f"- {sc_head}: {v}")
-                inScene = False
-            else:
-                tmp.append(v)
-        return tmp
-
-    def toOutlinesAsLayer(self, data: list) -> list:
-        tmp = []
-        title = data[0][1] if "__TITLE__" == assertion.is_list(data)[0][0] else "no title"
-        layers = []
-        for v in data[1:]:
-            head, lname = v[0].split(":")
-            layers.append(lname)
-        layers_sorted = sorted(list(set(layers)))
-        tmp.append(f"{title}\n")
-        for k in layers_sorted:
-            tmp.append("--------"*8)
-            tmp.append(f"## {k}\n")
-            head_title = ""
-            for v in data[1:]:
-                head, lname = v[0].split(":")
-                if lname == k:
-                    if head_title != head:
-                        tmp.append(f"* {head}")
-                        head_title = head
-                    tmp.append(f"    - {v[1]}")
-        return tmp
-
-    def toScenarios(self, data: list) -> list:
-        tmp = []
-        for v in assertion.is_list(data):
-            if v[0] is ScenarioType.TITLE:
-                if "###" in v[1]:
-                    tmp.append(f"\n{v[1]}\n")
-                elif "##" in v[1]:
-                    tmp.append(f"\n{v[1]}\n")
-                elif "#" in v[1]:
-                    tmp.append(f"{v[1]}\n")
-                elif "**" in v[1]:
-                    tmp.append(f"\n{v[1]}\n")
-            elif v[0] is ScenarioType.PILLAR:
-                stage, day, time = v[1].split(":")
-                tmp.append(f"○{stage}（{time}）- {day}")
-            elif v[0] is ScenarioType.DIRECTION:
-                tmp.append(str_duplicated_chopped(f"　　{v[1]}。"))
-            elif v[0] is ScenarioType.DIALOGUE:
-                subject, dial = v[1].split(":")
-                tmp.append(f"{subject}「{dial}」")
-            elif v[0] is ScenarioType.TAG:
-                if v[1]:
-                    tmp.append(v[1])
-            elif v[0] is ScenarioType.EFFECT:
-                tmp.append(v[1])
-            else:
-                raise AssertionError("Not reachable value: ", v[0])
-        return tmp
-
-    def toScenariosAsLayer(self, data: list) -> list:
-        tmp = []
-        title = data[0][3] if "__TITLE__" == data[0][0] else "no title"
-        layers = []
-        pillars = []
-        for v in data[1:]:
-            head, lname = v[0].split(":")
-            layers.append(lname)
-            if not v[1] in pillars:
-                pillars.append(v[1])
-        layers_sorted = sorted(list(set(layers)))
-        tmp.append(f"{title}\n")
-        for k in layers_sorted:
-            tmp.append("--------"*8)
-            tmp.append(f"## {k}\n")
-            for p in pillars:
-                stage, day, time = p.split(":")
-                isFirst = False
-                for v in data[1:]:
-                    head, lname = v[0].split(":")
-                    if not isFirst:
-                        tmp.append(f"{head}: {stage}（{time}）- {day}")
-                        isFirst = True
-                    if k == lname and v[1] == p:
-                        if v[2] is ScenarioType.DIRECTION:
-                            tmp.append(f"\t{v[3]}。")
-                        elif v[2] is ScenarioType.DIALOGUE:
-                            subject, dial = v[3].split(":")
-                            tmp.append(f"{subject}「{dial}」")
-                        else:
-                            tmp.append(v[3])
-        return tmp
-
-    ## privates
-    def _lineBreak(self) -> list:
-        return ["--------" * 8]
+        for v in src:
+            if "head" in v.head:
+                tmp.append(f"\n## {v.body}\n")
+            elif "count" in v.head:
+                tmp.append(f"- {v.body}")
+        return [f"# {title}\n",
+                ] + tmp

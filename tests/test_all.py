@@ -7,29 +7,35 @@ import unittest
 import test_action
 import test_analyzer
 import test_assertion
+import test_baseactor
 import test_basecontainer
 import test_basedata
-import test_basesubject
+import test_block
 import test_buildtool
 import test_chapter
-import test_combaction
+import test_checker
 import test_converter
+import test_counter
+import test_datapack
 import test_day
-import test_description
+import test_drawer
 import test_episode
 import test_extractor
-import test_flag
-import test_formatter
-import test_it
 import test_item
+import test_layer
 import test_parser
 import test_person
+import test_rubi
 import test_scene
+import test_shot
 import test_stage
 import test_story
-import test_strutils
 import test_time
-import test_utils
+import test_util_compare
+import test_util_str
+import test_util_tools
+import test_when
+import test_where
 import test_who
 import test_word
 import test_world
@@ -42,52 +48,48 @@ def suite():
     suite = unittest.TestSuite()
 
     suite.addTests((
-        # base type
-        unittest.makeSuite(test_basecontainer.BaseContainerTest),
-        unittest.makeSuite(test_basedata.BaseDataTest),
-        unittest.makeSuite(test_basedata.NoDataTest),
-        unittest.makeSuite(test_basesubject.BaseSubjectTest),
-        unittest.makeSuite(test_basesubject.NoSubjectTest),
-        # utility
+        ## utility
+        unittest.makeSuite(test_analyzer.AnalyzerTest),
         unittest.makeSuite(test_assertion.MethodsTest),
-        unittest.makeSuite(test_strutils.MethodsTest),
-        unittest.makeSuite(test_utils.MethodsTest),
-        # data type
+        unittest.makeSuite(test_util_compare.MethodsTest),
+        unittest.makeSuite(test_util_str.MethodsTest),
+        unittest.makeSuite(test_util_tools.MethodsTest),
+        ## data
+        unittest.makeSuite(test_basedata.BaseDataTest),
+        unittest.makeSuite(test_datapack.DataPackTest),
         unittest.makeSuite(test_day.DayTest),
-        unittest.makeSuite(test_flag.FlagTest),
-        unittest.makeSuite(test_flag.NoFlagTest),
-        unittest.makeSuite(test_flag.NoDeflagTest),
-        unittest.makeSuite(test_it.ItTest),
         unittest.makeSuite(test_item.ItemTest),
+        unittest.makeSuite(test_layer.LayerTest),
         unittest.makeSuite(test_person.PersonTest),
+        unittest.makeSuite(test_rubi.RubiTest),
+        unittest.makeSuite(test_shot.ShotTest),
         unittest.makeSuite(test_stage.StageTest),
         unittest.makeSuite(test_time.TimeTest),
+        unittest.makeSuite(test_when.WhenTest),
+        unittest.makeSuite(test_where.WhereTest),
         unittest.makeSuite(test_who.WhoTest),
-        unittest.makeSuite(test_who.WhenTest),
-        unittest.makeSuite(test_who.WhereTest),
         unittest.makeSuite(test_word.WordTest),
-        # container type
+        ## container
+        unittest.makeSuite(test_basecontainer.BaseContainerTest),
         unittest.makeSuite(test_action.ActionTest),
-        unittest.makeSuite(test_action.TagActionTest),
+        unittest.makeSuite(test_block.BlockTest),
         unittest.makeSuite(test_chapter.ChapterTest),
-        unittest.makeSuite(test_combaction.CombActionTest),
-        unittest.makeSuite(test_description.DescriptionTest),
-        unittest.makeSuite(test_description.NoDescTest),
-        unittest.makeSuite(test_description.RubiTest),
         unittest.makeSuite(test_episode.EpisodeTest),
         unittest.makeSuite(test_scene.SceneTest),
         unittest.makeSuite(test_story.StoryTest),
-        # world
-        unittest.makeSuite(test_world.UtilityDictTest),
-        unittest.makeSuite(test_world.WorldTest),
-        # tools
-        unittest.makeSuite(test_analyzer.AnalyzerTest),
-        unittest.makeSuite(test_buildtool.BuildTest),
-        unittest.makeSuite(test_converter.ConverterTest),
-        unittest.makeSuite(test_extractor.ExtractorTest),
-        unittest.makeSuite(test_formatter.FormatterTest),
-        unittest.makeSuite(test_parser.ParserTest),
+        ## actor
+        unittest.makeSuite(test_baseactor.BaseActorTest),
+        unittest.makeSuite(test_drawer.DrawerTest),
         unittest.makeSuite(test_writer.WriterTest),
+        ## tools
+        unittest.makeSuite(test_buildtool.BuildTest),
+        unittest.makeSuite(test_checker.CheckerTest),
+        unittest.makeSuite(test_converter.ConverterTest),
+        unittest.makeSuite(test_counter.CounterTest),
+        unittest.makeSuite(test_extractor.ExtractorTest),
+        unittest.makeSuite(test_parser.ParserTest),
+        ## main
+        unittest.makeSuite(test_world.WorldTest),
         ))
 
     return suite

@@ -1,275 +1,340 @@
 # -*- coding: utf-8 -*-
 """Define class that world management.
 """
-from typing import Any
-from . import assertion
-from . import __DEF_LAYER__
-from .action import Action, ActType, TagAction, TagType, Layer
-from .basedata import BaseData
-from .chapter import Chapter
-from .combaction import CombAction
-from .day import Day
-from .description import Rubi, RubiType
-from .episode import Episode
-from .flag import Flag
-from .item import Item
-from .person import Person
-from .scene import Scene
-from .skin import PersonSkin
-from .story import Story
-from .stage import Stage
-from .time import Time
-from .word import Word
-
-
-## defines
-Subjects = (str, Person, None)
-
-
-class UtilityDict(dict):
-    """Useful dictionary class.
-    """
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__
+## public libs
+import argparse
+## local libs
+from utils import assertion
+from utils.utildict import UtilityDict
+## local files
+from builder import __PREFIX_DAY__, __PREFIX_STAGE__, __PREFIX_TIME__, __PREFIX_WORD__
+from builder import __MECAB_LINUX1__, __MECAB_LINUX2__
+from builder import __PRIORITY_NORMAL__, __PRIORITY_MAX__, __PRIORITY_MIN__
+from builder import __TAG_PREFIX__
+from builder import __DEF_FILENAME__
+from builder import __ASSET_ELEMENTS__
+from builder import ActType, TagType
+from builder.action import Action
+from builder.block import Block
+from builder.buildtool import Build
+from builder.chapter import Chapter
+from builder.converter import Converter
+from builder.day import Day
+from builder.episode import Episode
+from builder.item import Item
+from builder.layer import Layer
+from builder.person import Person
+from builder.rubi import Rubi
+from builder.scene import Scene
+from builder.stage import Stage
+from builder.story import Story
+from builder.time import Time
+from builder.word import Word
+## common data
+from common.fashions import __FASHION_LAYER__, FASHION_LAYERS
+from common.stages import __STAGE_LAYER__, STAGE_LAYERS
+from common.foods import __FOOD_LAYER__, FOOD_LAYERS
+from common.dayandtimes import __DAYTIME_LAYER__, DAYTIME_LAYERS
 
 
 class World(UtilityDict):
-    """World class.
+    """Story builder world class.
     """
-    # TODO:
-    #   methods name convert camelCase
-    MECAB_NEWDICT1 = "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
-    MECAB_NEWDICT2 = "-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd"
-
-    def __init__(self, mecabdict: [int, str]=0):
-        super().__init__()
-        self.day = UtilityDict()
-        self.item = UtilityDict()
-        self.stage = UtilityDict()
-        self.time = UtilityDict()
-        self.word = UtilityDict()
-        self._mecabdict = mecabdict if isinstance(mecabdict, str) else("" if mecabdict <= 0 else (World.MECAB_NEWDICT1 if mecabdict ==1 else World.MECAB_NEWDICT2))
-        self._isConstractWords = False
-        self._words = {}
+    __MECAB_DIRS__ = (__MECAB_LINUX1__, __MECAB_LINUX2__)
+    def __init__(self, title: str, filename: str=__DEF_FILENAME__,
+            mecabdir: (str, int)=__MECAB_LINUX2__):
+        self._title = assertion.isStr(title)
+        self._filename = assertion.isStr(filename)
         self._rubis = {}
         self._layers = {}
+        self._stagelayers = {}
+        self._daytimelayers = {}
+        self._fashionlayers = {}
+        self._foodlayers = {}
+        self._blocks = {}
+        self._tags = {}
+        self._mecabdir = World.__MECAB_DIRS__[mecabdir] if isinstance(mecabdir, int) else (mecabdir if isinstance(mecabdir, str) else "")
+
+    ## property
+    @property
+    def rubis(self) -> dict:
+        return self._rubis
 
     @property
-    def mecabdict(self): return self._mecabdict
+    def layers(self) -> dict:
+        return self._layers
 
     @property
-    def words(self):
-        from .buildtool import Build
-        if self._isConstractWords:
-            return self._words
-        else:
-            self._isConstractWords = True
-            self._words = Build.constractWords(self)
-            return self._words
+    def fashionlayers(self) -> dict:
+        return self._fashionlayers
 
     @property
-    def rubis(self): return self._rubis
+    def foodlayers(self) -> dict:
+        return self._foodlayers
 
     @property
-    def layers(self): return self._layers
+    def stagelayers(self) -> dict:
+        return self._stagelayers
 
-    # creations
-    def chapter(self, *args, **kwargs):
-        '''To create a chapter.
+    @property
+    def daytimes(self) -> dict:
+        return self._daytimelayers
+
+    @property
+    def blocks(self) -> dict:
+        return self._blocks
+
+    @property
+    def filename(self) -> str:
+        return self._filename
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def mecabdir(self) -> str:
+        return self._mecabdir
+
+    @property
+    def tags(self) -> dict:
+        return self._tags
+
+    ## methods (build)
+    def build(self, *args, **kwargs): # pragma: no cover
+        return not self.buildStory(self.filename, *args, **kwargs)
+
+    def buildDB(self, persons: list, stages: list, items: list,
+            days: list, times: list, words: list,
+            rubis: list, layers: list) -> bool:
+        '''Build database
         '''
-        return Chapter(*args, **kwargs)
+        self.setPersons(persons)
+        self.setStages(stages)
+        self.setItems(items)
+        self.setDays(days)
+        self.setTimes(times)
+        self.setWords(words)
+        self.setRubis(rubis)
+        self.setLayers(layers)
+        return True
 
-    def episode(self, *args, **kwargs):
-        '''To create a episode.
+    def buildStory(self, filename: str, *args: Chapter,
+            extention: str="", builddir: str="",
+            is_testing: bool=False) -> bool:
+        '''Build story object and Output creation
         '''
-        return Episode(*args, **kwargs)
+        opts = _optionsParsed(is_testing)
+        priority = opts.pri if opts.pri else __PRIORITY_NORMAL__
+        mecabdir = "" if opts.forcemecab else self.mecabdir
+        formattype = opts.format
+        is_scenario = opts.scenario
+        is_analyze = opts.analyze
+        is_rubi = opts.rubi
+        is_comment = opts.comment
+        is_debug = opts.debug
+        builder = Build(filename)
+        src = builder.compile(self.title, priority,
+                self._tags, __TAG_PREFIX__,
+                *args)
+        return builder.output(src, self.rubis, self.layers,
+                self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
+                mecabdir,
+                formattype, is_rubi,
+                is_scenario, is_analyze,
+                is_comment, is_debug)
 
-    def scene(self, *args, **kwargs):
-        '''To create a scene.
+    def entryBlock(self, *args: Block) -> bool:
+        '''Entry to block database
         '''
-        return Scene(*args, **kwargs)
+        for v in args:
+            self._blocks[v.title] = v
+        return True
 
-    def story(self, *args, **kwargs):
-        '''To create a story.
-        '''
-        return Story(*args, **kwargs)
-
-    # db management
-    def append_day(self, key: str, val: Any):
-        return self._appendOne(key, val, self.day, Day)
-
-    def append_item(self, key: str, val: Any):
-        return self._appendOne(key, val, self.item, Item)
-
-    def append_person(self, key: str, val: Any):
-        return self._appendOne(key, val, self, Person)
-
-    def append_stage(self, key: str, val: Any):
-        return self._appendOne(key, val, self.stage, Stage)
-
-    def append_time(self, key: str, val: Any):
-        return self._appendOne(key, val, self.time, Time)
-
-    def append_word(self, key: str, val: Any):
-        return self._appendOne(key, val, self.word, Word)
-
-    def appendRubi(self, key: str, val: Any):
-        def _rubtype(v):
-            if v == 0: return RubiType.NOSET
-            elif v == 2: return RubiType.EVERY
-            else: return RubiType.ONCE
-        self._rubis[key] = Rubi(val[0], val[1], val[2],
-                _rubtype(val[3] if len(val) >= 4 else None))
+    def setPersons(self, persons: list):
+        for v in persons:
+            tmp = Person(*v[1:])
+            self.__setitem__(v[0], Person(*v[1:]))
+            last, first, full, exfull = Converter.personNamesConstructed(tmp)
+            self._tags[v[0]] = tmp.name
+            self._tags[f"n_{v[0]}"] = tmp.name
+            self._tags[f"ln_{v[0]}"] = last
+            self._tags[f"fn_{v[0]}"] = first
+            self._tags[f"full_{v[0]}"] = full
+            self._tags[f"exfull_{v[0]}"] = exfull
         return self
 
-    def appendLayer(self, key: str, val: Any):
-        self._layers[key] = Layer(*val)
+    def setStages(self, stages: list):
+        for v in stages:
+            tmp = Stage(*v[1:])
+            self.__setitem__(__PREFIX_STAGE__ + v[0], tmp)
+            self._tags[f"{__PREFIX_STAGE__}{v[0]}"] = tmp.name
         return self
 
-    def set_days(self, days: list):
-        return self._setItemsFrom(days, self.append_day)
+    def setItems(self, items: list):
+        for v in items:
+            tmp = Item(*v[1:])
+            self.__setitem__(v[0], tmp)
+            self._tags[f"{v[0]}"] = tmp.name
+        return self
 
-    def set_items(self, items: list):
-        return self._setItemsFrom(items, self.append_item)
+    def setDays(self, days: list):
+        for v in days:
+            tmp = Day(*v[1:])
+            self.__setitem__(__PREFIX_DAY__ + v[0], tmp)
+            self._tags[f"{__PREFIX_DAY__}{v[0]}"] = tmp.name
+        return self
 
-    def set_persons(self, persons: list):
-        return self._setItemsFrom(persons, self.append_person)
+    def setTimes(self, times: list):
+        for v in times:
+            tmp = Time(*v[1:])
+            self.__setitem__(__PREFIX_TIME__ + v[0], tmp)
+            self._tags[f"{__PREFIX_DAY__}{v[0]}"] = tmp.name
+        return self
 
-    def set_stages(self, stages: list):
-        return self._setItemsFrom(stages, self.append_stage)
-
-    def set_times(self, times: list):
-        return self._setItemsFrom(times, self.append_time)
-
-    def set_words(self, words: list):
-        return self._setItemsFrom(words, self.append_word)
+    def setWords(self, words: list):
+        for v in words:
+            tmp = Word(*v[1:])
+            self.__setitem__(__PREFIX_WORD__ + v[0], tmp)
+            self._tags[f"{__PREFIX_WORD__}{v[0]}"] = tmp.name
+        return self
 
     def setRubis(self, rubis: list):
-        for v in assertion.is_list(rubis):
-            self.appendRubi(v[0], v)
+        for v in rubis:
+            self._rubis[v[0]] = Rubi(*v)
         return self
 
     def setLayers(self, layers: list):
-        for v in assertion.is_list(layers):
-            self.appendLayer(v[0], v[1:])
+        for v in layers:
+            self._layers[v[0]] = Layer(*v[1:])
         return self
 
-    def set_db(self, persons: list,
-            stages: list, days: list, times: list,
-            items: list, words: list): # pragma: no cover
-        if persons:
-            self.set_persons(persons)
-        if items:
-            self.set_items(items)
-        if stages:
-            self.set_stages(stages)
-        if days:
-            self.set_days(days)
-        if times:
-            self.set_times(times)
-        if words:
-            self.set_words(words)
+    def setStageLayers(self, layers: list):
+        for v in layers:
+            self._stagelayers[v[0]] = Layer(*v[1:])
         return self
 
-    # controls
-    # TODO: elapsed day and time control
+    def setDayTimeLayers(self, layers: list):
+        for v in layers:
+            self._daytimelayers[v[0]] = Layer(*v[1:])
+        return self
 
-    # actions
-    def combine(self, *args):
-        return CombAction(*args)
+    def setFashionLayers(self, layers: list):
+        for v in layers:
+            self._fashionlayers[v[0]] = Layer(*v[1:])
+        return self
 
-    def act(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.ACT, layer=layer)
+    def setFoodLayers(self, layers: list):
+        for v in layers:
+            self._foodlayers[v[0]] = Layer(*v[1:])
+        return self
 
-    def be(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.BE, layer=layer)
+    def setAssets(self, assetfile: dict):
+        for v in __ASSET_ELEMENTS__:
+            if v.upper() in assertion.isDict(assetfile):
+                if v.lower() == "persons":
+                    self.setPersons(assetfile[v.upper()])
+                elif v.lower() == "stages":
+                    self.setStages(assetfile[v.upper()])
+                elif v.lower() == "days":
+                    self.setDays(assetfile[v.upper()])
+                elif v.lower() == "times":
+                    self.setTimes(assetfile[v.upper()])
+                elif v.lower() == "items":
+                    self.setItems(assetfile[v.upper()])
+                elif v.lower() == "words":
+                    self.setWords(assetfile[v.upper()])
+                elif v.lower() == "rubis":
+                    self.setRubis(assetfile[v.upper()])
+                elif v.lower() == "layers":
+                    self.setLayers(assetfile[v.upper()])
+        return self
 
-    def come(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.COME, layer=layer)
-
-    def go(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.GO, layer=layer)
-
-    def have(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.HAVE, layer=layer)
-
-    def hear(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.HEAR, layer=layer)
-
-    def look(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.LOOK, layer=layer)
-
-    def move(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.MOVE, layer=layer)
-
-    def talk(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.TALK, layer=layer)
-
-    def think(self, subject: Subjects,
-            outline: str="", layer: str=__DEF_LAYER__):
-        return Action(subject, outline, act_type=ActType.THINK, layer=layer)
-
-    # tags
-    def comment(self, info: str):
-        return TagAction(info, tag_type=TagType.COMMENT)
-
-    def br(self):
-        return TagAction("", tag_type=TagType.BR)
-
-    def hr(self):
-        return TagAction("", tag_type=TagType.HR)
-
-    def symbol(self, info: str):
-        return TagAction(info, tag_type=TagType.SYMBOL)
-
-    def title(self, info: str, subinfo: str="1"):
-        return TagAction(info, subinfo, TagType.TITLE)
-
-    def layer(self, info: str=__DEF_LAYER__):
-        return TagAction(info, tag_type=TagType.SET_LAYER)
-
-    # build
-    def build(self, val: Story): # pragma: no cover
-        '''To build this story world.
+    ## methods (scenes)
+    def block(self, title: str, *args, **kwargs) -> Block:
+        '''Create a block
         '''
-        from .buildtool import Build
-        bd = Build(val, self.words, self.rubis, self.layers, self.mecabdict)
-        return 0 if bd.outputStory() else 1
+        return Block(title, *args, **kwargs)
 
-    # private
-    def _appendOne(self, key: str, val: Any, body: [UtilityDict, dict],
-            datatype: BaseData):
-        if body is self:
-            self.__setitem__(assertion.is_str(key), self._dataFrom(val, datatype))
-        else:
-            tmp = self._dataFrom(val, datatype)
-            assertion.is_instance(body, UtilityDict).__setitem__(
-                    assertion.is_str(key), tmp)
-            # TODO:
-            #   stage is On prefix only
-            #   day is In prefix only
-            #   time is At prefix only
-            if isinstance(tmp, Stage):
-                self.__setitem__('on_' + key, tmp)
-            elif isinstance(tmp, Day):
-                self.__setitem__('in_' + key, tmp)
-            elif isinstance(tmp, Time):
-                self.__setitem__('at_' + key, tmp)
+    def chapter(self, title: str, *args, **kwargs) -> Chapter:
+        '''Create a chapter
+        '''
+        return Chapter(title, *args, **kwargs)
+
+    def episode(self, title: str, *args, **kwargs) -> Episode:
+        '''Create a episode
+        '''
+        return Episode(title, *args, **kwargs)
+
+    def load(self, key: str) -> Block:
+        '''Load entried block
+        '''
+        return assertion.hasKey(key, self.blocks)
+
+    def scene(self, title: str, *args, **kwargs) -> Scene:
+        '''Create a scene
+        '''
+        return Scene(title, *args, **kwargs)
+
+    ## tags
+    def br(self) -> Action:
+        return Action("tag", act_type=ActType.TAG, tag_type=TagType.BR)
+
+    def comment(self, *args: str) -> Action:
+        ''' comment
+        '''
+        return Action("tag", act_type=ActType.TAG, tag_type=TagType.COMMENT,
+                note="/".join(args))
+
+    def symbol(self, symbol: str) -> Action:
+        return Action("tag", act_type=ActType.TAG, tag_type=TagType.SYMBOL,
+                note=symbol)
+
+    ## utility
+    def setCommonData(self):
+        ''' common data setting
+            0. layers
+                - stage
+                - day time
+                - fashion
+                - food
+        '''
+        self.setStageLayers(STAGE_LAYERS)
+        self.setDayTimeLayers(DAYTIME_LAYERS)
+        self.setFashionLayers(FASHION_LAYERS)
+        self.setFoodLayers(FOOD_LAYERS)
         return self
 
-    def _dataFrom(self, val: Any, datatype: BaseData):
-        return val if isinstance(val, datatype) else datatype(*val)
+## privates
+def _optionsParsed(is_testing: bool): # pragma: no cover
+    '''Get and setting a commandline option.
 
-    def _setItemsFrom(self, data: list, f):
-        for v in assertion.is_list(data):
-            f(v[0], v[1:])
-        return self
+    NOTE:
+        -s, --senario: senario mode
+        -z, --analyze: analyzed info
+        --rubi: rubi mode
+        --pri: set priority
+        --comment: output with comment
+        --debug: output to console
+        --forcemecab: for travis ci
+        --format: set format style
+    Returns:
+        :obj:`ArgumentParser`: contain commandline options.
+    '''
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-s', '--scenario', help="output as the scenario mode", action='store_true')
+    parser.add_argument('-z', '--analyze', help="output the analyzed info", action='store_true')
+    parser.add_argument('--debug', help="with a debug mode", action='store_true')
+    parser.add_argument('--format', help='output the format style', type=str)
+    parser.add_argument('--pri', help='filter by priority(0 to 10)', type=int)
+    parser.add_argument('--comment', help='output with comment', action='store_true')
+    parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')
+    parser.add_argument('--rubi', help='description with rubi', action='store_true')
+
+    # get result
+    args = parser.parse_args(args=[]) if is_testing else parser.parse_args()
+
+    return (args)
+
+

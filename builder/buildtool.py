@@ -1,491 +1,347 @@
 # -*- coding: utf-8 -*-
-"""The build tool.
+"""Define tool for build.
 """
-from __future__ import print_function
-from collections import namedtuple
-from itertools import chain
+## public libs
+from collections import Counter as PyCounter
+import datetime
 import os
-import argparse
-import re
-from . import __DEF_PRIORITY__
-from . import STAGE_LAYERS, __STAGE_LAYER__
-from . import FASHION_LAYERS, __FASHION_LAYER__
-from . import FOOD_LAYERS, __FOOD_LAYER__
-from . import assertion
-from .action import Layer
-from .basesubject import NoSubject
-from .world import World
-from .story import Story
-from .parser import Parser
-from .strutils import dict_sorted
-from .analyzer import Analyzer
-from .converter import Converter
-from .extractor import Extractor
-from .formatter import Formatter
-from .person import Person
-
-
-## defines
-DataPack = namedtuple('DataPack', ('head', 'body'))
+## local libs
+from utils import assertion
+from utils import util_tools as util
+## local files
+from builder import __BASE_COLUMN__, __BASE_ROW__
+from builder import ActType
+from builder import WordClasses
+from builder.analyzer import Analyzer
+from builder.chapter import Chapter
+from builder.checker import Checker
+from builder.converter import Converter
+from builder.counter import Counter
+from builder.datapack import DataPack
+from builder.episode import Episode
+from builder.extractor import Extractor
+from builder.formatter import Formatter
+from builder.parser import Parser
+from builder.person import Person
+from builder.layer import Layer
+from builder.story import Story
 
 
 class Build(object):
-    """The story build tools.
+    """The tool class for build.
     """
-    __FILENAME__ = "story"
-    __EXTENSION__ = "md" # NOTE: currently markdown only
     __BUILD_DIR__ = "build"
+    __PERSON_DIR__ = "person"
+    __ANALYZE_DIR__ = "analyze"
+    __LAYER_DIR__ = "layer"
+    __EXTENTION__ = "md"
+    def __init__(self, filename: str, extention: str=__EXTENTION__,
+            builddir: str=__BUILD_DIR__,
+            column: int=__BASE_COLUMN__, row: int=__BASE_ROW__):
+        self._builddir = assertion.isStr(builddir)
+        self._date = datetime.date.today()
+        self._extention = assertion.isStr(extention)
+        self._filename = assertion.isStr(filename)
+        self._column = assertion.isInt(column)
+        self._row = assertion.isInt(row)
 
-    def __init__(self, story: Story, world_dict: dict,
-            rubi_dict: dict,
-            layer_dict: dict,
-            opt_dic: str="",
-            is_debug_test: bool=False):
-        self._story = Build._validatedStory(story)
-        self._rubis = dict_sorted(assertion.is_dict(rubi_dict))
-        self._layers = dict_sorted(assertion.is_dict(layer_dict))
-        self._words = assertion.is_dict(world_dict)
-        self._filename = Build.__FILENAME__
-        self._options = _optionsParsed(is_debug_test)
-        self._extension = Build.__EXTENSION__
-        self._builddir = Build.__BUILD_DIR__
-        self._mecabdictdir = assertion.is_str(opt_dic)
-        # TODO: build dir を指定（変更）できるように
+    ## property
+    @property
+    def builddir(self) -> str:
+        return self._builddir
 
-    @staticmethod
-    def constractWords(world: World): # pragma: no cover
-        return Build._wordsFrom(world)
+    @property
+    def date(self) -> datetime.date:
+        return self._date
 
-    # methods
-    def outputStory(self): # pragma: no cover
-        is_succeeded = True
-        options = self._options
-        filename = self._filename # TODO: ファイル名指定できるようにする
-        pri_filter = options.pri # TODO: priority指定できるようにする
-        formattype = options.format
-        is_debug = options.debug # NOTE: 現在デバッグモードはコンソール出力のみ
-        is_comment = options.comment # NOTE: コメント付き出力
+    @property
+    def extention(self) -> str:
+        return self._extention
 
-        story_converted = Converter(self._story).toConvertFullSrc(pri_filter, self._words)
-        parser = Parser(story_converted)
-        _mecabdir = self._mecabdictdir
-        if options.forcemecab:
-            _mecabdir = ""
-        elif options.mecab:
-            _mecabdir = options.mecab
-        analyzer = Analyzer(_mecabdir)
+    @property
+    def filename(self) -> str:
+        return self._filename
 
-        if options.outline:
-            is_succeeded = self.toOutline(parser, filename, is_debug)
-            if not is_succeeded:
-                print("ERROR: output a outline failed!!")
-                return is_succeeded
+    @property
+    def column(self) -> int:
+        return self._column
 
-        if options.scenario:
-            is_succeeded = self.toScenario(parser, filename, is_comment, is_debug)
-            if not is_succeeded:
-                print("ERROR: output a scenario failed!!")
-                return is_succeeded
+    @property
+    def row(self) -> int:
+        return self._row
 
-        if options.description:
-            is_succeeded = self.toDescription(parser, filename, formattype,
-                    self._rubis,
-                    is_comment, options.rubi, is_debug)
-            if not is_succeeded:
-                print("ERROR: output a description failed!!")
-                return is_succeeded
-
-        if options.action:
-            # TODO: action view output
-            pass
-
-        if options.info:
-            # NOTE:
-            #   0. char count
-            is_succeeded = self.toDetailInfo(parser, analyzer, filename,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a detail info failed!!")
-                return is_succeeded
-
-        if options.detail:
-            # NOTE:
-            #   1. words layers
-            #   2. stage layers
-            #   3. fashion layers
-            #   4. food layers
-            #
-            info_num = 1
-            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
-                    self._layers,
-                    "Words", info_num,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a detail info1(words) failed!!")
-                return is_succeeded
-
-            info_num += 1
-            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
-                    _layerDictFrom(STAGE_LAYERS),
-                    "Stages", info_num,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a detail info2(stages) failed!!")
-                return is_succeeded
-
-            info_num += 1
-            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
-                    _layerDictFrom(FASHION_LAYERS),
-                    "Fashions", info_num,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a detail info3(fashions) failed!!")
-                return is_succeeded
-
-            info_num += 1
-            is_succeeded = self.toDetailByWords(parser, analyzer, filename,
-                    _layerDictFrom(FOOD_LAYERS),
-                    "Foods", info_num,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a detail info4(foods) failed!!")
-                return is_succeeded
-
-            info_num += 1
-            is_succeeded = self.toDetailByLayer(parser, analyzer, filename,
-                    "Stage-Layer", __STAGE_LAYER__,
-                    info_num,
-                    is_debug)
-            if not is_succeeded:
-                print(f"ERROR: output a detail info{info_num}(stage layer) failed!!")
-                return is_succeeded
-
-            info_num += 1
-            is_succeeded = self.toDetailByLayer(parser, analyzer, filename,
-                    "Fashion-Layer", __FASHION_LAYER__,
-                    info_num,
-                    is_debug)
-            if not is_succeeded:
-                print(f"ERROR: output a detail info{info_num}(stage layer) failed!!")
-                return is_succeeded
-
-        if options.person:
-            is_succeeded = self.toPersonInfo(parser, analyzer, filename, is_debug)
-
-        if options.analyze:
-            # TODO: analyze documents
-            is_succeeded = self.toAnalyzedInfo(parser, analyzer, filename,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output an analyzed info failed!!")
-                return is_succeeded
-            ## kanji
-            is_succeeded = self.toAnalyzedKanji(parser, analyzer, filename,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output an analyzed info (kanji) failed!!")
-                return is_succeeded
-
-        if options.layer:
-            is_succeeded = self.toLayer(parser, filename, is_debug)
-            if not is_succeeded:
-                print("ERROR: output a description failed!!")
-                return is_succeeded
-
-        if options.person:
-            # TODO: show character infos
-            pass
-
-        if options.dialogue:
-            is_succeeded = self.toDialogueInfo(parser, analyzer, filename,
-                    is_debug)
-            if not is_succeeded:
-                print("ERROR: output a dialogue info failed!!")
-                return is_succeeded
-
-        if options.version:
-            # TODO: show version
-            pass
-
-        # total info (always display)
-        is_succeeded = self.toTotalInfo(parser, analyzer)
-
-        return is_succeeded
-
-    def toAnalyzedInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool): # pragma: no cover
-        # NOTE: 解析結果
-        freq = analyzer.frequency_words(parser.src)
-        res = freq
-        return self.outputOn(res, filename, "_anal0", self._extension, self._builddir, is_debug)
-
-    def toAnalyzedKanji(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool) -> bool: # pragma: no cover
-        total_tmp = []
-        ## totals
-        total_tmp.append(Formatter().toKanjiPercentInfo(
-            analyzer.kanjiPercent(parser.src)
-            ))
-        ## each scenes
-        scenes = Extractor(parser.src).scenes
-        sc_tmp = []
-        for v in scenes:
-            sc_tmp.append([f"## Scene: {v.title}",])
-            sc_tmp.append(Formatter().toKanjiPercentInfo(
-                analyzer.kanjiPercent(v)
-                ))
-        res = [f"# Analyzed kanji and kana balance of {parser.src.title}"] \
-                + list(chain.from_iterable(total_tmp)) \
-                + ["--------" * 8] \
-                + list(chain.from_iterable(sc_tmp))
-        return self.outputOn(res, filename, "_anal1", self._extension, self._builddir, is_debug)
-
-    def toDescription(self, parser: Parser, filename: str, formattype: str,
-            rubi_dict: dict,
-            is_comment: bool, rubi: bool, is_debug: bool): # pragma: no cover
-        res = Formatter().toDescriptions(parser.toDescriptions(is_comment))
-        if rubi:
-            res = Formatter().toDescriptions(
-                    parser.toDescriptionsWithRubi(rubi_dict, is_comment))
-        if formattype in ("estar",):
-            res = Formatter().toDescriptionsAsEstar(res)
-        elif formattype in ("smart", "phone"):
-            res = Formatter().toDescriptionsAsSmartphone(res)
-        elif formattype in ("web",):
-            res = Formatter().toDescriptionsAsWeb(res)
-        return self.outputOn(res, filename, "", self._extension, self._builddir, is_debug)
-
-    def toDetailInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool): # pragma: no cover
-        # TODO: 最初にタイトルから章やシーンリスト
-        # TODO: 文字数に続いて各シーンの簡易情報
-        # TODO: 各分析情報
-        # TODO: flag情報
-        # TODO: Formatterを使うようにする
-        extr = Extractor(parser.src)
-        total_charcounts = Formatter().toCharactersInfo(
-                analyzer.charactersCount(parser.src), "Total", 0)
-        scenes_charcounts = Formatter().toCharactersInfoEachScenes(
-                analyzer.charactersCountEachScenes(parser.src)
-                )
-        acts_percent = Formatter().toActionPercentInfo(
-                analyzer.actionsCount(parser.src),
-                analyzer.actionsPercent(parser.src), "")
-        scenes_actspercent = Formatter().toActionPercentInfoEachScenes(
-                analyzer.actionsTotalsFrom(parser.src),
-                analyzer.actionsPercentEachScenes(parser.src)
-                )
-        flaginfo = ["## Flags info\n"] + Formatter().toFlagsInfo(
-                analyzer.flagsFrom(parser.src)
-                )
-        head = [f"# Detail information of {parser.src.title}\n"]
-        res = head \
-                + ["## Characters info\n"] \
-                + total_charcounts \
-                + scenes_charcounts \
-                + ["\n## Actions info\n"] \
-                + acts_percent + [""] \
-                + scenes_actspercent + [""] \
-                + flaginfo
-        return self.outputOn(res, filename, "_info0", self._extension, self._builddir, is_debug)
-
-    def toDetailByWords(self, parser: Parser, analyzer: Analyzer, filename: str,
-            layers: dict,
-            title: str,
-            num: int,
-            is_debug: bool) -> bool: # pragma: no cover
-        tmp = []
-        for k,v in layers.items():
-            tmp.append([("Title", f"\n## About {k}:{v.name}\n")])
-            tmp.append(analyzer.descsHasWords(parser.src, v.words))
-        tmp.append([("Head", "--------"*8)])
-        for k,v in layers.items():
-            tmp.append([("Title", f"\n## About {k}:{v.name}\n")])
-            tmp.append(analyzer.outlinesHasWords(parser.src, v.words))
-        res = [f"# Analyzed {title} info of {parser.src.title}\n"] \
-                + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
-        return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
-                is_debug)
-
-    def toDetailByLayer(self, parser: Parser, analyzer: Analyzer, filename: str,
-            title: str, layer: str, num: int,
-            is_debug: bool) -> bool: # pragma: no cover
-        tmp = []
-        tmp.append([("Title", f"\n## Descriptions {layer}\n")])
-        tmp.append(analyzer.actionInfoOnLayer(parser.src, layer, False))
-        tmp.append([("Title", f"\n## Outlines {layer}\n")])
-        tmp.append(analyzer.actionInfoOnLayer(parser.src, layer, True))
-        res = [f"# Analyzed {title} info of {parser.src.title}\n"] \
-                + Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
-        return self.outputOn(res, filename, f"_info{num}", self._extension, self._builddir,
-                is_debug)
-
-    def toDialogueInfo(self, parser: Parser, analyzer: Analyzer, filename: str,
-            is_debug: bool): # pragma: no cover
-        # NOTE: dialogue count and list
-        info = Formatter().toDialoguesInfo(
-                analyzer.dialoguesEachPerson(parser.src))
-        res = ["# Dialogues info\n"] \
-                + info
-        return self.outputOn(res, filename, "_dial", self._extension, self._builddir, is_debug)
-
-    def toLayer(self, parser:Parser, filename: str, is_debug: bool): # pragma: no cover
-        res = Formatter().toDescriptionsAsLayer(parser.toDescriptionsAsLayer())
-        res_outline = Formatter().toOutlinesAsLayer(parser.toOutlinesAsLayer())
-        if is_debug:
-            res_outline = ["---- outline ----"] + res_outline
-        return self.outputOn(res, filename, "_lay", self._extension, self._builddir, is_debug) \
-                and self.outputOn(res_outline, filename, "_layO", self._extension, self._builddir, is_debug)
-
-    def toOutline(self, parser: Parser, filename: str, is_debug: bool): # pragma: no cover
-        res = Formatter().toOutlines(parser.toOutlines())
-        return self.outputOn(res, filename, "_out", self._extension, self._builddir, is_debug)
-
-    def toPersonInfo(self, parser: Parser, analyzer: Analyzer, filename: str, is_debug: bool) -> bool: # pragma: no cover
-        is_succeeded = False
-        builddir = self._builddir + "/person"
-        persons = Extractor(parser.src).persons
-        def _buildLayer(p: Person):
-            tmp = Layer(p.name,
-                    (p.name, p.fullname, p.lastname, p.firstname))
-            return tmp
-        for v in persons:
-            if isinstance(v, NoSubject):
-                continue
-            lay = _buildLayer(v)
-            tmp = []
-            tmp.append([("Title", f"\n## About {v.name}\n")])
-            tmp.append([("Head", f"* Contains words")])
-            tmp.append(analyzer.descsHasWords(parser.src, lay.words))
-            tmp.append([("Head", f"\n* Subject actions")])
-            tmp.append(analyzer.descriptionsOfPerson(parser.src, v))
-            tmp.append([("Head", f"\n* Dialogues")])
-            tmp.append(analyzer.dialoguesOfPerson(parser.src, v))
-            tmp.append([("Head", f"\n* Lookings")])
-            tmp.append(analyzer.lookingOfPerson(parser.src, v, False))
-            tmp.append([("Head", "--------"*8)])
-            tmp.append([("Head", f"\n* Outline contains words")])
-            tmp.append(analyzer.outlinesHasWords(parser.src, lay.words))
-            tmp.append([("Head", f"\n* Outline subject actions")])
-            tmp.append(analyzer.outlinesOfPerson(parser.src, v))
-            tmp.append([("Head", f"\n* Outlines lookings")])
-            tmp.append(analyzer.lookingOfPerson(parser.src, v, True))
-            res = Formatter().toLayersInfo(list(chain.from_iterable(tmp)))
-            is_succeeded = self.outputOn(res, v.name, "", self._extension, builddir, is_debug)
-            if not is_succeeded:
-                raise AssertionError(f"person (v.name) info output error: ", v)
-        return is_succeeded
-
-    def toScenario(self, parser: Parser, filename: str, is_comment: bool,
-            is_debug: bool): # pragma: no cover
-        res = Formatter().toScenarios(parser.toScenarios())
-        return self.outputOn(res, filename, "_sc", self._extension, self._builddir, is_debug)
-
-    def toTotalInfo(self, parser: Parser, analyzer: Analyzer): # pragma: no cover
-        charcounts = Formatter().toCharactersInfo(
-                analyzer.charactersCount(parser.src))
-        return Build._outToConsole(charcounts)
-
-    def outputOn(self, data: list, filename: str, suffix: str, extention: str,
-            builddir: str, is_debug: bool): # pragma: no cover
-        if is_debug:
-            return Build._outToConsole(data)
-        else:
-            return Build._outToFile(data, filename, suffix, extention, builddir)
-
-    # private
-    def _validatedStory(story: Story):
-        if isinstance(story, Story):
-            return story
-        else:
-            raise AssertionError("Must be data type of 'Story'!")
-        return False
-
-    def _wordsFrom(world: World):
-        '''To create the world dictionary.
+    ## methods
+    def compile(self, title: str, priority: int,
+            tags: dict, prefix: str,
+            *args) -> Story:
+        ''' compile source
+            1. serialize (block to actions)
+            2. filter by priority
+            3. replace pronouns
+            4. replace tags
         '''
-        tmp = {}
-        # persons and charas
-        tmp_persons = []
-        for k, v in assertion.is_instance(world, World).items():
-            if k in ('stage', 'day', 'time', 'item', 'word'):
-                continue
-            elif isinstance(v, Person):
-                tmp_persons.append((f"n_{k}", v.name))
-                tmp_persons.append((f"fn_{k}", v.firstname))
-                tmp_persons.append((f"ln_{k}", v.lastname))
-                tmp_persons.append((f"full_{k}", v.fullname))
-                tmp_persons.append((f"efull_{k}", v.exfullname))
-        tmp_stages = [(f"st_{k}", v.name) for k,v in world.stage.items()]
-        tmp_items = [(f"t_{k}", v.name) for k,v in world.item.items()]
-        tmp_words = [(f"w_{k}", v.name) for k,v in world.word.items()]
-        return dict_sorted(dict(tmp_persons + tmp_stages + tmp_items + tmp_words))
+        tmp = Story(assertion.isStr(title),
+                *util.tupleFiltered(args, Chapter))
+        cnv = Converter(tmp)
+        serialized = cnv.srcSerialized()
+        filtered = cnv.srcFilterByPriority(priority, src=serialized)
+        replacedP = cnv.srcReplacedPronouns(filtered)
+        replacedT = cnv.srcReplacedTags(tags, prefix, replacedP)
+        return replacedT
 
-    def _outToConsole(data: list): # pragma: no cover
+    def output(self, src: Story, rubis: dict, layers: dict,
+            stages: dict, daytimes: dict, fashions: dict, foods: dict,
+            mecabdir: str,
+            formattype: str,
+            is_rubi: bool,
+            is_scenario: bool, is_analyze: bool,
+            is_comment: bool, is_debug: bool) -> bool:
+        '''output data
+            0. basic info
+            1. outline
+            2. conte
+            3. description (or scenario)
+            4. info
+                - kanji
+                - wordclass
+                - stage layer
+                - fashion layer
+                - food layer
+                - time layer
+                - custom layers
+                - persons
+        '''
+        analyzer = Analyzer(mecabdir)
+        self.toInfoOfGeneral(src, is_debug)
+        self.toOutline(src, is_debug)
+        self.toConte(src, is_debug)
+        if is_scenario:
+            self.toScenario(src, is_debug)
+        else:
+            self.toDescription(src, rubis, is_rubi, is_debug)
+        ## informations
+        self.toInfoOfKanji(src, is_debug)
+        if is_analyze:
+            self.toInfoOfWordClass(src, analyzer, is_debug)
+        ## layers
+        self.toInfoOfStages(src, stages, is_debug)
+        self.toInfoOfFashions(src, fashions, is_debug)
+        self.toInfoOfFoods(src, foods, is_debug)
+        self.toInfoOfTimes(src, daytimes, is_debug)
+        self.toInfoOfCustom(src, layers, is_debug)
+        self.toInfoOfPersons(src, is_debug)
+        ## check
+        if is_analyze:
+            self.toCheckObjects(src, is_debug)
+        return True
+
+    ## methods (output data)
+    def toCheckObjects(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        #   - Objectの出入り確認
+        checker = Checker(src)
+        if checker.objectInOut():
+            print("OK Object In-Out")
+        else:
+            raise AssertionError("Object In-Out missed")
+        return True
+
+    def toConte(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        #   - 各要素の表示形式調整
+        title = f"Conte of {src.title}"
+        res = Parser(src).toContes()
+        return self.outputTo(Formatter.toConte(title, res),
+                self.filename, "_cnt", self.extention, self.builddir, is_debug)
+
+    def toDescription(self, src: Story, rubis: dict, is_rubi: bool, is_debug: bool) -> bool:
+        # TODO
+        #   - format type
+        title = f"Text of {src.title}"
+        res = Parser(src).toDescriptionsWithRubi(rubis) if is_rubi else Parser(src).toDescriptions()
+        return self.outputTo(Formatter.toDescription(title, res),
+                self.filename, "", self.extention, self.builddir, is_debug)
+
+    def toInfoOfCustom(self, src: Story, layers: dict, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        title = f"Custom info of {src.title}"
+        res = []
+        for k,v in layers.items():
+            res.append(DataPack("head", f"{k}:{v.name}"))
+            res.extend(extr.descsHasWord(v.words))
+        return self.outputTo(Formatter.toLayerInfo(title, res),
+                self.filename, "_custom", self.extention,
+                os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
+
+    def toInfoOfFashions(self, src: Story, layers: dict, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        title = f"Fashion info of {src.title}"
+        res = []
+        for k,v in layers.items():
+            res.append(DataPack("head", f"{k}:{v.name}"))
+            res.extend(extr.descsHasWord(v.words))
+        return self.outputTo(Formatter.toLayerInfo(title, res),
+                self.filename, "_fashion", self.extention,
+                os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
+
+    def toInfoOfFoods(self, src: Story, layers: dict, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        title = f"Food info of {src.title}"
+        res = []
+        for k,v in layers.items():
+            res.append(DataPack("head", f"{k}:{v.name}"))
+            res.extend(extr.descsHasWord(v.words))
+        return self.outputTo(Formatter.toLayerInfo(title, res),
+                self.filename, "_food", self.extention,
+                os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
+
+    def toInfoOfGeneral(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        #   - colum, rowの指定を可能に。ない場合はデフォルト
+        #   - 基本情報と詳細情報を分割し、基本は常にコンソールでも
+        cnt = Counter(src)
+        title = "General Info:"
+        res_base = [DataPack("total", cnt.countCharsOfShot()),
+                DataPack("manupaper", cnt.countAsManupaperRows(self.column)),
+                DataPack("rows", self.row), DataPack("columns", self.column),
+                DataPack("chapters", cnt.countChapter()),
+                DataPack("episodes", cnt.countEpisode()),
+                DataPack("scenes", cnt.countScene()),
+                DataPack("actions", cnt.countAction())]
+        res_addition = [DataPack("acttype total", cnt.countAction()),]
+        for v in ActType:
+            res_addition.append(DataPack(f"acttype {v.name}",
+                cnt.countActType(v)))
+        def _alwaysDisplayOnConsole(infodata, is_debug):
+            if not is_debug:
+                self.outputToConsole(infodata)
+            return infodata
+        _alwaysDisplayOnConsole(Formatter.toGeneralInfo(title, res_base), is_debug)
+        return self.outputTo(
+                Formatter.toGeneralInfo(title, res_base + res_addition),
+                self.filename, "_info", self.extention, self.builddir, is_debug)
+
+    def toInfoOfKanji(self, src: Story, is_debug: bool):
+        # TODO
+        cnt = Counter(src)
+        title = f"Kanji info of {src.title}"
+        total = cnt.countCharsOfShot()
+        kanji = cnt.countKanjiOfShot()
+        res = [DataPack("total", total),
+                DataPack("kanji", kanji)]
+        return self.outputTo(Formatter.toKanjiInfo(title, res),
+                self.filename, "_kanji", self.extention,
+                os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
+
+    def toInfoOfPersons(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        persons = extr.persons
+        def _buildLayer(p: Person):
+            last, first, full, exfull = Converter.personNamesConstructed(p)
+            tmp = Layer(p.name,
+                    (p.name, last, first, full, exfull))
+            return tmp
         is_succeeded = True
+        for p in persons:
+            lay = _buildLayer(p)
+            title = f"Persons info of {p.name}"
+            res = extr.descsHasWord(lay.words) + (DataPack("hr",""),) \
+                    + extr.dialoguesOfPerson(p)
+            is_succeeded = self.outputTo(Formatter.toLayerInfo(title, res),
+                p.name, "", self.extention,
+                os.path.join(self.builddir, self.__PERSON_DIR__), is_debug)
+            if not is_succeeded:
+                AssertionError("Person info error!", p)
+        return is_succeeded
+
+    def toInfoOfStages(self, src: Story, layers: dict, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        title = f"Stage info of {src.title}"
+        res = []
+        for k,v in layers.items():
+            res.append(DataPack("head", f"{k}:{v.name}"))
+            res.extend(extr.descsHasWord(v.words))
+        return self.outputTo(Formatter.toLayerInfo(title, res),
+                self.filename, "_stage", self.extention,
+                os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
+
+    def toInfoOfTimes(self, src: Story, layers: dict, is_debug: bool) -> bool:
+        # TODO
+        extr = Extractor(src)
+        title = f"Day Time info of {src.title}"
+        res = []
+        for k,v in layers.items():
+            res.append(DataPack("head", f"{k}:{v.name}"))
+            res.extend(extr.descsHasWord(v.words))
+        return self.outputTo(Formatter.toLayerInfo(title, res),
+                self.filename, "_daytime", self.extention,
+                os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
+
+    def toInfoOfWordClass(self, src: Story, analyzer: Analyzer, is_debug: bool) -> bool:
+        # TODO
+        title = f"Word class info of {src.title}"
+        wcls = analyzer.collectionsWordClassByMecab(src)
+        res = []
+        def _create(title, name):
+            base = PyCounter([v[0] for v in wcls[name]])
+            maxnum = base.most_common()[0][1] if base.most_common() else 0
+            res.append(DataPack("head", title))
+            for i in reversed(range(maxnum)):
+                tmp = []
+                for w,c in base.most_common():
+                    if c == i + 1:
+                        tmp.append(w)
+                if tmp:
+                    res.append(DataPack("count", f"{i + 1}: {','.join(tmp)}"))
+        for v in WordClasses:
+            _create(v.value, v.name)
+        return self.outputTo(Formatter.toWordClassInfo(title, res),
+                self.filename, "_wordcls", self.extention,
+                os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
+
+    def toOutline(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        title = f"Outline of {src.title}"
+        res = Parser(src).toOutlines()
+        return self.outputTo(Formatter.toOutline(title, res),
+                self.filename, "_out", self.extention, self.builddir, is_debug)
+
+    def toScenario(self, src: Story, is_debug: bool) -> bool:
+        # TODO
+        print("__unimplement scenario mode__")
+        return True
+
+    ## methods (output)
+    def outputTo(self, data: list, filename: str, suffix: str, extention: str,
+            builddir: str, is_debug: bool) -> bool:
+        if is_debug:
+            return self.outputToConsole(data)
+        else:
+            return self.outputToFile(data, filename, suffix, extention, builddir)
+
+    def outputToConsole(self, data: list) -> bool:
         for v in data:
             print(v)
-        return is_succeeded
+        return True
 
-    def _outToFile(data: list, filename: str, suffix: str, extention: str,
-            builddir: str): # pragma: no cover
-        is_succeeded = True
+    def outputToFile(self, data: list, filename: str, suffix: str, extention: str,
+            builddir: str) -> bool:
         if not os.path.isdir(builddir):
             os.makedirs(builddir)
         fullpath = os.path.join(builddir, "{}{}.{}".format(
-            assertion.is_str(filename), assertion.is_str(suffix),
-            assertion.is_str(extention)
+            assertion.isStr(filename), assertion.isStr(suffix),
+            assertion.isStr(extention)
             ))
         with open(fullpath, 'w') as f:
             for v in data:
                 f.write(f"{v}\n")
-        return is_succeeded
+        return True
 
-# privates
-def _layerDictFrom(data: list) -> dict:
-    tmp = {}
-    for v in assertion.is_list(data):
-        k, val = v[0], v[1:]
-        tmp[k] = Layer(*val)
-    return tmp
 
-def _optionsParsed(is_debug_test: bool): # pragma: no cover
-    '''Get and setting a commandline option.
-
-    Returns:
-        :obj:`ArgumentParser`: contain commandline options.
-    '''
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-o', '--outline', help="output the outline", action='store_true')
-    parser.add_argument('-s', '--scenario', help="output the scenario", action='store_true')
-    parser.add_argument('-d', '--description', help="output the novel", action='store_true')
-    # TODO: action view
-    parser.add_argument('-a', '--action', help="output the monitoring action", action='store_true')
-    parser.add_argument('-i', '--info', help="output the abstract info", action='store_true')
-    parser.add_argument('--detail', help="output the detail informations", action='store_true')
-    parser.add_argument('-z', '--analyze', help="output the analyzed info", action='store_true')
-    parser.add_argument('-l', '--layer', help="output using the layer", action='store_true')
-    # TODO: character info
-    parser.add_argument('-p', '--person', help="output characters info", action='store_true')
-    parser.add_argument('--dialogue', help="output character dialogues and conversations", action='store_true')
-    # TODO: help
-    # TODO: version info
-    parser.add_argument('-v', '--version', help="display this version", action='store_true')
-    # TODO: advanced file name
-    parser.add_argument('-f', '--file', help="advanced output the file name", type=str)
-    # TODO: priority setting
-    parser.add_argument('--pri', help="output filtered by the priority", type=int, default=__DEF_PRIORITY__)
-    parser.add_argument('--debug', help="with a debug mode", action='store_true')
-    parser.add_argument('--format', help='output the format style', type=str)
-    parser.add_argument('--comment', help='output with comment', action='store_true')
-    parser.add_argument('--mecab', help='force using the mecab dictionary directory', type=str)
-    parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')
-    parser.add_argument('--rubi', help='description with rubi', action='store_true')
-
-    # get result
-    args = parser.parse_args(args=[]) if is_debug_test else parser.parse_args()
-
-    return (args)
-
+        return True
 

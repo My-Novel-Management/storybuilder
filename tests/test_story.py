@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 """Test: story.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder import story as st
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
 from builder.chapter import Chapter
+from builder.story import Story
 
 
 _FILENAME = "story.py"
@@ -14,30 +17,24 @@ class StoryTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Story class")
+        printTestTitle(_FILENAME, "Story class")
+
+    def setUp(self):
+        pass
 
     def test_attributes(self):
+        attrs = ("chapters", "note")
+        ch1 = Chapter("melon")
+        ch2 = Chapter("lemon")
         data = [
-                (False, "test", (Chapter("apple"),),),
-                (False, "test", (),),
-                (True, 1, (Chapter("apple"),),),
-                (True, "test", [1,2,3],),
+                (False, "test", (ch1, ch2), "a test",
+                    ((ch1, ch2), "a test")),
                 ]
-        def _checkcode(title, chaps):
-            tmp = st.Story(title, *chaps)
-            self.assertIsInstance(tmp, st.Story)
-            self.assertEqual(tmp.title, title)
-            self.assertEqual(tmp.chapters, chaps)
-        validated_testing_withfail(self, "attributes", _checkcode, data)
+        def _checkcode(title, vals, note, expects):
+            tmp = Story(title, *vals, note=note)
+            self.assertIsInstance(tmp, Story)
+            for a,v in zip(attrs, expects):
+                with self.subTest(a=a, v=v):
+                    self.assertEqual(getattr(tmp, a), v)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
-    def test_inherited(self):
-        data = [
-                (False, (Chapter("apple"),),),
-                (True, [1,2,3],),
-                ]
-        def _checkcode(chaps):
-            tmp = st.Story("test")
-            tmp1 = tmp.inherited(*chaps)
-            self.assertIsInstance(tmp1, st.Story)
-            self.assertEqual(tmp1.chapters, chaps)
-        validated_testing_withfail(self, "inherited", _checkcode, data)

@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Sample story for the momotaro.
+"""Example story
 """
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append('builder')
+## public libs
+## local libs
+from builder.drawer import Drawer
 from builder.world import World
 from builder.writer import Writer
-import momotaro_config as cnf
+## local files
+from assets import basic
+from config import DAYS, ITEMS, LAYERS, PERSONS, RUBIS, STAGES, TIMES, WORDS
 
+D = Drawer()
+W = Writer
+_ = Writer.getWho()
 ################################################################
 #
 # Sample step:
@@ -33,240 +41,227 @@ import momotaro_config as cnf
 
 
 ## scenes
-"""Scene は Action の塊。
-"""
-def sc_washing(w: World):
-    return w.scene("洗濯に", "おばあさんは洗濯に出かけて巨大な$t_peachを見つけた",
-        w.comment("桃太郎誕生の話"),
-        w.be(None, "昔あるところに子どものない老夫婦がいた").d("昔々あるところに子どものない老夫婦がいたそうだ"),
-        w.move(w.granpa, "山へ芝刈りに行った").d("じいさんは山に芝刈りに出かけ、"),
-        w.move(w.granma, "川に洗濯にくる").d("ばあさんは洗濯に川にやってきた"),
-        w.look("大きな桃を見つける").d("と、川をどんぶらこと大きな桃が流れてくるではないか"),
-        w.think("思案する").d("$CSはどうしようかと考えたが、珍しいものだ、持ち帰ろうと決意する"),
-        w.act("桃を拾って帰る").d("$Sは木の棒を手にして、それを何とか木の棒で桃を引っ掛けて手前に寄せる",
-            "川から拾い上げると思いのほか重く、ずっしりとしていた"),
+def sc_getpeach(w: World):
+    granma, granpa = W(w.granma), W(w.granpa)
+    peach = W(w.peach)
+    return w.scene("大きな桃", w.comment("桃を拾う"),
+            w.comment("流れてきた桃を拾う", "おばあさんとおじいさんの簡単な状況説明とか"),
+            granma.be(D.p("昔々あるところに$n_granpaと$n_granmaがいた")),
+            granpa.be(),
+            granma.explain("子どもがいない", D.p("老夫婦には子どもがおらず、")),
+            _.feel("寂しい", D.pT("寂しい暮らしを送っていた")),
+            granpa.go("芝刈り", D.p("$Sは山に芝刈りに、")),
+            granma.come("洗濯", D.pT("$Sは川へ洗濯に出かけた")),
+            w.load("river"),
+            w.load("granma_base"),
+            granma.look("hair", "白髪混じりで細い髪質"),
+            granma.look(D.p("川へやってきた$Sは")),
+            peach.come(D.pT("桃が流れてくるのに気づいた")),
+            peach.look("size", "人間が二人掛かりで持てそうな大きさ",
+                D.p("それはとても大きく、とても細腕の老婆一人では持ち上げられそうにないほどで、")),
+            peach.look("mate", "しっかりと色づき美味しそう",
+                D.pT("水に浮かびながらその色づいた表面を見せ、どんぶらことやってくる")),
+            granma.do("pickup", "桃を", D.p("$Sは流れてきた桃を木の棒で引き寄せると、")),
+            _.do("get", D.pT("手を伸ばしてそれを何とか岸に引き上げた"),),
+            granma.talk("まあ、なんて大きな桃だこと！", "これを持って帰ったら$granpaもさぞ驚くことだろうね"),
+            granma.go(D.pT("紐で結びつけて「よいしょ」と背負うと、ほうほうのていで何とか家まで持ち帰った")),
             camera=w.granma,
             stage=w.on_river,
-            day=w.in_getpeach, time=w.at_morning)
-
-def sc_birth(w: World):
-    granma = Writer(w.granma)
-    return w.scene("誕生", "$n_taroが生まれる",
-        w.be(None, "午後").d("その昼のことだ"),
-        w.on_home.skin.getBody(1).d("粗末な家だった"),
-        granma.sit().d("畳の上に座り込んでいた"),
-        w.look(w.granma, "夫に桃のことを相談").d("$Sは桃を拾ったのだがどうすべきかと相談をしてみた"),
-        w.talk(w.granpa, "中を見てみよう").t("こりゃあデカいな",
-            "よし、切ってみるとしよう", "$meに任せておきなさい"),
-        w.have("ナタを手に取る").d("表からナタを取ってきて、"),
-        w.act("桃を割る").d("それを思い切り振り上げるとそのまま「えい！」と力強く桃に当てた"),
-        w.look(w.granma, "桃から赤子が出てくる").d("桃はぱっくりと二つに割れ、中からは玉のような赤子が出てきて泣き声を上げた"),
-        w.talk("どうしよう").t("あらあら。どうしましょうねえ"),
-        w.talk(w.granpa, "どうしようって、喜ぶしかねえ！").same('t'),
-        w.talk(w.granma, "そうよね").same('t'),
-        w.think("二人とも神からの贈り物と喜ぶ").d("それでも二人は喜んでいた",
-            "特に$Sの顔は涙でぐしゃぐしゃになり、真っ赤になっていたほどだった"),
-            camera=w.granma,
-            stage=w.on_home,
-            day=w.in_birth, time=w.at_afternoon,
+            day=w.in_getpeach, time=w.at_morning,
             )
 
-def sc_know_deamon(w: World):
-    return w.scene("悪事を知る", "村の人が鬼に色々とられて困っていると聞く",
-        w.be(None, "桃太郎は成長した").d("桃太郎はすくすく成長し、あっという間に大きくなった"),
-        w.taro.skin.getFace(0),
-        w.taro.skin.getBody(1),
-        w.combine(
-        w.act(w.taro, "村の中を歩いている").d("ある日、村の中を歩いていると、"),
-        w.hear("鬼の噂を聞く").flag("鬼の噂").d("村人が集まってこそこそと何やら話している",
-            "どうやら鬼に蔵に収めておいた宝物を盗まれたというのだ"),
-        ),
-        w.think("鬼をこらしめたい").d("$Sは鬼を退治しようと決意を固めた"),
+def sc_birth(w: World):
+    granma, granpa = W(w.granma), W(w.granpa)
+    return w.scene("誕生", w.comment("$taroの誕生秘話"),
+            granma.be(), granpa.be(),
+            w.load("living"),
+            w.load("granma_base"),
+            granma.talk("$n_taroだ。そうだ。$n_taroだよ"),
+            stage=w.on_home,
+            time=w.at_midmorning,
+            )
+
+def sc_known(w: World):
+    return w.scene("鬼の悪事を知る", w.comment("村人から鬼の悪事を聞く"),
             camera=w.taro,
             stage=w.on_vila,
             day=w.in_rumor, time=w.at_afternoon,
             )
 
-def sc_talk_buster(w: World):
-    return w.scene("鬼退治したい桃太郎", "鬼のことを両親に話して旅立ちの許可をもらう",
-        w.be(w.taro, "両親を前にじっと座っている").d("$Sはぎゅっと拳を握り締めて、両親を前にしていた"),
-        w.act(w.taro, "鬼のことを相談する").deflag("鬼の噂"),
-        w.combine(
-        w.talk(w.taro, "実はずっと考えていたんだ").t("実はさ、"),
-        w.talk(w.taro, "何か村の役に立ちたいって思ってた").t("$me、ずっと何か村の役に立ちたいって考えてたんだ"),
-        ),
-        w.think(w.granma, "返答に困る"),
-        w.act(w.taro, "どうしても鬼が許せないと説得する"),
-        w.talk(w.granma, "そこまで言うなら止めないよ"),
-            camera=w.taro,
+def sc_desicion(w: World):
+    return w.scene("決意", w.comment("鬼退治の決意をする"),
             stage=w.on_home,
-            day=w.in_rumor, time=w.at_night,
+            time=w.at_night,
             )
 
-def sc_dummyscene(w: World):
-    return w.scene("ダミーシーン", "テスト用です",
-            ).omit()
-
-def sc_depature(w: World):
-    return w.scene("旅立ち", "鬼退治の旅に出る",
-        w.symbol("◆"),
-        w.be(w.taro, "ダミー冒頭").omit(),
-        w.look(w.taro, "準備を終えて家の前にいる"),
-        w.talk(w.granma, "これを").same(),
-        w.have(w.taro, "$t_dangoを貰う").same(),
-        w.move("出発する"),
-            camera=w.taro,
-            stage=w.on_home,
-            day=w.in_voyage, time=w.at_morning,
+def sc_voyage(w: World):
+    return w.scene("旅立ち", w.comment("旅立つ$taro"),
             )
 
 def sc_meetdog(w: World):
-    return w.scene("犬と出会う", "道端で犬に出会い仲間にする",
-        w.layer("alley"),
-        w.move(w.taro, "道を歩いていた"),
-        w.look("犬と出会う"),
-        w.talk(w.dog, "死にそうなので何か食べ物を下さい"),
-        w.have(w.taro, "$t_dangoをやる"),
-        w.act("$n_dogを仲間にした"),
+    return w.scene("犬と会う", w.comment("犬を味方にする"),
             camera=w.taro,
             stage=w.on_street,
             day=w.in_meetdog, time=w.at_afternoon,
             )
 
 def sc_meetmonkey(w: World):
-    return w.scene("猿と出会う", "猿に出会い仲間にする",
-        w.move(w.taro, "犬を連れて歩いていた"),
-        w.look("猿と出会う"),
-        w.talk(w.monkey, "腹減って死にそうなんだ。それくれ"),
-        w.have(w.taro, "$t_dangoをやった"),
-        w.act("$n_monkeyが仲間になった"),
-            )
-
-def sc_meetpheasant(w: World):
-    return w.scene("雉と出会う", "雉に出会い仲間にする",
-        w.move(w.taro, "道を歩いていた"),
-        w.look("雉と出会う"),
-        w.talk(w.pheasant, "それ欲しい"),
-        w.have(w.taro, "$t_dangoをやる"),
-        w.act("$n_pheasantが仲間になった"),
-            )
-
-def sc_arrivedisland(w: World):
-    return w.scene("島に向かう", "鬼ヶ島に向かう",
-        w.move(w.taro, "船に乗り鬼ヶ島に向かう"),
+    return w.scene("猿と会う", w.comment("猿を味方にする"),
             camera=w.taro,
-            stage=w.on_ship,
-            day=w.in_rideship, time=w.at_afternoon,
+            stage=w.on_street,
+            day=w.in_meetmonkey, time=w.at_evening,
             )
 
-def sc_gotoisland(w: World):
-    return w.scene("鬼ヶ島", "鬼ヶ島にて鬼退治する",
-        w.move(w.taro, "$w_islandにやってくる"),
-        w.act("鬼を退治する"),
-        w.have("鬼の宝物を手に入れる"),
-        w.move("帰る"),
+def sc_meetbird(w: World):
+    return w.scene("雉と会う", w.comment("雉を味方にする"),
+            camera=w.taro,
+            stage=w.on_street,
+            day=w.in_meetbird, time=w.at_midmorning,
+            )
+
+def sc_island(w: World):
+    return w.scene("鬼ヶ島", w.comment("鬼ヶ島で鬼退治をする"),
+            w.load("oni_island"),
             camera=w.taro,
             stage=w.on_island,
-            day=w.in_arrived, time=w.at_morning,
+            day=w.in_arrived, time=w.at_afternoon,
+            )
+
+def sc_busteroni(w: World):
+    return w.scene("鬼退治",
+            camera=w.taro,
+            stage=w.on_island,
+            day=w.in_arrived, time=w.at_afternoon,
             )
 
 def sc_backhome(w: World):
-    return w.scene("帰宅", "宝物を持って村に帰る",
-        w.move(w.taro, "村に戻ってくる"),
-        w.be(w.granma, "村人たちみんな喜んで出迎える"),
+    taro, dog, monkey, bird = W(w.taro), W(w.dog), W(w.monkey), W(w.bird)
+    granma, granpa = W(w.granma), W(w.granpa)
+    vilaman = W(w.vilaman)
+    return w.scene("村に戻る", w.comment("宝物と共に村に戻った"),
+            w.load("vila"),
+            granma.be(), granpa.be(),
+            vilaman.be(20),
+            taro.come(),taro.have(w.treasure),
+            dog.come(), monkey.come(), bird.come(),
+            taro.talk("無事に帰ったよ！"),
+            granma.talk("おお$taroが！"),
+            granpa.talk("本当によく帰ってきた"),
+            dog.do("smile"),
+            monkey.do("laugh"),
+            bird.do("smile"),
+            taro.explain("宝物を"),
             camera=w.taro,
             stage=w.on_vila,
-            day=w.in_backhome, time=w.at_afternoon,
+            day=w.in_backhome, time=w.at_morning,
             )
 
 ## episodes
-"""Episode は Scene の塊。
-"""
-def ep_intro(w: World):
-    return w.episode("桃太郎誕生",
-            "拾った桃から赤子が生まれ、桃太郎に成長する",
-            sc_washing(w),
+def ep_birth(w: World):
+    return w.episode("$taro誕生",
+            sc_getpeach(w),
             sc_birth(w),
+            sc_known(w),
+            sc_desicion(w),
+            sc_voyage(w),
             )
 
-def ep_depature(w: World):
-    return w.episode("鬼退治に出発",
-            "桃太郎は鬼が悪さをしていると知り、鬼退治に出向く",
-            sc_dummyscene(w),
-            sc_know_deamon(w),
-            sc_talk_buster(w),
-            sc_depature(w),
-            )
-
-def ep_alley(w: World):
-    return w.episode("味方ゲットだぜ",
-            "旅の道中で家来を得る",
+def ep_ally(w: World):
+    return w.episode("味方を得る",
             sc_meetdog(w),
             sc_meetmonkey(w),
-            sc_meetpheasant(w),
+            sc_meetbird(w),
             )
 
-def ep_bustered(w: World):
-    return w.episode("そして鬼退治",
-            "鬼ヶ島に渡って鬼退治をする",
-            sc_gotoisland(w),
+def ep_buster(w: World):
+    return w.episode("鬼退治",
+            sc_island(w),
+            sc_busteroni(w),
             sc_backhome(w),
             )
 
-## chapters
-"""Chapter は Episode の塊。
-"""
-def ch_main(w: World):
-    return w.chapter("main story",
-            ep_intro(w),
-            ep_depature(w),
-            ep_alley(w),
-            ep_bustered(w),
-            )
-
-def ch_sub(w: World):
-    return w.chapter("sub story",
-            ).omit()
-
-## setting
-def set_stages(w: World):
-    """Set stages.
-    """
-    w.on_home.skin.addBody("板張りの床",
-            "藁葺の粗末な屋根")
-    return w
-
+## persons
 def set_persons(w: World):
-    ## 桃太郎
-    w.taro.skin.addFace("つるりとしたイケメンフェイス")
-    w.taro.skin.addBody("長身", "筋肉質", "分厚い胸板")
-    return w
+    taro = W(w.taro)
+    granma = W(w.granma)
+    return (
+        w.block("taro_base",
+            taro.have(w.cloth_momo1),
+            ),
+        w.block("taro_battle",
+            taro.have(w.cloth_momo2),
+            taro.have(w.katana),
+            taro.have(w.flag),
+            ),
+        w.block("granma_base",
+            granma.have(w.cloth_boro),
+            ),
+        )
+
+## stages
+def set_stages(w: World):
+    floor, ceil, wall = W(w.floor), W(w.ceil), W(w.wall)
+    water, tree, land = W(w.water), W(w.tree), W(w.land)
+    house = W(w.house)
+    fort = W(w.fort)
+    return (
+        w.block("living",
+            ceil.be(),
+            floor.be(),
+            wall.be(),
+            ceil.wear("梁が露出した寒々としたもの"),
+            floor.wear("板張りでところどころ穴が空いている粗末なもの"),
+            wall.wear("漆喰で塗られている"),
+            ),
+        w.block("river",
+            water.be(), land.be(), tree.be(2),
+            water.wear("綺麗で透き通っている"),
+            ),
+        w.block("oni_island",
+            land.be(),
+            fort.be(),
+            fort.wear("石を積んで造られた巨大な城"),
+            ),
+        w.block("in_onifort",
+            wall.be(),
+            floor.be(),
+            wall.wear("じっとり湿った石が積まれた壁"),
+            floor.wear("そこここを苔が覆っている"),
+            ),
+        w.block("vila",
+            house.be(10),
+            house.wear("木の板を貼り付け、屋根は茅葺き"),
+            )
+        )
+
+## items
 
 ## main
-def world():
-    """Create a world.
-    """
-    w = World(2)
-    w.set_db(cnf.PERSONS,
-            cnf.STAGES,
-            cnf.DAYS, cnf.TIMES,
-            cnf.ITEMS,
-            cnf.WORDS)
-    w.setRubis(cnf.RUBIS)
-    w.setLayers(cnf.LAYERS)
-    set_persons(w)
-    set_stages(w)
-    return w
-
-def story(w: World):
-    return w.story("桃太郎",
-            ch_main(w),
-            ch_sub(w),
+def ch_main(w: World):
+    return w.chapter("main",
+            ep_birth(w),
+            ep_ally(w),
+            ep_buster(w),
             )
+
+def world():
+    w = World("桃太郎")
+    w.setCommonData()
+    w.setAssets(basic.ASSET)
+    w.buildDB(PERSONS,
+            STAGES, ITEMS, DAYS, TIMES, WORDS,
+            RUBIS, LAYERS)
+    w.entryBlock(
+            *set_persons(w),
+            *set_stages(w),
+            )
+    return w
 
 def main(): # pragma: no cover
     w = world()
-    return w.build(story(w))
+    return w.build(
+            ch_main(w),
+            )
 
 
 if __name__ == '__main__':

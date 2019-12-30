@@ -1,36 +1,48 @@
 # -*- coding: utf-8 -*-
-"""Define day class.
+"""Define data type of day
 """
-from . import assertion
-from .basedata import BaseData
+## public libs
+## local libs
+from utils import assertion
+## local files
+from builder.basedata import BaseData
 
 
 class Day(BaseData):
-    """Data type of days.
+    """The data class of day.
+
+    Attributes:
+        name (str): a day name
+        mon (int): 0. a month
+        day (int): 1. a day
+        year (int): 2. a year
+        note (str): 3. a note
     """
-    __YEAR__ = 2020
+    __YEAR__ = 2000
     __MON__ = 1
     __DAY__ = 1
+    def __init__(self, name: str, mon: int=__MON__, day: int=__DAY__, year: int=__YEAR__, note: str=""):
+        super().__init__(name,
+                (assertion.isInt(mon),
+                    assertion.isInt(day),
+                    assertion.isInt(year),
+                    assertion.isStr(note),)
+                )
 
-    def __init__(self, name: str,
-            mon: int=__MON__, day: int=__DAY__, year: int=__YEAR__):
-        super().__init__(name)
-        self._year = year
-        self._mon = mon
-        self._day = day
+    ## property
+    @property
+    def mon(self) -> int:
+        return self.data[0]
 
     @property
-    def year(self): return self._year
+    def day(self) -> int:
+        return self.data[1]
 
     @property
-    def mon(self): return self._mon
+    def year(self) -> int:
+        return self.data[2]
 
     @property
-    def day(self): return self._day
+    def note(self) -> str:
+        return self.data[3]
 
-    def inherited(self, name: str="", mon: int=0, day: int=0, year: int=0):
-        return Day(
-                name if assertion.is_str(name) else self.name,
-                self.mon + mon if assertion.is_int(mon) != 0 else self.mon,
-                self.day + day if assertion.is_int(day) != 0 else self.day,
-                self.year + year if assertion.is_int(year) != 0 else self.year)

@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
-"""Define word class.
+"""Define data type of word
 """
-from . import assertion
-from .basedata import BaseData
+## public libs
+## local libs
+from utils import assertion
+## local files
+from builder.basedata import BaseData
 
 
 class Word(BaseData):
-    """Data type of a word.
+    """The data class of word.
+
+    Attributes:
+        name (str): a word name
+        note (str): 0. a note
     """
-    __NOTE__ = "nothing"
+    def __init__(self, name: str, note: str=""):
+        super().__init__(name,
+                (assertion.isStr(note),
+                    ))
 
-    def __init__(self, name: str, note: str=__NOTE__):
-        super().__init__(name)
-        self._note = assertion.is_str(note)
-
+    ## property
     @property
-    def note(self): return self._note
-
+    def note(self) -> str:
+        return self.data[0]

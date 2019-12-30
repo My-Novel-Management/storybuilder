@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """Test: chapter.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder import chapter as ch
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from builder.chapter import Chapter
+from builder.episode import Episode
+
 
 _FILENAME = "chapter.py"
 
@@ -12,32 +17,24 @@ class ChapterTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Chapter class")
+        printTestTitle(_FILENAME, "Chapter class")
+
+    def setUp(self):
+        pass
 
     def test_attributes(self):
-        from builder.episode import Episode
+        attrs = ("episodes", "note")
+        ep1 = Episode("apple")
+        ep2 = Episode("orange")
         data = [
-                (False, "test", (Episode("test", "a test"),),),
-                (False, "test", (),),
-                (True, 1, (Episode("test", "a test"),),),
-                (True, "test", ("test", "a test"),),
+                (False, "test", (ep1, ep2), "a test",
+                    ((ep1, ep2), "a test")),
                 ]
-        def _checkcode(title, eps):
-            tmp = ch.Chapter(title, *eps)
-            self.assertIsInstance(tmp, ch.Chapter)
-            self.assertEqual(tmp.episodes, eps)
-        validated_testing_withfail(self, "attributes", _checkcode, data)
+        def _checkcode(title, vals, note, expects):
+            tmp = Chapter(title, *vals, note=note)
+            self.assertIsInstance(tmp, Chapter)
+            for a,v in zip(attrs, expects):
+                with self.subTest(a=a, v=v):
+                    self.assertEqual(getattr(tmp, a), v)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
-    def test_inherited(self):
-        from builder.episode import Episode
-        data = [
-                (False, (Episode("1", "a test"), Episode("2", "an apple")),),
-                (False, (),),
-                (True, [1,2,3],),
-                ]
-        def _checkcode(eps):
-            tmp = ch.Chapter("test", Episode("test", "a test"))
-            tmp1 = tmp.inherited(*eps)
-            self.assertIsInstance(tmp1, ch.Chapter)
-            self.assertEqual(tmp1.episodes, eps)
-        validated_testing_withfail(self, "inherited", _checkcode, data)

@@ -1,24 +1,30 @@
 # -*- coding: utf-8 -*-
-"""Define base data type class.
+"""Define base data.
 """
-from . import assertion
+## public libs
+## local libs
+from utils import assertion
+from utils.util_id import UtilityID
+## local files
 
 
 class BaseData(object):
-    """Base class for data type.
+    """Base class for a data.
     """
-    def __init__(self, name: str):
-        self._name = assertion.is_str(name)
+    def __init__(self, name: str, data: tuple):
+        self._data = assertion.isTuple(data)
+        self._dataId = UtilityID.getNextId()
+        self._name = assertion.isStr(name)
 
     @property
-    def name(self): return self._name
+    def data(self) -> tuple:
+        return self._data
 
+    @property
+    def dataId(self) -> int:
+        return self._dataId
 
-class NoData(BaseData):
-    """Nothing data.
-    """
-    __NAME__ = "__none__"
-
-    def __init__(self):
-        super().__init__(NoData.__NAME__)
+    @property
+    def name(self) -> str:
+        return self._name
 

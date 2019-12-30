@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """Test: basedata.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder import basedata as bs
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from tests import __BASE_ID__
+from builder.basedata import BaseData
 
 
 _FILENAME = "basedata.py"
@@ -13,26 +17,22 @@ class BaseDataTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "BaseData class")
+        printTestTitle(_FILENAME, "BaseData class")
+
+    def setUp(self):
+        pass
 
     def test_attributes(self):
+        attrs = ("name", "data", "dataId")
         data = [
-                (False, "test",),
-                (True, 1,),
+                (False, ("test",("a",)),
+                    ("test", ("a",), __BASE_ID__ - 12)),
                 ]
-        def _checkcode(name):
-            tmp = bs.BaseData(name)
-            self.assertIsInstance(tmp, bs.BaseData)
-            self.assertEqual(tmp.name, name)
-        validated_testing_withfail(self, "attributes", _checkcode, data)
+        def _checkcode(vals, expects):
+            tmp = BaseData(*vals)
+            self.assertIsInstance(tmp, BaseData)
+            for a,v in zip(attrs, expects):
+                with self.subTest(a=a, v=v):
+                    self.assertEqual(getattr(tmp, a), v)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
-class NoDataTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        print_test_title(_FILENAME, "NoData class")
-
-    def test_attributes(self):
-        tmp = bs.NoData()
-        self.assertIsInstance(tmp, bs.NoData)
-        self.assertEqual(tmp.name, bs.NoData.__NAME__)

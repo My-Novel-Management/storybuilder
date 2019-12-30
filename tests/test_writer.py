@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """Test: writer.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from builder import ActType, TagType
 from builder.action import Action
-from builder.writer import Writer, Does
 from builder.person import Person
+from builder.writer import Writer
 from builder.who import Who
 
 
@@ -16,54 +20,183 @@ class WriterTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Writer class")
+        printTestTitle(_FILENAME, "Writer class")
 
     def setUp(self):
-        self.taro = Person("Taro", "", 17, "male", "student", "me:俺")
-        self.hana = Person("Hana", "", 15, "female", "student", "me:私")
+        self.taro = Person("Taro", "山田,太郎", 15, "male", "student")
 
     def test_attributes(self):
-        tmp = Writer(self.taro)
-        self.assertIsInstance(tmp, Writer)
-        self.assertEqual(tmp.subject, self.taro)
-
-    def test_do(self):
         data = [
-                (False, self.taro, None, "test", self.taro, "Taroはtest"),
-                (False, None, None, "test", Who(), "test"),
-                (False, self.taro, self.hana, "test", self.hana, "Hanaはtest"),
+                (False, self.taro,),
                 ]
-        def _checkcode(p1, p2, v, exp1, exp2):
-            tmp = Writer(p1) if p1 else Writer()
-            tmp1 = tmp.do(v, p2) if p2 else tmp.do(v)
-            self.assertIsInstance(tmp1, Action)
-            self.assertEqual(tmp1.subject, exp1)
-            self.assertEqual(tmp1.outline, exp2)
-        validated_testing_withfail(self, "do", _checkcode, data)
+        def _checkcode(v):
+            tmp = Writer(v)
+            self.assertIsInstance(tmp, Writer)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
+    ## acts
     def test_be(self):
         data = [
-                (False, self.taro, None, None, f"Taroは{Does.BE.value}"),
-                (False, self.taro, "test", None, f"Taroはtest{Does.BE.value}"),
+                (False, ("test",), ActType.BE),
                 ]
-        def _be(w, v, obj):
-            if obj:
-                return w.be(v, obj)
-            elif v:
-                return w.be(v)
-            else:
-                return w.be()
-        def _checkcode(p, v, obj, expect):
-            tmp = Writer(p) if p else Writer()
-            tmp1 = _be(tmp, v, obj)
-            self.assertIsInstance(tmp1, Action)
-            self.assertEqual(tmp1.subject, p)
-            self.assertEqual(tmp1.outline, expect)
-        validated_testing_withfail(self, "be", _checkcode, data)
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).be(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "be", _checkcode, data)
 
-    def test_does(self):
-        tmp = Writer(self.taro)
-        for v in Does:
-            atr = v.name.lower()
-            with self.subTest(atr=atr):
-                self.assertTrue(hasattr(tmp, atr))
+    def test_come(self):
+        data = [
+                (False, ("test",), ActType.COME),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).come(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "come", _checkcode, data)
+
+    def test_destroy(self):
+        data = [
+                (False, ("test",), ActType.DESTROY),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).destroy(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "destroy", _checkcode, data)
+
+    def test_go(self):
+        data = [
+                (False, ("test",), ActType.GO),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).go(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "go", _checkcode, data)
+
+    def test_hear(self):
+        data = [
+                (False, ("test",), ActType.HEAR),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).hear(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "hear", _checkcode, data)
+
+    def test_look(self):
+        data = [
+                (False, ("test",), ActType.LOOK),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).look(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "look", _checkcode, data)
+
+    def test_move(self):
+        data = [
+                (False, ("test",), ActType.MOVE),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).move(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "move", _checkcode, data)
+
+    def test_talk(self):
+        data = [
+                (False, ("test",), ActType.TALK),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).talk(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "talk", _checkcode, data)
+
+    def test_think(self):
+        data = [
+                (False, ("test",), ActType.THINK),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).think(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "think", _checkcode, data)
+
+    def test_wear(self):
+        data = [
+                (False, ("test",), ActType.WEAR),
+                ]
+        def _checkcode(v, expect):
+            tmp = Writer(self.taro).wear(*v)
+            self.assertIsInstance(tmp, Action)
+            self.assertEqual(tmp.act_type, expect)
+        validatedTestingWithFail(self, "wear", _checkcode, data)
+
+    ## tags
+    def test_br(self):
+        data = [
+                (False, 1, "1"),
+                ]
+        def _checkcode(v, expect):
+            taro = Writer(self.taro)
+            tmp = taro.br(v)
+            self.assertEqual(tmp.act_type, ActType.TAG)
+            self.assertEqual(tmp.tag_type, TagType.BR)
+            self.assertEqual(tmp.note, expect)
+        validatedTestingWithFail(self, "br", _checkcode, data)
+
+    def test_comment(self):
+        data = [
+                (False, "test", "test"),
+                ]
+        def _checkcode(v, expect):
+            taro = Writer(self.taro)
+            tmp = taro.comment(v)
+            self.assertEqual(tmp.act_type, ActType.TAG)
+            self.assertEqual(tmp.tag_type, TagType.COMMENT)
+            self.assertEqual(tmp.note, expect)
+        validatedTestingWithFail(self, "comment", _checkcode, data)
+
+    def test_hr(self):
+        data = [
+                (False, 1, 1),
+                ]
+        def _checkcode(v, expect):
+            taro = Writer(self.taro)
+            tmp = taro.hr()
+            self.assertEqual(tmp.act_type, ActType.TAG)
+            self.assertEqual(tmp.tag_type, TagType.HR)
+        validatedTestingWithFail(self, "hr", _checkcode, data)
+
+    def test_symbol(self):
+        data = [
+                (False, "test", "test"),
+                ]
+        def _checkcode(v, expect):
+            taro = Writer(self.taro)
+            tmp = taro.symbol(v)
+            self.assertEqual(tmp.act_type, ActType.TAG)
+            self.assertEqual(tmp.tag_type, TagType.SYMBOL)
+            self.assertEqual(tmp.note, expect)
+        validatedTestingWithFail(self, "symbol", _checkcode, data)
+
+    def test_title(self):
+        data = [
+                (False, "test", "test"),
+                ]
+        def _checkcode(v, expect):
+            taro = Writer(self.taro)
+            tmp = taro.title(v)
+            self.assertEqual(tmp.act_type, ActType.TAG)
+            self.assertEqual(tmp.tag_type, TagType.TITLE)
+            self.assertEqual(tmp.note, expect)
+        validatedTestingWithFail(self, "title", _checkcode, data)
+
+    ## utils
+    def test_getWho(self):
+        tmp = Writer.getWho()
+        self.assertIsInstance(tmp, Writer)
+        self.assertIsInstance(tmp.src, Who)
