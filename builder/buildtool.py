@@ -7,7 +7,7 @@ import datetime
 import os
 ## local libs
 from utils import assertion
-from utils import util_tools as util
+from utils.util_tools import tupleFiltered, dictSorted
 ## local files
 from builder import __BASE_COLUMN__, __BASE_ROW__
 from builder import ActType
@@ -81,12 +81,12 @@ class Build(object):
             4. replace tags
         '''
         tmp = Story(assertion.isStr(title),
-                *util.tupleFiltered(args, Chapter))
+                *tupleFiltered(args, Chapter))
         cnv = Converter(tmp)
         serialized = cnv.srcSerialized()
         filtered = cnv.srcFilterByPriority(priority, src=serialized)
         replacedP = cnv.srcReplacedPronouns(filtered)
-        replacedT = cnv.srcReplacedTags(tags, prefix, replacedP)
+        replacedT = cnv.srcReplacedTags(dictSorted(tags), prefix, replacedP)
         return replacedT
 
     def output(self, src: Story, rubis: dict, layers: dict,
@@ -112,23 +112,30 @@ class Build(object):
                 - persons
         '''
         analyzer = Analyzer(mecabdir)
+        _rubis = dictSorted(rubis)
+        _layers = dictSorted(layers)
+        _stages = dictSorted(stages)
+        _daytimes = dictSorted(daytimes)
+        _fashions = dictSorted(fashions)
+        _foods = dictSorted(foods)
+        ## outputs
         self.toInfoOfGeneral(src, is_debug)
         self.toOutline(src, is_debug)
         self.toConte(src, is_debug)
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
-            self.toDescription(src, rubis, is_rubi, is_debug)
+            self.toDescription(src, _rubis, is_rubi, is_debug)
         ## informations
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
             self.toInfoOfWordClass(src, analyzer, is_debug)
         ## layers
-        self.toInfoOfStages(src, stages, is_debug)
-        self.toInfoOfFashions(src, fashions, is_debug)
-        self.toInfoOfFoods(src, foods, is_debug)
-        self.toInfoOfTimes(src, daytimes, is_debug)
-        self.toInfoOfCustom(src, layers, is_debug)
+        self.toInfoOfStages(src, _stages, is_debug)
+        self.toInfoOfFashions(src, _fashions, is_debug)
+        self.toInfoOfFoods(src, _foods, is_debug)
+        self.toInfoOfTimes(src, _daytimes, is_debug)
+        self.toInfoOfCustom(src, _layers, is_debug)
         self.toInfoOfPersons(src, is_debug)
         ## check
         if is_analyze:

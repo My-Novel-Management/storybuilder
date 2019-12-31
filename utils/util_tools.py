@@ -17,6 +17,9 @@ StoryLike = (Story, Chapter, Episode, Scene)
 
 
 ## methods (converter)
+def dictSorted(origin: dict, is_reverse: bool=True) -> dict:
+    return dict(sorted(origin.items(), key=lambda x:x[0], reverse=is_reverse))
+
 def tupleFiltered(origin: (list, tuple), filter_type: (object, tuple)) -> tuple:
     return tuple(v for v in origin if isinstance(v, filter_type))
 

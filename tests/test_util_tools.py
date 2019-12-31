@@ -21,6 +21,15 @@ class MethodsTest(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_dictSorted(self):
+        data = [
+                (False, {"apple":1, "app":2}, True,
+                    {"app":2, "apple":1}),
+                ]
+        validatedTestingWithFail(self, "dictSorted",
+                lambda v, r, expect: self.assertEqual(
+                    util.dictSorted(v, r), expect), data)
+
     def test_tupleFiltered(self):
         data = [
                 (False, (1,2, "1"), int,
