@@ -4,6 +4,7 @@
 ## public libs
 from __future__ import annotations
 from typing import Any, Union, Tuple
+import re
 ## local libs
 from utils import assertion
 ## local files
@@ -39,7 +40,8 @@ class Action(BaseContainer):
         from utils.util_tools import tupleFiltered
         super().__init__(Action.__TITLE__,
                 (
-                    assertion.isTuple(tupleFiltered(args, (str, Shot, Person, Item, Day, Stage, Time, Word))),
+                    assertion.isTuple(tupleFiltered(self._shotsComplement(args),
+                        (str, Shot, Person, Item, Day, Stage, Time, Word))),
                     assertion.isInstance(subject, AllSubjects) if subject else Who(),
                     assertion.isInstance(act_type, ActType),
                     assertion.isInstance(tag_type, TagType),
@@ -77,3 +79,13 @@ class Action(BaseContainer):
                 tag_type=self.tag_type,
                 note=note if note else self.note,
                 priority=self.priority)
+
+    ## privates
+    def _shotsComplement(self, args: tuple) -> tuple:
+        tmp = []
+        for v in args:
+            if isinstance(v, str) and "#" in v:
+                tmp.append(Shot(v.replace("#T",""),isTerm=True) if "#T" in v else Shot(v.replace("#","")))
+            else:
+                tmp.append(v)
+        return tuple(tmp)
