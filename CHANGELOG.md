@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.1] - 2020-01-01
+### Added
+- auto complement to shot in Action
+- dict sorted
+### Changed
+- conte format: Sound, Pic, Action format
+### Fixed
+- doing
+
 ## [0.4.0] - 2019-12-30
 ### Added
 - Conte output
@@ -223,7 +232,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/nagisc007/storybuilder/releases/v0.4.1
 [0.4.0]: https://github.com/nagisc007/storybuilder/releases/v0.4.0
 [0.3.2]: https://github.com/nagisc007/storybuilder/releases/v0.3.2
 [0.3.1]: https://github.com/nagisc007/storybuilder/releases/v0.3.1
