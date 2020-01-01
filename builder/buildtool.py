@@ -7,9 +7,10 @@ import datetime
 import os
 ## local libs
 from utils import assertion
-from utils.util_tools import tupleFiltered, dictSorted
+from utils.util_tools import tupleFiltered, dictSorted, daytimeDictSorted
 ## local files
 from builder import __BASE_COLUMN__, __BASE_ROW__
+from builder import __FORMAT_ESTAR__, __FORMAT_DEFAULT__, __FORMAT_PHONE__, __FORMAT_WEB__
 from builder import ActType
 from builder import WordClasses
 from builder.analyzer import Analyzer
@@ -34,6 +35,7 @@ class Build(object):
     __PERSON_DIR__ = "person"
     __ANALYZE_DIR__ = "analyze"
     __LAYER_DIR__ = "layer"
+    __LIST_DIR__ = "list"
     __EXTENTION__ = "md"
     def __init__(self, filename: str, extention: str=__EXTENTION__,
             builddir: str=__BUILD_DIR__,
@@ -125,7 +127,7 @@ class Build(object):
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
-            self.toDescription(src, _rubis, is_rubi, is_debug)
+            self.toDescription(src, _rubis, formattype, is_rubi, is_debug)
         ## informations
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
@@ -140,6 +142,23 @@ class Build(object):
         ## check
         if is_analyze:
             self.toCheckObjects(src, is_debug)
+        return True
+
+    def outputLists(self, world: dict, is_debug: bool) -> bool:
+        '''list
+            - persons
+            - stages
+            - days
+            - times
+            - items
+            - words
+        '''
+        self.toListOfPersons(world, is_debug)
+        self.toListOfStages(world, is_debug)
+        self.toListOfDays(world, is_debug)
+        self.toListOfTimes(world, is_debug)
+        self.toListOfItems(world, is_debug)
+        self.toListOfWords(world, is_debug)
         return True
 
     ## methods (output data)
@@ -161,12 +180,17 @@ class Build(object):
         return self.outputTo(Formatter.toConte(title, res),
                 self.filename, "_cnt", self.extention, self.builddir, is_debug)
 
-    def toDescription(self, src: Story, rubis: dict, is_rubi: bool, is_debug: bool) -> bool:
-        # TODO
-        #   - format type
+    def toDescription(self, src: Story, rubis: dict, formattype: str, is_rubi: bool, is_debug: bool) -> bool:
         title = f"Text of {src.title}"
+        ftype = __FORMAT_DEFAULT__
+        if formattype in ("web", "w"):
+            ftype = __FORMAT_WEB__
+        elif formattype in ("estar", "e"):
+            ftype = __FORMAT_ESTAR__
+        elif formattype in ("smart", "phone", "s"):
+            ftype = __FORMAT_PHONE__
         res = Parser(src).toDescriptionsWithRubi(rubis) if is_rubi else Parser(src).toDescriptions()
-        return self.outputTo(Formatter.toDescription(title, res),
+        return self.outputTo(Formatter.toDescription(title, res, ftype),
                 self.filename, "", self.extention, self.builddir, is_debug)
 
     def toInfoOfCustom(self, src: Story, layers: dict, is_debug: bool) -> bool:
@@ -311,6 +335,54 @@ class Build(object):
                 self.filename, "_wordcls", self.extention,
                 os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
 
+    def toListOfDays(self, src: dict, is_debug: bool) -> bool:
+        days = daytimeDictSorted(Extractor.getDaysFromWorld(src), True, False)
+        title = f"Days list of {src.title}"
+        res = [DataPack(k,v) for k,v in days.items()]
+        return self.outputTo(Formatter.toListDays(title, res),
+                self.filename, "_days", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
+    def toListOfItems(self, src: dict, is_debug: bool) -> bool:
+        items = dictSorted(Extractor.getItemsFromWorld(src), False)
+        title = f"Items list of {src.title}"
+        res = [DataPack(k,v) for k,v in items.items()]
+        return self.outputTo(Formatter.toListInfo(title, res),
+                self.filename, "_items", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
+    def toListOfPersons(self, src: dict, is_debug: bool) -> bool:
+        persons = dictSorted(Extractor.getPersonsFromWorld(src), False)
+        title = f"Persons list of {src.title}"
+        res = [DataPack(k, v) for k,v in persons.items()]
+        return self.outputTo(Formatter.toListPersons(title, res),
+                self.filename, "_persons", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
+    def toListOfStages(self, src: dict, is_debug: bool) -> bool:
+        stages = dictSorted(Extractor.getStagesFromWorld(src), False)
+        title = f"Stages list of {src.title}"
+        res = [DataPack(k,v) for k,v in stages.items()]
+        return self.outputTo(Formatter.toListInfo(title, res),
+                self.filename, "_stages", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
+    def toListOfTimes(self, src: dict, is_debug: bool) -> bool:
+        times = daytimeDictSorted(Extractor.getTimesFromWorld(src), False, False)
+        title = f"Times list of {src.title}"
+        res = [DataPack(k,v) for k,v in times.items()]
+        return self.outputTo(Formatter.toListTimes(title, res),
+                self.filename, "_times", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
+    def toListOfWords(self, src: dict, is_debug: bool) -> bool:
+        words = dictSorted(Extractor.getWordsFromWorld(src), False)
+        title = f"Words list of {src.title}"
+        res = [DataPack(k,v) for k,v in words.items()]
+        return self.outputTo(Formatter.toListInfo(title, res),
+                self.filename, "_words", self.extention,
+                os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
+
     def toOutline(self, src: Story, is_debug: bool) -> bool:
         # TODO
         title = f"Outline of {src.title}"
@@ -347,8 +419,5 @@ class Build(object):
         with open(fullpath, 'w') as f:
             for v in data:
                 f.write(f"{v}\n")
-        return True
-
-
         return True
 

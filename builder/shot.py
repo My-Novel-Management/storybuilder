@@ -30,3 +30,8 @@ class Shot(BaseData):
     @property
     def isTerm(self) -> bool:
         return self.data[1]
+
+    ## methods
+    def inherited(self, *args):
+        return Shot(*args,
+                isTerm=self.isTerm)

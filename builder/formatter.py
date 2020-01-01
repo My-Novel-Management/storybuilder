@@ -2,11 +2,17 @@
 """Define tool for format
 """
 ## public libs
+from itertools import chain
+import textwrap
 ## local libs
 from utils import assertion
 ## local files
 from builder import ActType, TagType
+from builder.action import Action
 from builder.datapack import DataPack
+from builder.extractor import Extractor
+from builder.item import Item
+from builder.word import Word
 
 
 class Formatter(object):
@@ -18,6 +24,15 @@ class Formatter(object):
     def toConte(cls, title: str, src: list) -> list:
         tmp = []
         ch_num, ep_num, sc_num = 1,1,1
+        def _getMsgAndComment(act: Action):
+            tmp = Extractor.getDirectionsFrom(act)
+            msg = tmp[0] if tmp else ""
+            cmt = "/".join(tmp[1:]) if len(tmp) > 1 else ""
+            return msg, cmt
+        def _conteFrom(doing, sound, pic, act):
+            sd = textwrap.wrap(f"{sound:\u3000<20}", 20)
+            tmp = "".join(sd[0][0:19]) + "…" if len(sound) > 20 else f"{sound:\u3000<20}"
+            return f"{doing}|{tmp}|{pic:\u3000<20}|{act:\u3000<20}"
         for v in src:
             assertion.isInstance(v, DataPack)
             if "title" in v.head:
@@ -34,43 +49,88 @@ class Formatter(object):
                     sc_num += 1
             elif "setting" in v.head:
                 camera, stage, day, time = v.body.split(":")
-                tmp.append(f"○{stage}（{time}） - {day}/{camera}")
+                tmp.append(f"○{stage}（{time}） - {day}＜{camera}＞")
             else:
                 h, name = v.head.split(":")
-                doing, body = v.body.split(":")
-                if f"{ActType.TALK.name}" in h:
-                    tmp.append(f"{name}「{body}」")
-                elif f"{ActType.THINK.name}" in h:
-                    tmp.append(f"{name}（{body}）")
-                elif f"{ActType.BE.name}" in h:
-                    tmp.append(f"    + [ {name} ] | {body}")
-                elif f"{ActType.DESTROY}" in h:
-                    tmp.append(f"    - [ {name} ] | {body}")
-                elif f"{ActType.WEAR.name}" in h:
-                    tmp.append(f"    + [ {name} ({body}) ]")
-                elif f"{ActType.TAKEOFF.name}" in h:
-                    tmp.append(f"    - [ {name} ({body}) ]")
-                elif f"{ActType.HAVE.name}" in h:
-                    tmp.append(f"    + [ {name} [{body}] ]")
-                elif f"{ActType.DISCARD.name}" in h:
-                    tmp.append(f"    - [ {name} [{body}] ]")
-                elif f"{ActType.MOVE.name}" in h:
-                    tmp.append(f"    <{name}> | {body}")
-                elif f"{ActType.GO.name}" in h:
-                    tmp.append(f"    - <<{name} | {body}")
-                elif f"{ActType.COME.name}" in h:
-                    tmp.append(f"    + >> [ {name} ] | {body}")
-                elif f"{ActType.HEAR}" in h:
-                    tmp.append(f"    ♪ {name}:{body}")
+                act = v.body
+                ## Words
+                if ActType.TALK.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    shots = Extractor.getShotsFrom(act)
+                    dialogues = "。".join(chain.from_iterable([v.infos for v in shots]))
+                    tmp.append(_conteFrom("TA", dialogues, name, f"{msg}/{cmt}"))
+                elif ActType.THINK.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("TH", f"（{msg}", name, cmt))
+                elif ActType.EXPLAIN.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("EX", f"＃{msg}", name, cmt))
+                ## Exists
+                elif ActType.BE.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("BE", "", f"［{name}］", f"{msg}/{cmt}"))
+                elif ActType.DESTROY.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("DE", "", f"＿［{name}］", f"{msg}/{cmt}"))
+                elif ActType.WEAR.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    items = [v for v in Extractor.getObjectsFrom(act) if isinstance(v, (Item, Word))]
+                    base = f"{name}" + "".join(f"｛{v.name}｝" for v in items) + f"｛{msg}｝"
+                    tmp.append(_conteFrom("WE", "", base, f"{cmt}"))
+                elif ActType.TAKEOFF.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    items = [v for v in Extractor.getObjectsFrom(act) if isinstance(v, (Item, Word))]
+                    base = f"{name}＿" + "".join(f"｛{v}｝" for v in items) + f"｛{msg}｝"
+                    tmp.append(_conteFrom("OF", "", base, f"{cmt}"))
+                elif ActType.HAVE.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    items = [v for v in Extractor.getObjectsFrom(act) if isinstance(v, (Item, Word))]
+                    base = f"{name}" + "".join([f"［{v.name}］" for v in items])
+                    tmp.append(_conteFrom("HA", "", base, f"{msg}/{cmt}"))
+                elif ActType.DISCARD.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    items = [v for v in Extractor.getObjectsFrom(act) if isinstance(v, (Item, Word))]
+                    base = f"{name}" + "".join([f"［{v.name}］" for v in items])
+                    tmp.append(_conteFrom("DI", "", base, f"{msg}/{cmt}"))
+                ## Controls
+                elif ActType.MOVE.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    base = f"↓{name}"
+                    tmp.append(_conteFrom("MO", "", base, f"{msg}/{cmt}"))
+                elif ActType.GO.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    base = f"←［{name}］"
+                    tmp.append(_conteFrom("GO", "", base, f"{msg}/{cmt}"))
+                elif ActType.COME.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    base = f"→［{name}］（{msg}）"
+                    tmp.append(_conteFrom("CO", "", base, f"{msg}/{cmt}"))
+                ## Effects
+                elif ActType.HEAR.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("HE", f"♪{msg}", name, cmt))
+                elif ActType.LOOK.name in h:
+                    msg, cmt = _getMsgAndComment(act)
+                    base = f"{name}｛{msg}｝"
+                    tmp.append(_conteFrom("LO", "", base, cmt))
+                ## Acts
                 else:
-                    tmp.append(f"    {name}:{body}")
+                    msg, cmt = _getMsgAndComment(act)
+                    tmp.append(_conteFrom("AC", "", name, f"{msg}/{cmt}"))
         return [f"# {title}\n",
                 ] + tmp
 
     @classmethod
-    def toDescription(cls, title: str, src: list) -> list:
+    def toDescription(cls, title: str, src: list, spacing: list) -> list:
+        ## NOTE:
+        ##  spacing (line-line, line-dialogue, dialogue-line, dialogue-dialogue)
         tmp = []
         ch_num, ep_num, sc_num = 1, 1, 1
+        inDialogue = False
+        ll_sp = "\n" * spacing[0]
+        ld_sp = "\n" * spacing[1]
+        dl_sp = "\n" * spacing[2]
+        dd_sp = "\n" * spacing[3]
         for v in src:
             assertion.isInstance(v, DataPack)
             if "title" in v.head:
@@ -87,9 +147,17 @@ class Formatter(object):
                     sc_num += 1
             else:
                 if "dialogue" == v.head:
-                    tmp.append(f"「{v.body}」")
+                    if inDialogue: # D-D
+                        tmp.append(f"{dd_sp}「{v.body}」")
+                    else: # L-D
+                        tmp.append(f"{ld_sp}「{v.body}」")
+                        inDialogue = True
                 else:
-                    tmp.append(f"　{v.body}")
+                    if inDialogue: # D-L
+                        tmp.append(f"{dl_sp}　{v.body}")
+                        inDialogue = False
+                    else: # L-L
+                        tmp.append(f"{ll_sp}　{v.body}")
         return [f"# {title}\n",
                 ] + tmp
 
@@ -208,6 +276,43 @@ class Formatter(object):
                     count += 1
         return [f"# {title}\n",
                 f"\n- Total: {count} / Dialogues: {dialogues}\n",
+                ] + tmp
+
+    @classmethod
+    def toListInfo(cls, title: str, src: list) -> list:
+        tmp = []
+        for v in src:
+            p = v.body
+            tmp.append(f"- {v.head:<16} | {p.name:\u3000<10} | {p.note}")
+        return [f"# {title}\n",
+                ] + tmp
+
+    @classmethod
+    def toListDays(cls, title: str, src: list) -> list:
+        tmp = []
+        for v in src:
+            p = v.body
+            tmp.append(f"- {v.head:<16} | {p.name:\u3000<10} | {p.date}")
+        return [f"# {title}\n",
+                ] + tmp
+
+    @classmethod
+    def toListPersons(cls, title: str, src: list) -> list:
+        tmp = []
+        for v in src:
+            p = v.body
+            full = p.fullname.replace(',','　')
+            tmp.append(f"- {v.head:<16} | {p.name:\u3000<8} | {full:\u3000<10} | {p.age}歳 | {p.sex} | {p.job} | {p.note}")
+        return [f"# {title}\n",
+                ] + tmp
+
+    @classmethod
+    def toListTimes(cls, title: str, src: list) -> list:
+        tmp = []
+        for v in src:
+            p = v.body
+            tmp.append(f"- {v.head:<16} | {p.name:\u3000<10} | {p.time}")
+        return [f"# {title}\n",
                 ] + tmp
 
     @classmethod

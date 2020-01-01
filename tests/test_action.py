@@ -25,10 +25,10 @@ class ActionTest(unittest.TestCase):
         self.taro = Person("Taro", "山田,太郎", 15, "male", "student")
 
     def test_attributes(self):
-        attrs = ("acts", "doing", "subject", "act_type", "tag_type", "note",)
+        attrs = ("acts", "subject", "act_type", "tag_type", "note",)
         data = [
                 (False, ("test", "apple"), self.taro, ActType.ACT, TagType.NONE, "a test",
-                    (("apple",), "test", self.taro, ActType.ACT, TagType.NONE, "a test")),
+                    (("test", "apple",), self.taro, ActType.ACT, TagType.NONE, "a test")),
                 ]
         def _creator(vals, subject, act_type, tag_type, note):
             if subject and act_type and tag_type and note:

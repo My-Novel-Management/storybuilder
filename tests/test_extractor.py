@@ -104,9 +104,9 @@ class ExtractorTest(unittest.TestCase):
         sh1 = Shot("orange")
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
-                    Scene("s1", Action("a","apple", "orange"))))),
+                    Scene("s1", Action("apple", "orange"))))),
                     ("apple", "orange")),
-                (False, Scene("test", Action("a","apple"), Action("a",sh1)),
+                (False, Scene("test", Action("apple"), Action(sh1)),
                     ("apple", sh1)),
                 ]
         def _checkcode(v, expect):
@@ -117,9 +117,9 @@ class ExtractorTest(unittest.TestCase):
         sh1 = Shot("orange")
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
-                    Scene("s1", Action("a","apple", "orange"))))),
+                    Scene("s1", Action("apple", "orange"))))),
                     ("apple", "orange")),
-                (False, Scene("test", Action("a","apple"), Action("a",sh1)),
+                (False, Scene("test", Action("apple"), Action(sh1)),
                     ("apple",)),
                 ]
         def _checkcode(v, expect):
@@ -130,9 +130,9 @@ class ExtractorTest(unittest.TestCase):
         sh1, sh2 = Shot("orange"), Shot("melon")
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
-                    Scene("s1", Action("a","apple", "orange"))))),
+                    Scene("s1", Action("apple", "orange"))))),
                     ()),
-                (False, Scene("test", Action("a","apple"), Action("a",sh1, sh2)),
+                (False, Scene("test", Action("apple"), Action(sh1, sh2)),
                     (sh1, sh2)),
                 ]
         def _checkcode(v, expect):

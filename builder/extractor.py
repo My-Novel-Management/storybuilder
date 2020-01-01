@@ -3,7 +3,7 @@
 """
 ## public libs
 from itertools import chain
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 ## local libs
 from utils import assertion
 from utils.util_compare import equalsData
@@ -13,11 +13,16 @@ from utils.util_tools import toSomething
 from builder.action import Action
 from builder.chapter import Chapter
 from builder.datapack import DataPack, titlePacked
+from builder.day import Day
 from builder.episode import Episode
+from builder.item import Item
 from builder.person import Person
 from builder.scene import Scene
 from builder.shot import Shot
+from builder.stage import Stage
 from builder.story import Story
+from builder.time import Time
+from builder.word import Word
 
 
 ## define types
@@ -71,7 +76,7 @@ class Extractor(object):
         return tuple(chain.from_iterable(v.actions for v in self.scenes))
 
     @property
-    def alldirections(self) -> Tuple[Union[str, Shot], ...]:
+    def alldirections(self) -> Tuple[Union[str, Shot, Person, Stage, Day, Time, Item, Word], ...]:
         return tuple(chain.from_iterable(v.acts for v in self.actions))
 
     @property
@@ -85,6 +90,29 @@ class Extractor(object):
     @property
     def persons(self) -> Tuple[Person, ...]:
         return tuple(v.subject for v in self.actions if isinstance(v.subject, Person))
+
+    @property
+    def stages(self) -> Tuple[Stage, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Stage)) \
+                + tuple(v.camera for v in self.scenes)
+
+    @property
+    def days(self) -> Tuple[Day, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Day)) \
+                + tuple(v.day for v in self.scenes)
+
+    @property
+    def times(self) -> Tuple[Time, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Time)) \
+                + tuple(v.time for v in self.scenes)
+
+    @property
+    def items(self) -> Tuple[Item, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Item))
+
+    @property
+    def words(self) -> Tuple[Word, ...]:
+        return tuple(v for v in self.alldirections if isinstance(v, Word))
 
     ## methods
     def descsHasWord(self, words: dict, src: StoryLike=None) -> Tuple[DataPack, ...]:
@@ -123,6 +151,47 @@ class Extractor(object):
         else:
             return None
 
+    ## from world
+    @classmethod
+    def getDaysFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Day)])
+
+    @classmethod
+    def getItemsFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Item)])
+
+    @classmethod
+    def getPersonsFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Person)])
+
+    @classmethod
+    def getStagesFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Stage)])
+
+    @classmethod
+    def getTimesFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Time)])
+
+    @classmethod
+    def getWordsFromWorld(cls, src: dict) -> dict:
+        return dict([(k,v) for k,v in src.items() if isinstance(v, Word)])
+
+    @classmethod
+    def getShotsFrom(cls, act: Action) -> tuple:
+        return tuple(v for v in act.acts if isinstance(v, Shot))
+
+    @classmethod
+    def getAllDirectionsFrom(cls, act: Action) -> tuple:
+        return tuple(v for v in act.acts)
+
+    @classmethod
+    def getDirectionsFrom(cls, act: Action) -> tuple:
+        return tuple(v for v in act.acts if isinstance(v, str))
+
+    @classmethod
+    def getObjectsFrom(vls, act: Action) -> tuple:
+        return tuple(v for v in act.acts if not isinstance(v, (str, Shot)))
+
 ## privates
 ''' descs has word
 '''
@@ -146,7 +215,7 @@ def _descsHasWordInScene(scene: Scene, words: WordLike) -> Tuple[DataPack, ...]:
             for info in shot.infos:
                 if containsWordsIn(info, words):
                     tmp.append(info)
-        res.append(DataPack(f"{act.subject.name}:{act.doing}", "/".join(tmp)))
+        res.append(DataPack(f"{act.subject.name}:{act.act_type.name}", "/".join(tmp)))
     return (titlePacked(scene),) + tuple(res)
 
 ''' dialogues of person

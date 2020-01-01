@@ -32,7 +32,7 @@ class Action(BaseContainer):
         subject (Person): a subject
     """
     __TITLE__ = "__action__"
-    def __init__(self, doing: str, *args: Any, subject: AllSubjects=None,
+    def __init__(self, *args: Any, subject: AllSubjects=None,
             act_type: ActType=ActType.ACT,
             tag_type: TagType=TagType.NONE,
             note: str="", priority: int=__PRIORITY_NORMAL__, omit: bool=False):
@@ -40,7 +40,6 @@ class Action(BaseContainer):
         super().__init__(Action.__TITLE__,
                 (
                     assertion.isTuple(tupleFiltered(args, (str, Shot, Person, Item, Day, Stage, Time, Word))),
-                    assertion.isStr(doing),
                     assertion.isInstance(subject, AllSubjects) if subject else Who(),
                     assertion.isInstance(act_type, ActType),
                     assertion.isInstance(tag_type, TagType),
@@ -52,29 +51,26 @@ class Action(BaseContainer):
     def acts(self) -> Tuple[Union[str, Shot], ...]:
         return self.data[0]
 
-    @property
-    def doing(self) -> str:
-        return self.data[1]
 
     @property
     def subject(self) -> AllSubjects:
-        return self.data[2]
+        return self.data[1]
 
     @property
     def act_type(self) -> ActType:
-        return self.data[3]
+        return self.data[2]
 
     @property
     def tag_type(self) -> TagType:
-        return self.data[4]
+        return self.data[3]
 
     @property
     def note(self) -> str:
-        return self.data[5]
+        return self.data[4]
 
     ## methods
     def inherited(self, *args: Any, subject: AllSubjects=None, note: str="") -> Action:
-        return Action(self.doing,
+        return Action(
                 *args,
                 subject=subject if subject else self.subject,
                 act_type=self.act_type,

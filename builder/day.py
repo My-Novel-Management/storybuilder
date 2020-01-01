@@ -2,6 +2,7 @@
 """Define data type of day
 """
 ## public libs
+import datetime
 ## local libs
 from utils import assertion
 ## local files
@@ -46,3 +47,10 @@ class Day(BaseData):
     def note(self) -> str:
         return self.data[3]
 
+    @property
+    def date(self) -> datetime.date:
+        return datetime.date(
+                year=self.year,
+                month=self.mon,
+                day=self.day,
+                )

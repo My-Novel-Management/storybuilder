@@ -71,8 +71,8 @@ class ConverterTest(unittest.TestCase):
         validatedTestingWithFail(self, "srcReplacedPronouns", _checkcode, data)
 
     def test_srcReplacedPronouns_checkSubject(self):
-        act1 = Action("a", "apple", subject=self.taro)
-        act2 = Action("a", "orange")
+        act1 = Action("apple", subject=self.taro)
+        act2 = Action("orange")
         data = [
                 (False, Scene("test", act1, act2),
                     (self.taro, self.taro)),
@@ -98,15 +98,15 @@ class ConverterTest(unittest.TestCase):
 
     def test_srcReplacedTags_checkTags(self):
         data = [
-                (False, Scene("test", Action("a","$tes食べた", subject=self.taro),
+                (False, Scene("test", Action("$tes食べた", subject=self.taro),
                     camera=self.taro),
                     {"tes":"apple"}, "$",
                     (("apple食べた",),)),
-                (False, Scene("test", Action("a","$me食べた", subject=self.taro),
+                (False, Scene("test", Action("$me食べた", subject=self.taro),
                     camera=self.taro),
                     {"tes":"apple"}, "$",
                     (("俺食べた",),)),
-                (False, Scene("test", Action("a","$CM食べた", subject=self.taro),
+                (False, Scene("test", Action("$CM食べた", subject=self.taro),
                     camera=self.hana),
                     {"tes":"apple"}, "$",
                     (("わたし食べた",),)),
@@ -119,7 +119,7 @@ class ConverterTest(unittest.TestCase):
 
     def test_srcSerialized(self):
         ch1 = Chapter("c1")
-        act1, act2 = Action("a","apple"), Action("a","orange")
+        act1, act2 = Action("apple"), Action("orange")
         blk1 = Block("b1", act1, act2)
         data = [
                 (False, Story("test", ch1), (ch1,)),

@@ -90,9 +90,9 @@ class CounterTest(unittest.TestCase):
     def test_countCharsOfDirection(self):
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
-                    Scene("s1", Action("a","apple"))))),
+                    Scene("s1", Action("apple"))))),
                     5),
-                (False, Scene("s1", Action("a","apple"), Action("a","orange")),
+                (False, Scene("s1", Action("apple"), Action("orange")),
                     11),
                 ]
         def _checkcode(v, expect):

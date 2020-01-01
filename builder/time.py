@@ -2,6 +2,7 @@
 """Define data type of time
 """
 ## public libs
+import datetime
 ## local libs
 from utils import assertion
 ## local files
@@ -45,3 +46,10 @@ class Time(BaseData):
     @property
     def note(self) -> str:
         return self.data[3]
+
+    @property
+    def time(self) -> datetime.time:
+        return datetime.time(
+                hour=self.hour,
+                minute=self.min,
+                second=self.sec)

@@ -128,6 +128,7 @@ class World(UtilityDict):
         priority = opts.pri if opts.pri else __PRIORITY_NORMAL__
         mecabdir = "" if opts.forcemecab else self.mecabdir
         formattype = opts.format
+        is_list = opts.list
         is_scenario = opts.scenario
         is_analyze = opts.analyze
         is_rubi = opts.rubi
@@ -137,6 +138,8 @@ class World(UtilityDict):
         src = builder.compile(self.title, priority,
                 self._tags, __TAG_PREFIX__,
                 *args)
+        if is_list:
+            builder.outputLists(self, is_debug)
         return builder.output(src, self.rubis, self.layers,
                 self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
                 mecabdir,
@@ -310,6 +313,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
     '''Get and setting a commandline option.
 
     NOTE:
+        -l, --list: list output
         -s, --senario: senario mode
         -z, --analyze: analyzed info
         --rubi: rubi mode
@@ -323,6 +327,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
     '''
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('-l', '--list', help="output all list", action='store_true')
     parser.add_argument('-s', '--scenario', help="output as the scenario mode", action='store_true')
     parser.add_argument('-z', '--analyze', help="output the analyzed info", action='store_true')
     parser.add_argument('--debug', help="with a debug mode", action='store_true')

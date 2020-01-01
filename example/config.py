@@ -85,6 +85,7 @@ ITEMS = (
         ("house", "民家"),
         ("fort", "鬼の砦"),
         ("treasure", "宝物"),
+        ("washing", "洗濯物"),
         )
 
 WORDS = (

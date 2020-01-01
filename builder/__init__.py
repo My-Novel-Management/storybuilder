@@ -32,6 +32,12 @@ __ASSET_ELEMENTS__ = (
         "PERSONS", "STAGES", "DAYS", "TIMES", "ITEMS", "WORDS", "RUBIS", "LAYERS",
         )
 
+__FORMAT_DEFAULT__ = (0, 0, 0, 0)
+__FORMAT_ESTAR__ = (1, 2, 2, 1)
+__FORMAT_WEB__ = (0, 1, 1, 0)
+__FORMAT_PHONE__ = (1, 1, 1, 1)
+
+
 ## enums
 class ActType(Enum):
     # exist control

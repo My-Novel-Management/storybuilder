@@ -13,10 +13,16 @@ from builder import ActType, TagType
 from builder.action import Action
 from builder.chapter import Chapter
 from builder.datapack import DataPack, titlePacked
+from builder.day import Day
 from builder.episode import Episode
+from builder.item import Item
+from builder.person import Person
 from builder.scene import Scene
 from builder.shot import Shot
+from builder.stage import Stage
 from builder.story import Story
+from builder.time import Time
+from builder.word import Word
 
 
 ## define types
@@ -55,9 +61,6 @@ class Parser(object):
         tmp = self.toDescriptions(src)
         return _toDescsFromWithRubi(tmp, rubis)
 
-    def toObjectMotions(self, src: StoryLike=None) -> tuple:
-        return ()
-
     def toOutlines(self, src: StoryLike=None) -> Tuple[DataPack, ...]:
         return toSomething(self,
                 storyFnc=_toOutlinesFrom,
@@ -94,18 +97,9 @@ def _toContesFromScene(scene: Scene) -> Tuple[DataPack, ...]:
         if act.act_type is ActType.TAG:
             # TODO
             continue
-        elif act.act_type is ActType.TALK:
-            desc = []
-            for shot in [v for v in act.acts if isinstance(v, Shot)]:
-                desc.append(_descFromShot(shot))
-            actor = act.subject.name
-            tmp.append(DataPack(f"{act.act_type.name}:{actor}",
-                f"{act.doing}:" + "/".join(desc)))
         else:
-            dires = [_nameOf(v) for v in act.acts if not isinstance(v, Shot)]
             actor = act.subject.name
-            tmp.append(DataPack(f"{act.act_type.name}:{actor}",
-                f"{act.doing}:" + "/".join(dires)))
+            tmp.append(DataPack(f"{act.act_type.name}:{actor}", act))
     return (titlePacked(scene),
             DataPack("scene setting",
                 ":".join([scene.camera.name,

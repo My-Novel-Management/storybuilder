@@ -2,6 +2,7 @@
 [run]
 source =
     builder
+    utils
     example
 omit =
     # projects

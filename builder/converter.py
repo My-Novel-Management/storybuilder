@@ -196,7 +196,7 @@ def _shotReplacedTags(shot: Shot, subject: Person,tags: dict, prefix: str, camer
     tmp = []
     for v in shot.infos:
         tmp.append(_docReplacedTags(v, subject, tags, prefix, camera))
-    return Shot(*tmp)
+    return shot.inherited(*tmp)
 
 def _docReplacedTags(val: str, subject: Person, tags: dict, prefix: str, camera: Person) -> str:
     tmp = val

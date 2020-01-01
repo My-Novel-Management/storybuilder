@@ -20,6 +20,18 @@ StoryLike = (Story, Chapter, Episode, Scene)
 def dictSorted(origin: dict, is_reverse: bool=True) -> dict:
     return dict(sorted(origin.items(), key=lambda x:x[0], reverse=is_reverse))
 
+def daytimeDictSorted(origin: dict, isDay: bool=True, is_reverse: bool=True) -> dict:
+    def _getDayTime(v):
+        return v.date if isDay else v.time
+    inversed = dict([(_getDayTime(v),k) for k,v in origin.items()])
+    tmp = dictSorted(inversed, is_reverse)
+    res = []
+    for key in tmp.values():
+        for k,v in origin.items():
+            if k == key:
+                res.append((k,v))
+    return dict(res)
+
 def tupleFiltered(origin: (list, tuple), filter_type: (object, tuple)) -> tuple:
     return tuple(v for v in origin if isinstance(v, filter_type))
 
