@@ -1,118 +1,133 @@
 # -*- coding: utf-8 -*-
-"""The extractor
+"""Define tool for extract
 """
+## public libs
 from itertools import chain
-from . import assertion
-from .action import Action, ActType, TagAction, TagType
-from .basesubject import NoSubject
-from .basedata import NoData
-from .chapter import Chapter
-from .combaction import CombAction
-from .description import Description, NoDesc
-from .episode import Episode
-from .flag import Flag, NoDeflag, NoFlag
-from .person import Person
-from .scene import Scene
-from .story import Story
+from typing import Any, Optional, Tuple, Union
+## local libs
+from utils import assertion
+from utils.util_str import containsWordsIn
+## local files
+from builder.action import Action
+from builder.block import Block
+from builder.chapter import Chapter
+from builder.day import Day
+from builder.episode import Episode
+from builder.item import Item
+from builder.metadata import MetaData
+from builder.person import Person
+from builder.pronoun import Who
+from builder.scene import Scene
+from builder.stage import Stage
+from builder.story import Story
+from builder.time import Time
+from builder.word import Word
 
 
-## define type hints
-AllActions = (Action, CombAction, TagAction)
-BaseActions = (Action, TagAction)
-Someone = (Person, NoSubject)
-StoryContainers = (Story, Chapter, Episode, Scene)
+## define types
+StoryLike = (Story, Chapter, Episode, Scene, Action)
+WordLike = (str, list, tuple)
+U_Subjects = Union[Person, Stage, Day, Time, Item, Word]
 
 
+## define class
 class Extractor(object):
-    """Extractor class.
+    """The tool class for extract
     """
-    def __init__(self, src: StoryContainers):
-        self._src = assertion.is_instance(src, StoryContainers)
 
-    @property
-    def src(self) -> StoryContainers:
-        return self._src
-
-    @property
-    def story(self) -> (Story, None):
-        return self._src if isinstance(self._src, Story) else None
-
-    @property
-    def chapters(self) -> list:
-        if self.story:
-            return [v for v in self.story.chapters if isinstance(v, Chapter)]
-        elif isinstance(self.src, Chapter):
-            return [self.src]
+    ## methods (container)
+    @classmethod
+    def actionsFrom(cls, src: StoryLike) -> Tuple[Union[Action, Block], ...]:
+        if isinstance(src, Action):
+            return (src,)
         else:
-            return []
+            return tuple(chain.from_iterable([sc.data for sc in cls.scenesFrom(src)]))
 
-    @property
-    def episodes(self) -> list:
-        def _episodes(chapter: Chapter):
-            return [v for v in chapter.episodes if isinstance(v, Episode)]
-        if self.chapters:
-            return list(chain.from_iterable(_episodes(v) for v in self.chapters))
-        elif isinstance(self.src, Episode):
-            return [self.src]
+    @classmethod
+    def chaptersFrom(cls, src: (Story, Chapter)) -> Tuple[Chapter, ...]:
+        if isinstance(src, Chapter):
+            return (src,)
         else:
-            return []
+            return assertion.isInstance(src, Story).data
 
-    @property
-    def scenes(self) -> list:
-        def _scenes(episode: Episode):
-            return [v for v in episode.scenes if isinstance(v, Scene)]
-        if self.episodes:
-            return list(chain.from_iterable(_scenes(v) for v in self.episodes))
-        elif isinstance(self.src, Scene):
-            return [self.src]
+    @classmethod
+    def episodesFrom(cls, src: (Story, Chapter, Episode)) -> Tuple[Episode, ...]:
+        if isinstance(src, Episode):
+            return (src,)
+        elif isinstance(src, Chapter):
+            return src.data
         else:
-            return []
+            return tuple(chain.from_iterable([ch.data for ch in cls.chaptersFrom(src)]))
 
-    @property
-    def actions(self) -> list:
-        def _extract_acts(action: AllActions):
-            if isinstance(action, CombAction):
-                return [v for v in action.actions if isinstance(v, Action)]
-            else:
-                return [action]
-        def _actions(scene: Scene):
-            return chain.from_iterable(_extract_acts(v) for v in scene.actions if isinstance(v, AllActions))
-        return list(chain.from_iterable(_actions(v) for v in self.scenes))
-
-    @property
-    def outlines(self) -> list:
-        if self.actions:
-            return [v.outline for v in self.actions if v.outline]
+    @classmethod
+    def scenesFrom(cls, src: StoryLike) -> Tuple[Scene, ...]:
+        if isinstance(src, Scene):
+            return (src,)
+        elif isinstance(src, Episode):
+            return src.data
         else:
-            return []
+            return tuple(chain.from_iterable([ep.data for ep in cls.episodesFrom(src)]))
 
-    @property
-    def descriptions(self) -> list:
-        if self.actions:
-            return [v.description for v in self.actions if not isinstance(v.description, NoDesc)]
-        else:
-            return []
+    @classmethod
+    def storyFrom(cls, src: Story) -> Story:
+        return assertion.isInstance(src, Story)
 
-    @property
-    def persons(self) -> list:
-        return list(set(v.subject for v in self.actions if hasattr(v, "subject")))
+    ## methods (data)
+    @classmethod
+    def daysFrom(cls, src: StoryLike) -> Tuple[Day, ...]:
+        return cls._someObjectsFrom(src, Day)
 
-    @property
-    def stages(self) -> list:
-        return list(set(v.stage for v in self.scenes if not isinstance(v.stage, NoData)))
+    @classmethod
+    def directionsFrom(cls, src: StoryLike) -> Tuple[Any, ...]:
+        return tuple(chain.from_iterable([ac.data for ac in cls.actionsFrom(src)]))
 
-    @property
-    def days(self) -> list:
-        return list(set(v.day for v in self.scenes if not isinstance(v.day, NoData)))
+    @classmethod
+    def itemsFrom(cls, src: StoryLike) -> Tuple[Item, ...]:
+        return cls._someObjectsFrom(src, Item)
 
-    @property
-    def times(self) -> list:
-        return list(set(v.time for v in self.scenes if not isinstance(v.time, NoData)))
+    @classmethod
+    def metadataFrom(cls, src: StoryLike) -> Tuple[MetaData, ...]:
+        return cls._someObjectsFrom(src, MetaData)
 
-    @property
-    def flags(self) -> list:
-        if self.actions:
-            return [v.getFlag() for v in self.actions if not isinstance(v.getFlag(), NoFlag)] \
-                    + [v.getDeflag() for v in self.actions if not isinstance(v.getDeflag(), NoDeflag)]
-        else:
-            return []
+    @classmethod
+    def objectsFrom(cls, src: StoryLike) -> Tuple[U_Subjects, ...]:
+        return cls._someObjectsFrom(src,
+                (Person, Stage, Day, Time, Item, Word))
+
+    @classmethod
+    def personsFrom(cls, src: StoryLike) -> Tuple[Person, ...]:
+        return cls._someObjectsFrom(src, Person)
+
+    @classmethod
+    def personAndSubjectsFrom(cls, src: StoryLike) -> Tuple[Person, ...]:
+        persons = cls.personsFrom(src)
+        subjects = cls.subjectsWithoutWhoFrom(src)
+        return tuple(set(persons) | set(subjects))
+    @classmethod
+    def stagesFrom(cls, src: StoryLike) -> Tuple[Stage, ...]:
+        return cls._someObjectsFrom(src, Stage)
+
+    @classmethod
+    def stringsFrom(cls, src: StoryLike) -> Tuple[str, ...]:
+        return cls._someObjectsFrom(src, str)
+
+    @classmethod
+    def subjectsFrom(cls, src: StoryLike) -> Tuple[U_Subjects, ...]:
+        return tuple(v.subject for v in cls.actionsFrom(src))
+
+    @classmethod
+    def subjectsWithoutWhoFrom(cls, src: StoryLike) -> Tuple[U_Subjects, ...]:
+        return tuple(v.subject for v in cls.actionsFrom(src) if not isinstance(v.subject, Who))
+
+    @classmethod
+    def timesFrom(cls, src: StoryLike) -> Tuple[Time, ...]:
+        return cls._someObjectsFrom(src, Time)
+
+    @classmethod
+    def wordsFrom(cls, src: StoryLike) -> Tuple[Word, ...]:
+        return cls._someObjectsFrom(src, Word)
+
+    @classmethod
+    def _someObjectsFrom(cls, src: StoryLike, target: Any) -> Tuple[Any, ...]:
+        return tuple(v for v in cls.directionsFrom(src) if isinstance(v, target))
+

@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
 """Test: parser.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder.parser import Parser
-from builder.action import Action, ActType, TagAction, TagType
+import datetime
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from builder import ActType, DataType
+from builder import ConteData
+from builder.action import Action
 from builder.chapter import Chapter
-from builder.combaction import CombAction
-from builder.day import Day
 from builder.episode import Episode
+from builder.parser import Parser
 from builder.person import Person
-from builder.scene import Scene, ScenarioType
+from builder.pronoun import When
+from builder.rubi import Rubi
+from builder.scene import Scene
 from builder.stage import Stage
 from builder.story import Story
-from builder.time import Time
 
 
 _FILENAME = "parser.py"
@@ -23,109 +28,119 @@ class ParserTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Parser class")
+        printTestTitle(_FILENAME, "Parser class")
 
     def setUp(self):
-        self.taro = Person("Taro", "", 17, "male", "student", "me:俺")
-        self.hana = Person("Hana", "", 15, "female", "flowerlist")
+        self.taro = Person("太郎", "", 15, "male", "student", "me:俺")
+        self.hana = Person("花子", "", 15, "female", "student", "me:私")
+        self.room = Stage("部屋")
+
+    def test_attributes(self):
+        tmp = Parser()
+        self.assertIsInstance(tmp, Parser)
+
+    def test_toContes(self):
+        self.hana.setTexture("髪", "金髪ロング")
+        self.room.setTexture("壁", "ひび割れ")
+        data = [
+                (False, Story("test", Chapter("c1", Episode("e1",
+                    Scene("s1", Action("apple", subject=self.taro))))),
+                    ((DataType.STORY_TITLE, "test"),
+                        (DataType.CHAPTER_TITLE, "c1"),
+                        (DataType.EPISODE_TITLE, "e1"),
+                        (DataType.SCENE_TITLE, "s1"),
+                        (DataType.SCENE_SETTING,
+                            {"camera":"__who__",
+                                "stage":"__where__",
+                                "day":When().data,
+                                "week":When().data.weekday(),
+                                "time":"__when__"}),
+                        (DataType.ACTION,
+                            ConteData(ActType.ACT,
+                                "", "太郎", (), "apple", 0, "")))),
+                (False, Scene("s1",
+                    Action("apple", subject=self.taro, act_type=ActType.TALK)),
+                    ((DataType.SCENE_TITLE, "s1"),
+                        (DataType.SCENE_SETTING,
+                            {"camera":"__who__",
+                                "stage":"__where__",
+                                "day":When().data,
+                                "week":When().data.weekday(),
+                                "time":"__when__"}),
+                        (DataType.ACTION,
+                            ConteData(ActType.TALK,
+                                "apple", "太郎", (), "", 0, "")))),
+                (False, Scene("s1",
+                    Action("apple", subject=self.hana),
+                    camera=self.taro, stage=self.room),
+                    ((DataType.SCENE_TITLE, "s1"),
+                        (DataType.SCENE_SETTING,
+                            {"camera":"太郎",
+                                "stage":"部屋",
+                                "day":When().data,
+                                "week":When().data.weekday(),
+                                "time":"__when__"}),
+                        (DataType.STAGE_SETTING, {"name":"部屋","壁":"ひび割れ"}),
+                        (DataType.PERSON_SETTING, {"name":"花子","髪":"金髪ロング"}),
+                        (DataType.ACTION,
+                            ConteData(ActType.ACT, "", "花子", (),"apple", 0, "")))),
+                (False, Scene("s1",
+                    Action("apple", "#orange", subject=self.taro)),
+                    ((DataType.SCENE_TITLE, "s1"),
+                        (DataType.SCENE_SETTING,
+                            {"camera":"__who__",
+                                "stage":"__where__",
+                                "day":When().data,
+                                "week":When().data.weekday(),
+                                "time":"__when__"}),
+                        (DataType.ACTION,
+                            ConteData(ActType.ACT,
+                                "", "太郎", (), "＃orange", 0, "")))),
+                ]
+        def _checkcode(v, expect):
+            tmp = Parser.toContes(v)
+            self.assertEqual(tmp, expect)
+        validatedTestingWithFail(self, "toContes", _checkcode, data)
 
     def test_toDescriptions(self):
         data = [
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","", Action(self.taro, "I'm").d("wanna eat"))))),
-                    False,
-                    ["# test",
-                        "## c1", "### e1",
-                        "**s1**", "　wanna eat。"]),
-                ]
-        def _checkcode(v, isCmt, expect):
-            tmp = Parser(v).toDescriptions(isCmt)
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toDescriptions", _checkcode, data)
-
-    def test_toDescriptionsAsLayer(self):
-        data = [
-                (False, Story("test", Chapter("c1", Episode("e1", "",
-                    Scene("s1","", Action(self.taro, layer="t1").d("apple"),
-                        Action(self.hana, layer="t2").d("orange"))))),
-                    [("__TITLE__", "# test"),
-                        ("c1-e1-s1:t1", "　apple。"),
-                        ("c1-e1-s1:t2", "　orange。")]),
+                (False, Story("test", Chapter("c1", Episode("e1",
+                    Scene("s1", Action("apple"))))),
+                    ((DataType.STORY_TITLE, "test"),
+                        (DataType.CHAPTER_TITLE, "c1"),
+                        (DataType.EPISODE_TITLE, "e1"),
+                        (DataType.SCENE_TITLE, "s1"),
+                        (DataType.DESCRIPTION, "apple。"))),
+                (False, Scene("s1", Action("apple", "&"), Action("orange")),
+                    ((DataType.SCENE_TITLE, "s1"),
+                        (DataType.DESCRIPTION, "apple。orange。"))),
+                (False, Scene("s1", Action("apple", "&", act_type=ActType.TALK),
+                    Action("orange")),
+                    ((DataType.SCENE_TITLE, "s1"),
+                        (DataType.DIALOGUE, "apple。orange。"))),
                 ]
         def _checkcode(v, expect):
-            tmp = Parser(v).toDescriptionsAsLayer()
-            self.assertIsInstance(tmp, list)
+            tmp = Parser.toDescriptions(v)
             self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toDescriptionsAsLayer", _checkcode, data)
+        validatedTestingWithFail(self, "toDescriptions", _checkcode, data)
 
-    def test_toOutlines(self):
+    def test_toDescriptionsWithRubi(self):
         data = [
-                (False, Story("test", Chapter("c1", Episode("e1", "a episode",
-                    Scene("s1", "a scene", Action(self.taro, "eat an apple"))))),
-                    ["# test",
-                        "## c1", "### e1", "a episode",
-                        "**s1**", "a scene"]),
+                (False, Story("test", Chapter("c1", Episode("e1",
+                    Scene("s1",
+                        Action("小太郎と一緒に"),
+                        Action("太郎の野郎"),
+                        )))),
+                    {"太郎":Rubi("太郎","｜太郎《たろう》", ("小太郎",))},
+                    ((DataType.STORY_TITLE, "test"),
+                        (DataType.CHAPTER_TITLE, "c1"),
+                        (DataType.EPISODE_TITLE, "e1"),
+                        (DataType.SCENE_TITLE, "s1"),
+                        (DataType.DESCRIPTION, "小太郎と一緒に。"),
+                        (DataType.DESCRIPTION, "｜太郎《たろう》の野郎。"),
+                        )),
                 ]
-        def _checkcode(v, expect):
-            tmp = Parser(v).toOutlines()
-            self.assertIsInstance(tmp, list)
+        def _checkcode(v, rubis, expect):
+            tmp = Parser.toDescriptionsWithRubi(v, rubis)
             self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toOutlines", _checkcode, data)
-
-    def test_toOutlinesAsLayer(self):
-        data = [
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","", Action(self.taro, "apple", layer="t1"),
-                        Action(self.taro, "orange", layer="t2"))))),
-                    [("__TITLE__", "# test"),
-                        ("c1-e1-s1:t1", "apple"),
-                        ("c1-e1-s1:t2", "orange"),]),
-                ]
-        def _checkcode(v, expect):
-            tmp = Parser(v).toOutlinesAsLayer()
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toOutlinesAsLayer", _checkcode, data)
-
-    def test_toScenarios(self):
-        time1 = Time("朝", 8,00)
-        day1 = Day("ある日", 4,10,2019)
-        stage1 = Stage("教室",)
-        data = [
-                (False, Story("test", Chapter("c1", Episode("e1", "",
-                    Scene("s1","", Action(self.taro, "apple"),
-                        Action(self.hana, "orange", act_type=ActType.TALK),
-                        camera=self.taro, stage=stage1, day=day1, time=time1)))),
-                    [(ScenarioType.TITLE, "# test"),
-                        (ScenarioType.TITLE, "## c1"),
-                        (ScenarioType.TITLE, "### e1"),
-                        (ScenarioType.TITLE, "**s1**"),
-                        (ScenarioType.PILLAR, "教室:ある日:朝"),
-                        (ScenarioType.DIRECTION, "apple"),
-                        (ScenarioType.DIALOGUE, "Hana:orange")]),
-                ]
-        def _checkcode(v, expect):
-            tmp = Parser(v).toScenarios()
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toScenarios", _checkcode, data)
-
-    def test_toScenariosAsLayer(self):
-        time1 = Time("朝", 8,00)
-        day1 = Day("ある日", 4,10,2019)
-        stage1 = Stage("教室",)
-        data = [
-                (False, Story("test", Chapter("c1", Episode("e1", "",
-                    Scene("s1","", Action(self.taro, "apple", layer="t1"),
-                        Action(self.hana, "orange", act_type=ActType.TALK, layer="t2"),
-                        camera=self.taro, stage=stage1, day=day1, time=time1)))),
-                    [("__TITLE__", "", ScenarioType.TITLE, "# test"),
-                        ("c1-e1-s1:t1", "教室:ある日:朝", ScenarioType.DIRECTION, "apple"),
-                        ("c1-e1-s1:t2", "教室:ある日:朝", ScenarioType.DIALOGUE, "Hana:orange")]),
-                ]
-        def _checkcode(v, expect):
-            tmp = Parser(v).toScenariosAsLayer()
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "toScenariosAsLayer", _checkcode, data)
+        validatedTestingWithFail(self, "toDescriptionsWithRubi", _checkcode, data)

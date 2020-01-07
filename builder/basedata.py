@@ -1,24 +1,47 @@
 # -*- coding: utf-8 -*-
-"""Define base data type class.
+"""Define base data.
 """
-from . import assertion
+## public libs
+from typing import Any
+## local libs
+from utils import assertion
+from utils.util_id import UtilityID
+## local files
 
 
 class BaseData(object):
-    """Base class for data type.
+    """Base class for a data.
     """
-    def __init__(self, name: str):
-        self._name = assertion.is_str(name)
+    def __init__(self, name: str, *args: Any, note: str=""):
+        self._data = args if args and len(args) > 1 else (args[0] if args else None)
+        self._dataId = UtilityID.getNextId()
+        self._name = assertion.isStr(name)
+        self._note = assertion.isStr(note)
+        self._textures = {}
 
     @property
-    def name(self): return self._name
+    def data(self) -> Any:
+        return self._data
 
+    @property
+    def dataId(self) -> int:
+        return self._dataId
 
-class NoData(BaseData):
-    """Nothing data.
-    """
-    __NAME__ = "__none__"
+    @property
+    def name(self) -> str:
+        return self._name
 
-    def __init__(self):
-        super().__init__(NoData.__NAME__)
+    @property
+    def note(self) -> str:
+        return self._note
 
+    @property
+    def textures(self) -> dict:
+        return self._textures
+
+    ## methods (setter)
+    def setTexture(self, key: str, val: str):
+        self._textures[assertion.isStr(key)] = assertion.isStr(val)
+
+    def updateTextures(self, vals: dict):
+        self._textures.update(assertion.isDict(vals))

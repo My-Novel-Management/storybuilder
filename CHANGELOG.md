@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.2] - 2020-01-07
+### Added
+- MetaData
+- Rubi
+- Layer
+- Pronoun
+- Checker
+### Removed
+- Flag
+
+## NOTE
+- version 0.4.0 and 0.4.1 is fallback
+
 ## [0.3.2] - 2019-12-16
 ### Added
 - Writer
@@ -214,7 +227,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/nagisc007/storybuilder/releases/v0.4.2
 [0.3.2]: https://github.com/nagisc007/storybuilder/releases/v0.3.2
 [0.3.1]: https://github.com/nagisc007/storybuilder/releases/v0.3.1
 [0.3.0]: https://github.com/nagisc007/storybuilder/releases/v0.3.0

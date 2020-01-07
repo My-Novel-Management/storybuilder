@@ -1,224 +1,102 @@
 # -*- coding: utf-8 -*-
-"""Define action class.
+"""Define container for action objects.
 """
-from enum import Enum
-from typing import Optional
-from . import assertion
-from .basedata import BaseData
-from .description import Description, NoDesc, DescType
-from .flag import Flag, NoFlag, NoDeflag
-from .basesubject import NoSubject
-from .person import Person
-from .who import Who
-from . import __DEF_PRIORITY__, __MAX_PRIORYTY__, __MIN_PRIORITY__
-from . import __DEF_LAYER__, __MAIN_LAYER__
+## public libs
+from __future__ import annotations
+from typing import Any, Union, Tuple
+## local libs
+from utils import assertion
+from utils.util_str import tupleEvenStr
+## local files
+from builder import __PRIORITY_NORMAL__
+from builder import ActType, TagType, MetaType
+from builder.basecontainer import BaseContainer
+from builder.conjuction import Then
+from builder.day import Day
+from builder.item import Item
+from builder.metadata import MetaData
+from builder.person import Person
+from builder.stage import Stage
+from builder.time import Time
+from builder.word import Word
+from builder.pronoun import Who
 
 
-class ActType(Enum):
-    """Action type.
+## define types
+AllSubjects = (Person, Stage, Day, Time, Item, Word, Who)
+
+
+## define class
+class Action(BaseContainer):
+    """The container class for an action.
+
+    Attributes:
+        acts (tuple:Any): actions
+        subject (Person): a subject
     """
-    ACT = "act" # 全般
-    BE = "be" # 外部状態
-    COME = "come" # 出現
-    GO = "go" # 消去
-    HAVE = "have" # 所有変更
-    HEAR = "hear" # 効果音などの音声
-    LOOK = "look" # 描画
-    MOVE = "move" # 動かす
-    TALK = "talk" # 台詞
-    TAG = "tag" # for tag
-    THINK = "think" # 内部状態
+    __TITLE__ = "__action__"
+    def __init__(self, *args: Any, subject: AllSubjects=Who(),
+            act_type: ActType=ActType.ACT,
+            tag_type: TagType=TagType.NONE,
+            itemCount: int=0,
+            note: str="", priority: int=__PRIORITY_NORMAL__):
+        super().__init__(Action.__TITLE__,
+                Action.argsReplaced(*args),
+                note=note,
+                priority=priority)
+        self._act_type = assertion.isInstance(act_type, ActType)
+        self._subject = assertion.isInstance(subject, AllSubjects)
+        self._tag_type = assertion.isInstance(tag_type, TagType)
+        self._itemCount = itemCount if itemCount else self.countIf(*args)
 
-
-class TagType(Enum):
-    """Tag type
-    """
-    BR = "breakline" # BR
-    COMMENT = "comment" # コメント
-    HR = "horizontalline" # HR
-    SYMBOL = "symbol" # シンボル
-    TITLE = "title" # タイトル
-    SET_LAYER = "layer" # レイヤー用
-
-
-class Action(BaseData):
-    """Data type of an action.
-    """
-    __NAME__ = "__action__"
-    __nextid__ = 1
-
-    def __init__(self, subject: Optional[Person],
-            outline: str="", act_type: ActType=ActType.ACT,
-            layer: str=__DEF_LAYER__,
-            inheritedId: int=0):
-        '''
-        Args:
-            subject: a subject
-            outline: an outline
-            act_type: an act type
-            layer: a layer
-            inheritedId: a specific argument for inheritetion
-        '''
-        super().__init__(Action.__NAME__)
-        _subject_is_str = isinstance(subject, str)
-        self._subject = Action._validatedSubject(subject)
-        self._outline = assertion.is_str(subject if _subject_is_str else outline)
-        self._act_type = assertion.is_instance(act_type, ActType)
-        self._description = NoDesc()
-        self._flag = NoFlag()
-        self._deflag = NoDeflag()
-        self._priority = __DEF_PRIORITY__
-        self._layer = assertion.is_str(layer)
-        self._actId = inheritedId if inheritedId else Action._nextId()
-
-    def inherited(self, subject=None, outline=None, desc=None):
-        return Action(
-                subject if subject else self.subject,
-                outline if outline else self.outline,
-                self.act_type,
-                inheritedId=self.actId) \
-                    .flag(self.getFlag()).deflag(self.getDeflag()) \
-                    ._setDescription(desc if desc else self.description,
-                            self.description.desc_type) \
-                    .setPriority(self.priority) \
-                    .setLayer(self.layer)
+    ## property
+    @property
+    def subject(self) -> AllSubjects:
+        return self._subject
 
     @property
-    def actId(self): return self._actId
+    def act_type(self) -> ActType:
+        return self._act_type
 
     @property
-    def act_type(self): return self._act_type
+    def tag_type(self) -> TagType:
+        return self._tag_type
 
     @property
-    def subject(self): return self._subject
+    def itemCount(self) -> int:
+        return self._itemCount
 
-    @property
-    def outline(self): return self._outline
+    ## methods
+    def inherited(self, *args: Any, subject=None, note: str=None) -> Action:
+        return Action(*args,
+                subject=subject if subject else self.subject,
+                act_type=self.act_type,
+                tag_type=self.tag_type,
+                itemCount=self.itemCount,
+                note=note if note else self.note,
+                priority=self.priority)
 
-    @property
-    def description(self): return self._description
+    @classmethod
+    def argsReplaced(cls, *args: Any) -> tuple:
+        tmp = []
+        for v in args:
+            if isinstance(v, str):
+                if "&" == v:
+                    tmp.append(Then())
+                elif v.startswith('#'):
+                    ## NOTE: current info only
+                    tmp.append(MetaData(MetaType.INFO, v.replace('#', '＃', 1)))
+                else:
+                    tmp.append(v)
+            elif isinstance(v, AllSubjects):
+                tmp.append(v)
+            elif isinstance(v, MetaData):
+                tmp.append(v)
+        return tuple(tmp)
 
-    @property
-    def priority(self): return self._priority
-
-    @property
-    def layer(self): return self._layer
-
-    def setPriority(self, pri: int):
-        self._priority = assertion.is_between(
-                assertion.is_int(pri), __MAX_PRIORYTY__, __MIN_PRIORITY__)
-        return self
-
-    def setLayer(self, layer: str):
-        self._layer = assertion.is_str(layer)
-        return self
-
-    def flag(self, val: [str, NoFlag]):
-        # TODO: Flag がdeflagも兼ねているのでobjectのままset時に確認必要
-        if isinstance(val, Flag):
-            self._flag = val
-        elif isinstance(val, str):
-            self._flag = Flag(val)
-        else:
-            self._flag = NoFlag()
-        return self
-
-    def deflag(self, val: [str, NoDeflag]):
-        if isinstance(val, Flag):
-            self._deflag = val
-        elif isinstance(val, str):
-            self._deflag = Flag(val, True)
-        else:
-            self._deflag = NoDeflag()
-        return self
-
-    def getFlag(self): return self._flag
-
-    def getDeflag(self): return self._deflag
-
-    def omit(self):
-        self._priority = __MIN_PRIORITY__
-        return self
-
-    # methods
-    def desc(self, *args):
-        self._description = Description(*args, desc_type=DescType.DESC)
-        return self
-
-    def d(self, *args): return self.desc(*args)
-
-    def tell(self, *args):
-        self._description = Description(*args, desc_type=DescType.DIALOGUE)
-        return self
-
-    def t(self, *args): return self.tell(*args)
-
-    def comp(self, *args):
-        self._description = Description(*args, desc_type=DescType.COMPLEX)
-        return self
-
-    def same(self, desc_type: str=None):
-        if not desc_type:
-            desc_type = 't' if self.act_type is ActType.TALK else 'd'
-        if desc_type in ('t', 'tell'):
-            self.tell(self.outline)
-        elif desc_type in ('c', 'comp'):
-            self.comp(self.outline)
-        else:
-            self.desc(self.outline)
-        return self
-
-    # private
-    def _nextId() -> int:
-        tmp = Action.__nextid__
-        Action.__nextid__ += 1
-        return tmp
-
-    def _validatedSubject(sub: (str, Person, None)):
-        if isinstance(sub, str):
-            return Who()
-        elif isinstance(sub, (Person, Who)):
-            return sub
-        else:
-            return NoSubject()
-
-    def _setDescription(self, descs, desc_type: DescType):
-        if isinstance(descs, Description):
-            self._description = descs
-        elif isinstance(descs, str):
-            self._description = Description(descs, desc_type=desc_type)
-        else:
-            self._description = Description(*descs,
-                    desc_type=desc_type)
-        return self
-
-
-class TagAction(Action):
-
-    def __init__(self, info: str, subinfo: str="", tag_type: TagType=TagType.COMMENT):
-        super().__init__(None, info, ActType.TAG)
-        self._subinfo = assertion.is_str(subinfo)
-        self._tag_type = assertion.is_instance(tag_type, TagType)
-
-    @property
-    def info(self): return self._outline
-
-    @property
-    def subinfo(self): return self._subinfo
-
-    @property
-    def tag_type(self): return self._tag_type
-
-    def inherited(self):
-        return TagAction(self.info, self.subinfo, self.tag_type)
-
-class Layer(BaseData):
-    """Data type of a layer
-    """
-    def __init__(self, name: str, words: (str, list, tuple)):
-        super().__init__(name)
-        self._words = words
-
-    @property
-    def words(self): return self._words
-
+    @classmethod
+    def countIf(cls, *args: Any) -> int:
+        for v in args:
+            if isinstance(v, int):
+                return v
+        return 0

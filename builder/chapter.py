@@ -1,27 +1,32 @@
 # -*- coding: utf-8 -*-
-"""Define chapter class.
+"""Define episode container.
 """
-from . import assertion
-from .basecontainer import BaseContainer
-from .episode import Episode
-from . import __DEF_PRIORITY__
+## public libs
+from __future__ import annotations
+from typing import Tuple
+## local libs
+from utils import assertion
+from utils.util_str import tupleFiltered
+## local files
+from builder import __PRIORITY_NORMAL__
+from builder.basecontainer import BaseContainer
+from builder.episode import Episode
 
 
+## define class
 class Chapter(BaseContainer):
-    """The container for episodes.
+    """The container class for episodes.
     """
-    def __init__(self, title: str, *args):
-        super().__init__(title, __DEF_PRIORITY__)
-        self._episodes = Chapter._validatedEpisodes(*args)
+    def __init__(self, title: str, *args: Episode,
+            note: str="", priority: int=__PRIORITY_NORMAL__):
+        super().__init__(title,
+                assertion.isTuple(tupleFiltered(args, Episode)),
+                note=note,
+                priority=priority)
 
-    def inherited(self, *epis, title: str=None):
-        return Chapter(self.title if not title else assertion.is_str(title),
-                *epis).setPriority(self.priority)
-
-    @property
-    def episodes(self): return self._episodes
-
-    # privates
-    def _validatedEpisodes(*args):
-        return args if [assertion.is_instance(v, Episode) for v in args] else ()
-
+    ## methods
+    def inherited(self, *args: Episode, title: str="") -> Chapter:
+        return Chapter(title if title else self.title,
+                *args,
+                note=self.note,
+                priority=self.priority)

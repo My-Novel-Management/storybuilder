@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 """Test: extractor.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local file_
 from builder.action import Action
 from builder.chapter import Chapter
-from builder.combaction import CombAction
 from builder.day import Day
-from builder.description import Description, DescType, NoDesc
 from builder.episode import Episode
 from builder.extractor import Extractor
-from builder.flag import Flag, NoDeflag, NoFlag
+from builder.item import Item
 from builder.person import Person
 from builder.scene import Scene
 from builder.stage import Stage
 from builder.story import Story
 from builder.time import Time
-from builder.who import When, Where, Who
+from builder.word import Word
 
 
 _FILENAME = "extractor.py"
@@ -26,230 +27,146 @@ class ExtractorTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Extractor class")
+        printTestTitle(_FILENAME, "Extractor class")
 
     def setUp(self):
-        self.taro = Person("Taro", "", 17, "male", "student")
-        self.hana = Person("Hana", "", 15, "female", "girl")
+        self.taro = Person("太郎", "", 15, "male", "student")
+
+    def _getStory(self, act: Action):
+        return Story("test", Chapter("c1", Episode("e1",
+            Scene("s1", act))))
 
     def test_attributes(self):
-        tmp = Extractor(Story("test"))
+        tmp = Extractor()
         self.assertIsInstance(tmp, Extractor)
 
-    def test_chapters(self):
-        ch1 = Chapter("apple")
-        ch2 = Chapter("orange")
+    def test_storyFrom(self):
+        s1 = Story("test")
         data = [
-                (False, Story("test", ch1, ch2), [ch1, ch2]),
-                (False, ch1, [ch1,]),
-                (False, Episode("e1",""), []),
+                (False, s1, s1),
+                (True, Chapter("1"), 1),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).chapters
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "chapters", _checkcode, data)
+        validatedTestingWithFail(self, "storyFrom", lambda v, expect: self.assertEqual(
+            Extractor.storyFrom(v), expect), data)
 
-    def test_episodes(self):
-        ep1 = Episode("apple", "an apple")
-        ep2 = Episode("orange", "a orange")
+    def test_chaptersFrom(self):
+        ch1, ch2 = Chapter("1"), Chapter("2")
         data = [
-                (False, Story("test", Chapter("1", ep1, ep2)),
-                    [ep1, ep2]),
-                (False, Story("test", Chapter("1", ep1), Chapter("2", ep2)),
-                    [ep1, ep2]),
-                (True, Story("test", Chapter("1", ep1, ep2)),
-                    [ep2, ep1]),
-                (False, Chapter("1", ep1),
-                    [ep1]),
-                (False, ep1, [ep1]),
+                (False, Story("test", ch1, ch2), (ch1, ch2)),
+                (False, Story("test"), ()),
+                (False, ch1, (ch1,)),
+                (True, Episode("e1"), ()),
+                (True, Scene("s1"), ()),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).episodes
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "episodes", _checkcode, data)
+        validatedTestingWithFail(self, "chaptersFrom", lambda v, expect: self.assertEqual(
+            Extractor.chaptersFrom(v), expect), data)
 
-    def test_scenes(self):
-        sc1 = Scene("apple", "an apple")
-        sc2 = Scene("orange", "a orange")
+    def test_episodesFrom(self):
+        ep1, ep2 = Episode("1"), Episode("2")
         data = [
-                (False, Story("test", Chapter("1", Episode("e1", "", sc1, sc2))),
-                    [sc1, sc2]),
-                (False, Chapter("1", Episode("e1","", sc1)),
-                    [sc1]),
-                (False, Episode("e1","", sc1),
-                    [sc1]),
-                (False, sc1, [sc1]),
+                (False, Story("test", Chapter("c1", ep1, ep2)),
+                    (ep1, ep2)),
+                (False, Story("test", Chapter("c1", ep1), Chapter("c2", ep2)),
+                    (ep1, ep2)),
+                (False, Chapter("c1", ep1), (ep1,)),
+                (False, ep1, (ep1,)),
+                (True, Scene("s1"), ()),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).scenes
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "scenes", _checkcode, data)
+        validatedTestingWithFail(self, "episodesFrom", lambda v, expect: self.assertEqual(
+            Extractor.episodesFrom(v), expect), data)
 
-    def test_actions(self):
-        act1 = Action(self.taro, "apple")
-        act2 = Action(self.hana, "orange")
-        cmbact1 = CombAction(act1, act2)
+    def test_scenesFrom(self):
+        sc1, sc2 = Scene("s1"), Scene("s2")
         data = [
-                (False, Story("test",
-                    Chapter("1", Episode("e1","",
-                        Scene("s1", "", act1, act2)))),
-                    [act1, act2]),
-                (False, Story("test",
-                    Chapter("1", Episode("e1","",
-                        Scene("s1","", cmbact1)))),
-                    [act1, act2]),
-                (False, Chapter("1", Episode("e1","",
-                    Scene("s1","", act1))),
-                    [act1]),
-                (False, Episode("e1","", Scene("s1","", act1)),
-                    [act1]),
-                (False, Scene("s1","", act1), [act1]),
+                (False, Story("test", Chapter("c1", Episode("e1", sc1, sc2))),
+                    (sc1, sc2)),
+                (False, Chapter("c1", Episode("e1", sc1), Episode("e2", sc2)),
+                    (sc1, sc2)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).actions
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "actions", _checkcode, data)
+        validatedTestingWithFail(self, "scenesFrom", lambda v, expect: self.assertEqual(
+            Extractor.scenesFrom(v), expect), data)
 
-    def test_outlines(self):
-        act1 = Action(self.taro, "apple")
-        act2 = Action(self.hana, "orange")
+    def test_actionsFrom(self):
+        ac1, ac2 = Action("a"), Action("b")
         data = [
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","", act1, act2)))),
-                    ["apple", "orange"]),
-                (False, Scene("s1","", act1, Action("melon")),
-                    ["apple", "melon"]),
-                (False, Scene("s1",""),
-                    []),
-                (False, Scene("s1","", Action(self.hana)),
-                    []),
+                (False, Story("test", Chapter("c1", Episode("e1",
+                    Scene("s1", ac1, ac2)))),
+                    (ac1, ac2)),
+                (False, Episode("e1", Scene("s1", ac1), Scene("s2", ac2)),
+                    (ac1, ac2)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).outlines
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "outlines", _checkcode, data)
+        validatedTestingWithFail(self, "actionsFrom", lambda v, expect: self.assertEqual(
+            Extractor.actionsFrom(v), expect), data)
 
-    def test_descriptions(self):
-        act1 = Action(self.taro, "apple")
-        act2 = Action(self.hana, "orange")
-        d1 = Description("an apple",)
-        d2 = Description("a orange",)
+    def test_directionsFrom(self):
         data = [
-                (False, Story("test", Chapter("c1", Episode("e1","",
-                    Scene("s1","", act1._setDescription(d1, desc_type=DescType.DESC),
-                        act2._setDescription(d2, desc_type=DescType.DESC))))),
-                    [d1, d2]),
+                (False, Story("test", Chapter("c1", Episode("e1",
+                    Scene("s1", Action("apple", "orange"))))),
+                    ("apple", "orange")),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).descriptions
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "descriptions", _checkcode, data)
+        validatedTestingWithFail(self, "directionsFrom", lambda v, expect: self.assertEqual(
+            Extractor.directionsFrom(v), expect), data)
 
-    def test_persons(self):
-        act1 = Action(self.taro, "apple")
-        act2 = Action(self.hana, "orange")
+    def test_daysFrom(self):
+        dy1 = Day("apple", 1,1,2020)
         data = [
-                (False, Story("test",
-                    Chapter("1", Episode("e1","",
-                        Scene("s1","", act1, act2)))),
-                    [self.taro, self.hana]),
-                (False, Scene("s1","", act1,act2),
-                    [self.taro, self.hana]),
+                (False, self._getStory(Action(dy1)), (dy1,)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).persons
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(set(tmp), set(expect))
-        validated_testing_withfail(self, "persons", _checkcode, data)
+        validatedTestingWithFail(self, "daysFrom", lambda v,expect: self.assertEqual(
+            Extractor.daysFrom(v), expect), data)
 
-    def test_stages(self):
-        st1 = Stage("school")
-        st2 = Stage("room")
+    def test_itemsFrom(self):
+        it1 = Item("apple")
         data = [
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","", stage=st1)))),
-                    [st1,]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","", stage=st1), Scene("s2", "", stage=st2)))),
-                    [st1, st2]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","", stage=st1), Scene("s2", "",)))),
-                    [st1,Where()]),
-                (False, Scene("s1","", stage=st1),
-                    [st1,]),
+                (False, self._getStory(Action(it1)), (it1,)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).stages
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
-        validated_testing_withfail(self, "stages", _checkcode, data)
+        validatedTestingWithFail(self, "itemsFrom", lambda v,expect: self.assertEqual(
+            Extractor.itemsFrom(v), expect), data)
 
-    def test_days(self):
-        day1 = Day("day1", 1,1,2019)
-        day2 = Day("day2", 2,14,2019)
+    def test_objectsFrom(self):
+        dy1 = Day("apple", 1,1,2020)
+        it1 = Item("orange")
+        wd1 = Word("melon")
         data = [
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",day=day1)))),
-                    [day1,]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",day=day1), Scene("s2","", day=day2)))),
-                    [day1, day2]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",day=day1), Scene("s2","",)))),
-                    [day1,When()]),
-                (False, Scene("s1","", day=day1),
-                    [day1,]),
+                (False, self._getStory(Action(dy1,it1,wd1)), (dy1,it1,wd1)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).days
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
-        validated_testing_withfail(self, "days", _checkcode, data)
+        validatedTestingWithFail(self, "objectsFrom", lambda v,expect: self.assertEqual(
+            Extractor.objectsFrom(v), expect), data)
 
-    def test_times(self):
-        time1 = Time("morning", 8,0)
-        time2 = Time("night", 20,0)
+    def test_personsFrom(self):
         data = [
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",time=time1)))),
-                    [time1,]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",time=time1), Scene("s2","",time=time2)))),
-                    [time1, time2]),
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","",time=time1), Scene("s2","")))),
-                    [time1,When()]),
-                (False, Scene("s","", time=time1), [time1,]),
+                (False, self._getStory(Action(self.taro)), (self.taro,)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).times
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(set(v.name for v in tmp), set(v.name for v in expect))
-        validated_testing_withfail(self, "times", _checkcode, data)
+        validatedTestingWithFail(self, "personsFrom", lambda v,expect: self.assertEqual(
+            Extractor.personsFrom(v), expect), data)
 
-    def test_flags(self):
-        f1 = Flag("apple")
-        f2 = Flag("orange")
-        df1 = Flag("melon")
+    def test_stagesFrom(self):
+        st1 = Stage("apple")
         data = [
-                (False, Story("test", Chapter("1", Episode("e1","",
-                    Scene("s1","", Action(self.taro).flag(f1))))),
-                    [f1,]),
-                (False, Scene("s1","",
-                    Action(self.taro).flag(f1).deflag(df1)),
-                    [f1, df1]),
-                (False, Scene("s1","",
-                    Action(self.taro).deflag(df1), Action(self.hana).flag(f1)),
-                    [f1, df1]),
+                (False, self._getStory(Action(st1)), (st1,)),
                 ]
-        def _checkcode(v, expect):
-            tmp = Extractor(v).flags
-            self.assertIsInstance(tmp, list)
-            self.assertEqual(tmp, expect)
-        validated_testing_withfail(self, "flags", _checkcode, data)
+        validatedTestingWithFail(self, "stagesFrom", lambda v,expect: self.assertEqual(
+            Extractor.stagesFrom(v), expect), data)
+
+    def test_subjectsFrom(self):
+        data = [
+                (False, self._getStory(Action(subject=self.taro)), (self.taro,)),
+                ]
+        validatedTestingWithFail(self, "subjectsFrom", lambda v,expect: self.assertEqual(
+            Extractor.subjectsFrom(v), expect), data)
+
+    def test_timesFrom(self):
+        tm1 = Time("apple", 12,0,0)
+        data = [
+                (False, self._getStory(Action(tm1)), (tm1,)),
+                ]
+        validatedTestingWithFail(self, "timesFrom", lambda v,expect: self.assertEqual(
+            Extractor.timesFrom(v), expect), data)
+
+    def test_wordsFrom(self):
+        wd1 = Word("apple")
+        data = [
+                (False, self._getStory(Action(wd1)), (wd1,)),
+                ]
+        validatedTestingWithFail(self, "wordsFrom", lambda v,expect: self.assertEqual(
+            Extractor.wordsFrom(v), expect), data)

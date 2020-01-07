@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """Test: episode.py
 """
+## public libs
 import unittest
-from testutils import print_test_title ,validated_testing_withfail
-from builder import episode as ep
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from builder.episode import Episode
+from builder.scene import Scene
+
 
 _FILENAME = "episode.py"
 
@@ -12,36 +17,30 @@ class EpisodeTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Episode class")
+        printTestTitle(_FILENAME, "Episode class")
+
+    def setUp(self):
+        pass
 
     def test_attributes(self):
-        from builder.scene import Scene
-        sc1 = Scene("test", "a test")
+        attrs = ("data", "note")
+        sc1 = Scene("apple")
+        sc2 = Scene("orange")
         data = [
-                (False, "test", "a test", (sc1,),),
-                (True, 1, "a test", (sc1,),),
-                (True, "test", 1, (sc1,),),
-                (True, "test", "a test", [1,],),
+                (False, "test", (sc1, sc2), "a test",
+                    ((sc1, sc2), "a test")),
                 ]
-        def _checkcode(title, outline, scs):
-            tmp = ep.Episode(title, outline, *scs)
-            self.assertIsInstance(tmp, ep.Episode)
-            self.assertEqual(tmp.title, title)
-            self.assertEqual(tmp.outline, outline)
-            self.assertEqual(tmp.scenes, scs)
-        validated_testing_withfail(self, "attributes", _checkcode, data)
+        def _checkcode(title, vals, note, expects):
+            tmp = Episode(title, *vals, note=note)
+            self.assertIsInstance(tmp, Episode)
+            for a,v in zip(attrs, expects):
+                with self.subTest(a=a, v=v):
+                    self.assertEqual(getattr(tmp, a), v)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
     def test_inherited(self):
-        from builder.scene import Scene
-        sc1 = Scene("test1", "an apple")
-        sc2 = Scene("test2", "a orange")
-        data = [
-                (False, (sc1, sc2),),
-                (True, [1,2],),
-                ]
-        def _checkcode(scenes):
-            tmp = ep.Episode("test", "a test")
-            tmp1 = tmp.inherited(*scenes)
-            self.assertIsInstance(tmp1, ep.Episode)
-            self.assertEqual(tmp1.scenes, scenes)
-        validated_testing_withfail(self, "inherited", _checkcode, data)
+        sc1, sc2 = Scene("apple"), Scene("orange")
+        tmp = Episode("test", sc1)
+        self.assertEqual(tmp.data, (sc1,))
+        tmp1 = tmp.inherited(sc2)
+        self.assertEqual(tmp1.data, (sc2,))

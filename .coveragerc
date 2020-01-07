@@ -3,6 +3,7 @@
 source =
     builder
     example
+    utils
 omit =
     # projects
     old_*

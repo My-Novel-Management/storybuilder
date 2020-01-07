@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """Test: item.py
 """
+## public libs
 import unittest
-from testutils import print_test_title, validated_testing_withfail
-from builder import item as it
+## local files (test utils)
+from testutils import printTestTitle, validatedTestingWithFail
+## local files
+from builder.item import Item
 
 
 _FILENAME = "item.py"
@@ -13,19 +16,20 @@ class ItemTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print_test_title(_FILENAME, "Item class")
+        printTestTitle(_FILENAME, "Item class")
+
+    def setUp(self):
+        pass
 
     def test_attributes(self):
         data = [
-                (False, "test", "a note", "a note",),
-                (False, "test", None, it.Item.__NOTE__,),
-                (True, 1, "a note", "a note",),
-                (True, "test", 1, 1,),
+                (False, "test", "a test",
+                    "a test",),
                 ]
-        def _checkcode(name, note, expect):
-            tmp = it.Item(name, note) if note else it.Item(name)
-            self.assertIsInstance(tmp, it.Item)
+        def _checkcode(name, info, expect):
+            tmp = Item(name, info) if info else Item(name)
+            self.assertIsInstance(tmp, Item)
             self.assertEqual(tmp.name, name)
-            self.assertEqual(tmp.note, expect)
-        validated_testing_withfail(self, "attributes", _checkcode, data)
+            self.assertEqual(tmp.data, expect)
+        validatedTestingWithFail(self, "class attributes", _checkcode, data)
 

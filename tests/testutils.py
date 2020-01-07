@@ -4,8 +4,8 @@
 import unittest
 
 
-# public methods
-def print_test_title(fname: str, title: str) -> bool:
+## public methods
+def printTestTitle(fname: str, title: str) -> bool:
     assert isinstance(fname, str)
     assert isinstance(title, str)
 
@@ -13,7 +13,7 @@ def print_test_title(fname: str, title: str) -> bool:
 
     return True
 
-def validated_testing_withfail(testcase: unittest.TestCase,
+def validatedTestingWithFail(testcase: unittest.TestCase,
         title: str, testfunc, data: list):
     for vals in data:
         with testcase.subTest(title=title, vals=vals):

@@ -1,134 +1,121 @@
 # -*- coding: utf-8 -*-
-__VERSION__ = "0.2.10"
+__VERSION__ = "0.4.2"
+__TITLE__ = "StoryBuilder"
+__DESC__ = "Tool for building a story"
 
 
-## common defines
-__MAX_PRIORYTY__ = 10
-__MIN_PRIORITY__ = 0
-__DEF_PRIORITY__ = 5
-__DEF_LAYER__ = "__default__"
-__MAIN_LAYER__ = "__main__"
-__STAGE_LAYER__ = "__stage__"
-__FASHION_LAYER__ = "__fashion__"
-__FOOD_LAYER__ = "__food__"
-__ITEM_LAYER__ = "__item__"
+from collections import namedtuple
+from enum import Enum, auto
 
-## meta data
-STAGE_LAYERS = (
-        (__STAGE_LAYER__ + "building", "建物",
-            (
-                "壁",
-                "天井",
-                "床",
-                "屋根",
-                ),),
-        (__STAGE_LAYER__ + "outside", "屋外",
-            (
-                "道路", "路", "路地",
-                "ビル", "テナント",
-                "アパート",
-                "マンション",
-                "一軒家",
-                "スーパー", "商店", "店",
-                "噴水",)),
-        (__STAGE_LAYER__ + "inside", "屋内",
-            (
-                "畳",
-                "本棚",
-                "キッチン", "台所",
-                "リビング", "居間",
-                "ダイニング", "食堂",
-                )),
-        (__STAGE_LAYER__ + "fantasy", "ファンタジー",
-            (
-                "城",
-                "砦",
-                ),),
+
+## common values
+__PRIORITY_NORMAL__ = 5
+__PRIORITY_MAX__ = 10
+__PRIORITY_MIN__ = 0
+
+__PREFIX_STAGE__ = "on_"
+__SUFFIX_STAGE_INT__ = "_int"
+__SUFFIX_STAGE_EXT__ = "_ext"
+__PREFIX_DAY__ = "in_"
+__PREFIX_TIME__ = "at_"
+__PREFIX_WORD__ = "w_"
+
+
+__MECAB_LINUX1__ = "-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd"
+__MECAB_LINUX2__ = "-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd"
+
+__TAG_PREFIX__ = "$"
+
+__BASE_COLUMN__ = 20
+__BASE_ROW__ = 20
+
+__DEF_FILENAME__ = "story"
+
+__ASSET_ELEMENTS__ = (
+        "PERSONS", "STAGES", "DAYS", "TIMES", "ITEMS", "WORDS", "RUBIS", "LAYERS",
         )
 
-FASHION_LAYERS = (
-        (__FASHION_LAYER__ + "clothes", "服装",
-            (
-                "服", "七部丈", "半袖", "短パン",
-                "着物", "和服", "襦袢", "帯",
-                )),
-        (__FASHION_LAYER__ + "tops", "トップ",
-            (
-                "上着", "セーター", "Ｔシャツ", "シャツ", "ジャンパー", "ジージャン", "コート",
-                "スタジャン", "スカジャン", "ドレス", "ワンピース", "キャミソール", "キャミ",
-                )),
-        (__FASHION_LAYER__ + "bottoms", "ボトム",
-            (
-                "ズボン", "ジーパン", "デニム", "半ズボン", "ハーフパンツ",
-                "ジャージ", "ツナギ", "つなぎ",
-                )),
-        (__FASHION_LAYER__ + "under", "下着",
-            (
-                "下着", "ブラ", "ブラジャー", "パンツ", "パンティ", "ショーツ", "トランクス", "ブリーフ",
-                "ストッキング", "ニーハイ", "靴下", "レッグウォーマー", "アームウォーマー",
-                )),
-        (__FASHION_LAYER__ + "shoes", "靴",
-            (
-                "靴", "革靴", "ブーツ", "長靴", "シューズ",
-                "ヒール", "スニーカー", "草履", "雪駄", "下駄",
-                )),
-        (__FASHION_LAYER__ + "items", "小物",
-            (
-                "帽子", "ハット", "キャップ", "ベレー帽", "ベレィ帽",
-                "リストバンド",
-                "手袋",
-                "スカーフ", "ストール",
-                "ネクタイ",
-                "眼鏡", "サングラス", "グラス",
-                "かんざし", "簪", "ヘアバンド", "カチューシャ", "リボン",
-                )),
-        (__FASHION_LAYER__ + "faces", "外見",
-            (
-                "髪",
-                "肌",
-                "目", "瞳", "眼",
-                "鼻",
-                "口", "唇",
-                "体", "身体",
-                "手",
-                "足",
-                )),
-        )
+__FORMAT_DEFAULT__ = (0, 0, 0, 0)
+__FORMAT_ESTAR__ = (1, 2, 2, 1)
+__FORMAT_WEB__ = (0, 1, 1, 0)
+__FORMAT_PHONE__ = (1, 1, 1, 1)
 
-FOOD_LAYERS = (
-        (__FOOD_LAYER__ + "food", "食べ物",
-            (
-                "食べ物",
-                "朝食", "昼食", "夕食", "夜食", "間食", "完食",
-                "麺", "うどん", "饂飩", "蕎麦", "そば", "ラーメン", "パスタ", "スパゲッティ", "焼きそば", "やきそば",
-                "ご飯", "白米", "玄米", "ごはん",
-                "寿司",
-                "味噌汁", "みそ汁",
-                "漬物", "お新香", "おしんこ",
-                "スープ", "シチュー", "ポトフ",
-                "おかず",
-                "回鍋肉", "ホイコーロー", "麻婆豆腐", "マーボー豆腐",
-                "サムゲタン", "参鶏湯",
-                "サムギョプサル",
-                "カレー",
-                "オムライス", "オムレツ",
-                "目玉焼き",
-                "パン",
-                "トースト",
-                "エッグ",
-                "ハム", "ベーコン", "ソーセージ",
-                "団子", "餅",
-                "アイス", "シャーベット",
-                "タピオカ",
-                )),
-        (__FOOD_LAYER__ + "drink", "飲み物",
-            (
-                "飲み物", "ドリンク",
-                "アルコール", "酒", "ワイン", "ビール",
-                "お茶", "緑茶",
-                "紅茶", "アールグレイ", "アールグレィ", "ダージリン",
-                "珈琲", "コーヒー", "カフェオレ", "カプチーノ",
-                "ジュース",
-                "水", "ウォーター",
-                )),
-        )
+__DEF_YEAR__ = 2020
+__DEF_MON__ = 1
+__DEF_DAY__ = 1
+
+## enums
+class ActType(Enum):
+    # basic action
+    ACT = auto() # basic action
+    # object control
+    BE = auto() # put object in scene
+    DESTROY = auto() # vanish object
+    HAVE = auto() # is-a object
+    DISCARD = auto() # not is-a = DESTROY
+    COME = auto()
+    GO = auto()
+    # effect
+    HEAR = auto() # sound effect
+    LOOK = auto() # paint object
+    # talk action
+    TALK = auto() # dialogue
+    THINK = auto() # monologue
+    EXPLAIN = auto() # status/narration
+    VOICE = auto() # specific voice
+    # other
+    TAG = auto() # tag
+    META = auto() # meta
+
+class DataType(Enum):
+    NONE = auto()
+    ACTION = auto() # action
+    HEAD = auto() # sceneより上位のcontainer
+    TITLE = auto() # title
+    DATA_STR = auto()
+    DATA_DICT = auto()
+    STORY_TITLE = auto()
+    CHAPTER_TITLE = auto()
+    EPISODE_TITLE = auto()
+    SCENE_TITLE = auto()
+    SCENE_SETTING = auto()
+    STAGE_SETTING = auto()
+    PERSON_SETTING = auto()
+    SCENE_OBJECT = auto()
+    TAG = auto()
+    DESCRIPTION = auto()
+    DIALOGUE = auto()
+    MONOLOGUE = auto()
+    NARRATION = auto()
+    VOICE = auto()
+
+class MetaType(Enum):
+    NONE = auto()
+    INFO = auto()
+    TEST_EXISTS_THAT = auto()       # A subejct exists (in scene)
+    TEST_HAS_THAT = auto()          # the subject has A item (object)
+
+class TagType(Enum):
+    NONE = auto()
+    BR = auto() # break line
+    COMMENT = auto() # comment
+    OUTLINE = auto() # outline
+    HR = auto() # horizontal line
+    SYMBOL = auto() # symbol mark
+    TITLE = auto() # title
+
+class WordClasses(Enum):
+    NOUN = "名詞"
+    VERB = "動詞"
+    ADJECTIVE = "形容詞"
+    ADVERB = "副詞"
+    CONJUCTION = "接続詞"
+    INTERJECTION = "感動詞"
+    AUXVERB = "助動詞"
+    PARTICLE = "助詞"
+    MARK = "記号"
+    PREFIX = "接頭詞"
+    OTHER = "その他"
+
+ConteData = namedtuple("ConteData",
+                        ("type", "dialogue", "subject", "objects", "content", "count", "note"))

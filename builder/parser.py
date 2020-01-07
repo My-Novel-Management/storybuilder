@@ -1,316 +1,257 @@
 # -*- coding: utf-8 -*-
-"""The parser.
+"""Define tool for parser
 """
-import re
+## public libs
 from itertools import chain
-from . import assertion
-from .action import Action, ActType
-from .converter import toConvertTagAction
-from .description import Rubi, RubiType
-from .story import Story
-from .chapter import Chapter
-from .converter import toConvertTagAction
-from .episode import Episode
-from .scene import Scene, ScenarioType
-from .action import Action, ActType, TagAction, TagType
-from .who import Who
-from .person import Person
-from .description import Description, DescType, NoDesc
-from .basesubject import NoSubject
-from .strutils import str_replaced_tag_by_dictionary, str_duplicated_chopped, extraspace_chopped, duplicate_bracket_chop_and_replaceed
-from .combaction import CombAction
-from .utils import strOfDescription
+from typing import Any, Tuple
+## local libs
+from utils import assertion
+from utils.util_str import strDuplicatedChopped, dictCombined, containsWordsIn
+from utils.util_str import strJoinIf
+from builder.utility import hasThen
+## local files
+from builder import ActType, DataType, TagType, MetaType
+from builder import ConteData
+from builder.action import Action
+from builder.chapter import Chapter
+from builder.conjuction import Then
+from builder.day import Day
+from builder.episode import Episode
+from builder.extractor import Extractor
+from builder.item import Item
+from builder.metadata import MetaData
+from builder.person import Person
+from builder.scene import Scene
+from builder.stage import Stage
+from builder.story import Story
+from builder.time import Time
+from builder.word import Word
 
-# define type hint
-AllActions = (Action, CombAction, TagAction)
-BaseActions = (Action, TagAction)
-SomeOnes = (Person, NoSubject)
-StoryContainers = (Story, Chapter, Episode, Scene)
+
+## define types
+StoryLike = (Story, Chapter, Episode, Scene)
+DescriptionLike = (DataType.DESCRIPTION, DataType.DIALOGUE, DataType.MONOLOGUE,
+                    DataType.NARRATION, DataType.VOICE)
+DialogueLike = (ActType.TALK, ActType.THINK, ActType.EXPLAIN, ActType.VOICE)
+ObjectLike = (Person, Stage, Day, Time, Item, Word)
 
 
-class Parser(object): # pragma: no cover
-    """Parser class.
+## define class
+class Parser(object):
+    """The tool class for parser
     """
-    def __init__(self, src: StoryContainers):
-        self._src = src
-
-    @property
-    def src(self): return self._src
-
-    # methods
-    def toDescriptions(self, is_comment: bool) -> list: # pragma: no cover
-        return self._toSomething(
-                is_comment,
-                storyFnc=_toDescriptionsFrom,
-                chapterFnc=_toDescriptionsFromChapter,
-                episodeFnc=_toDescriptionsFromEpisode,
-                sceneFnc=_toDescriptionsFromScene,
-                src=self.src
-                )
-
-    def toDescriptionsWithRubi(self, words: dict, is_comment: bool) -> list: # pragma: no cover
-        src = self.toDescriptions(is_comment)
-        return _toDescsWithRubiFrom(src, words)
-
-    def toDescriptionsAsLayer(self) -> list: # pragma: no cover
-        return self._toSomething(
-                "",
-                storyFnc=_toDescriptionsAsLayerFrom,
-                chapterFnc=_toDescriptionsAsLayerFromChapter,
-                episodeFnc=_toDescriptionsAsLayerFromEpisode,
-                sceneFnc=_toDescriptionsAsLayerFromScene,
-                src=self.src
-                )
-
-    def toOutlines(self) -> list: # pragma: no cover
-        return self._toSomething(
-                storyFnc=_toOutlinesFrom,
-                chapterFnc=_toOutlinesFromChapter,
-                episodeFnc=_toOutlinesFromEpisode,
-                sceneFnc=_toOutlinesFromScene,
-                src=self.src
-                )
-
-    def toOutlinesAsLayer(self) -> list: # pragme: no cover
-        return self._toSomething(
-                "",
-                storyFnc=_toOutlinesAsLayerFrom,
-                chapterFnc=_toOutlinesAsLayerFromChapter,
-                episodeFnc=_toOutlinesAsLayerFromEpisode,
-                sceneFnc=_toOutlinesAsLayerFromScene,
-                src=self.src
-                )
-
-    def toScenarios(self) -> list: # pragma: no cover
-        return self._toSomething(
-                "",
-                storyFnc=_toScenariosFrom,
-                chapterFnc=_toScenariosFromChapter,
-                episodeFnc=_toScenariosFromEpisode,
-                sceneFnc=_toScenariosFromScene,
-                src=self.src
-                )
-
-    def toScenariosAsLayer(self) -> list: # pragma: no cover
-        return self._toSomething(
-                "",
-                storyFnc=_toScenariosAsLayerFrom,
-                chapterFnc=_toScenariosAsLayerFromChapter,
-                episodeFnc=_toScenariosAsLayerFromEpisode,
-                sceneFnc=_toScenariosAsLayerFromScene,
-                src=self.src
-                )
-
-    ## privates
-    def _toSomething(self, *args,
-            storyFnc,
-            chapterFnc,
-            episodeFnc,
-            sceneFnc,
-            src=None) -> StoryContainers:
-        src = src if src else self.src
-        if isinstance(src, Story):
-            return storyFnc(src, *args)
-        elif isinstance(src, Chapter):
-            return chapterFnc(src, *args)
-        elif isinstance(src, Episode):
-            return episodeFnc(src, *args)
-        elif isinstance(src, Scene):
-            return sceneFnc(src, *args)
+    ## methods
+    @classmethod
+    def toContes(cls, src: StoryLike) -> Tuple[DataType, Any]:
+        # TODO: その他の情報とかを乗せるかどうか
+        #       例えばカメラ等の諸情報や、舞台設備など
+        if isinstance(src, Scene):
+            tmp = []
+            tmp.append((DataType.SCENE_SETTING,
+                {"stage":src.stage.name,
+                    "camera":src.camera.name,
+                    "day":src.day.data,
+                    "week":src.day.data.weekday(),
+                    "time":src.time.name,
+                    }))
+            persons = set(Extractor.subjectsFrom(src) + Extractor.personsFrom(src))
+            items = set(Extractor.itemsFrom(src))
+            if src.stage.textures:
+                tmp.append((DataType.STAGE_SETTING, dictCombined({"name":src.stage.name},src.stage.textures)))
+            if src.camera.textures:
+                tmp.append((DataType.PERSON_SETTING, dictCombined({"name":src.camera.name}, src.camera.textures)))
+                persons = persons | set([src.camera,])
+            ## NOTE: 人物情報
+            ## TODO: 文章の人名からも取得できるようにする
+            for v in persons:
+                if v.textures:
+                    tmp.append((DataType.PERSON_SETTING, dictCombined({"name":v.name}, v.textures)))
+            ## NOTE: 小道具情報
+            ## TODO: 文章中からも取得できるようにする
+            for v in items:
+                if v.textures:
+                    tmp.append((DataType.SCENE_OBJECT, dictCombined({"name":v.name}, v.textures)))
+            for ac in src.data:
+                if ActType.TAG is ac.act_type:
+                    continue
+                elif ActType.META is ac.act_type:
+                    continue
+                else:
+                    tmp.append((DataType.ACTION,
+                        ConteData(ac.act_type,
+                            cls.conteDialogueOf(ac),
+                            ac.subject.name,
+                            cls.conteObjectsOf(ac),
+                            cls.conteContentOf(ac),
+                            ac.itemCount,
+                            ac.note,
+                            )))
+            return (cls.titleOf(src),) + tuple(tmp)
         else:
-            raise AssertionError("Non-reachable value: ", src)
+            return (cls.titleOf(src),) + tuple(chain.from_iterable(
+                                    [cls.toContes(v) for v in src.data]))
 
-
-# privates
-'''to descriptions
-'''
-def _toDescriptionsFrom(story: Story, is_comment: bool) -> list:
-    return [_storyTitleOf(story)] \
-            + list(chain.from_iterable(_toDescriptionsFromChapter(v, is_comment) for v in story.chapters))
-
-def _toDescriptionsFromChapter(chapter: Chapter, is_comment: bool) -> list:
-    return [_chapterTitleOf(chapter)] \
-            + list(chain.from_iterable(_toDescriptionsFromEpisode(v, is_comment) for v in chapter.episodes))
-
-def _toDescriptionsFromEpisode(episode: Episode, is_comment: bool) -> list:
-    return [_episodeTitleOf(episode)] \
-            + list(chain.from_iterable(_toDescriptionsFromScene(v, is_comment) for v in episode.scenes))
-
-def _toDescriptionsFromScene(scene: Scene, is_comment: bool) -> list:
-    return [_sceneTitleOf(scene)] \
-            + [x for x in list(chain.from_iterable(_toDescriptionsFromAction(v, is_comment) for v in scene.actions)) if x]
-
-def _toDescriptionsFromAction(action: AllActions, is_comment: bool) -> list:
-    if isinstance(action, CombAction):
-        return [str_duplicated_chopped(
-            duplicate_bracket_chop_and_replaceed(
-                extraspace_chopped("".join(
-                    chain.from_iterable(
-                        _toDescriptionsFromAction(v, is_comment) for v in action.actions)))))]
-    elif isinstance(action, TagAction):
-        return [toConvertTagAction(action, is_comment)]
-    else:
-        if isinstance(action.description, NoDesc):
-            return []
-        if action.description.desc_type is DescType.DIALOGUE:
-            return [str_duplicated_chopped(f"「{strOfDescription(action)}」")]
-        elif action.description.desc_type is DescType.COMPLEX:
-            return [strOfDescription(action)]
+    @classmethod
+    def toDescriptions(cls, src: StoryLike) -> Tuple[DataType, Any]:
+        def _conv(descs, desc_type, ac, inPara):
+            return (desc_type if inPara else cls.descTypeOf(ac),
+                    strDuplicatedChopped("。".join(descs)))
+        if isinstance(src, Scene):
+            tmp = []
+            descs = []
+            desc_type = DataType.DESCRIPTION
+            inPara = False
+            last_action = None
+            for ac in src.data:
+                last_action = ac
+                if ActType.META is ac.act_type:
+                    continue
+                if not ac.tag_type is TagType.NONE:
+                    tmp.append(cls.tagOf(ac))
+                elif not Extractor.stringsFrom(ac):
+                    continue
+                else:
+                    descs.append(cls.descFrom(ac))
+                    if hasThen(ac):
+                        if not inPara:
+                            inPara = True
+                            desc_type = cls.descTypeOf(ac)
+                    else:
+                        tmp.append(_conv(descs, desc_type, ac, inPara))
+                        descs = []
+                        inPara = False
+            if descs:
+                tmp.append(_conv(descs, desc_type, last_action, inPara))
+            return (cls.titleOf(src),) + tuple(tmp)
         else:
-            return [str_duplicated_chopped(f"　{strOfDescription(action)}。")]
+            return (cls.titleOf(src),) + tuple(chain.from_iterable(
+                                [cls.toDescriptions(v) for v in src.data]))
 
-'''with rubi
-'''
-def _toDescsWithRubiFrom(src: list, words: dict) -> list:
-    tmp = []
-    discards = []
-    def _check_exclude(val, words):
-        if isinstance(words, str):
-            return words in val
-        else:
-            for w in words:
-                if w in val:
+    @classmethod
+    def toDescriptionsWithRubi(cls, src: StoryLike, rubis: dict) -> Tuple[DataType, Any]:
+        descs = cls.toDescriptions(src)
+        tmp = []
+        discards = []
+        def _check_exclude(val, words):
+            for w in assertion.isTuple(words):
+                if w and w in val:
                     return True
             return False
-    for v in src:
-        if '#' in v or '**' in v:
-            tmp.append(v)
-        else:
-            desc = v
-            for k,w in words.items():
-                if w.rubi_type is RubiType.NOSET:
-                    continue
-                elif k in discards:
-                    continue
-                elif k in desc and not f"｜{k}" in desc and not f"{k}《" in desc:
-                    if w.exclusions and _check_exclude(desc, w.exclusions):
+        for v in descs:
+            if not v[0] in DescriptionLike:
+                tmp.append(v)
+            else:
+                dsc = v[1]
+                for k,w in rubis.items():
+                    if k in discards:
                         continue
-                    desc = desc.replace(k, w.rubi, 1)
-                    if w.rubi_type is RubiType.ONCE:
-                        discards.append(k)
-            tmp.append(desc)
-    return tmp
+                    elif k in dsc and not f"｜{k}" in dsc and not f"{k}《" in dsc:
+                        if w.exclusions and _check_exclude(dsc, w.exclusions):
+                            continue
+                        dsc = dsc.replace(k, w.data, 1)
+                        if not w.isAlways:
+                            discards.append(k)
+                tmp.append((v[0], dsc))
+        return tuple(tmp)
 
-'''to layer
-'''
-def _toDescriptionsAsLayerFrom(story: Story, head: str) -> list:
-    return [("__TITLE__", _storyTitleOf(story)),] \
-            + list(chain.from_iterable(_toDescriptionsAsLayerFromChapter(v, head) for v in story.chapters))
-
-def _toDescriptionsAsLayerFromChapter(chapter: Chapter, head: str) -> list:
-    return list(chain.from_iterable(_toDescriptionsAsLayerFromEpisode(v, f"{chapter.title}") for v in chapter.episodes))
-
-def _toDescriptionsAsLayerFromEpisode(episode: Episode, head: str) -> list:
-    return list(chain.from_iterable(_toDescriptionsAsLayerFromScene(v, f"{head}-{episode.title}") for v in episode.scenes))
-
-def _toDescriptionsAsLayerFromScene(scene: Scene, head: str) -> list:
-    return list(chain.from_iterable(_toDescriptionsAsLayerFromAction(v, f"{head}-{scene.title}") for v in scene.actions))
-
-def _toDescriptionsAsLayerFromAction(action: AllActions, head: str) -> list:
-    layer = action.actions[0].layer if isinstance(action, CombAction) else action.layer
-    tmp = _toDescriptionsFromAction(action, False)
-    return [(f"{head}:{layer}", tmp[0] if tmp else "")]
-
-def _toOutlinesAsLayerFrom(story: Story, head: str) -> list:
-    return [("__TITLE__", _storyTitleOf(story)),] \
-            + list(chain.from_iterable(_toOutlinesAsLayerFromChapter(v, head) for v in story.chapters))
-
-def _toOutlinesAsLayerFromChapter(chapter: Chapter, head: str) -> list:
-    return list(chain.from_iterable(_toOutlinesAsLayerFromEpisode(v, chapter.title) for v in chapter.episodes))
-
-def _toOutlinesAsLayerFromEpisode(episode: Episode, head: str) -> list:
-    return list(chain.from_iterable(_toOutlinesAsLayerFromScene(v, f"{head}-{episode.title}") for v in episode.scenes))
-
-def _toOutlinesAsLayerFromScene(scene: Scene, head: str) -> list:
-    return list(chain.from_iterable(_toOutlinesAsLayerFromAction(v, f"{head}-{scene.title}") for v in scene.actions))
-
-def _toOutlinesAsLayerFromAction(action: AllActions, head: str) -> list:
-    if isinstance(action, CombAction):
-        return list(chain.from_iterable(_toOutlinesAsLayerFromAction(v, head) for v in action.actions))
-    elif isinstance(action, TagAction):
-        return []
-    else:
-        return [(f"{head}:{action.layer}", action.outline),]
-
-def _toOutlinesFrom(story: Story) -> list:
-    return [_storyTitleOf(story)] \
-            + list(chain.from_iterable(_toOutlinesFromChapter(v) for v in story.chapters))
-
-def _toOutlinesFromChapter(chapter: Chapter) -> list:
-    return [_chapterTitleOf(chapter)] \
-            + list(chain.from_iterable(_toOutlinesFromEpisode(v) for v in chapter.episodes))
-
-def _toOutlinesFromEpisode(episode: Episode) -> list:
-    return [_episodeTitleOf(episode), episode.outline] \
-            + list(chain.from_iterable(_toOutlinesFromScene(v) for v in episode.scenes))
-
-def _toOutlinesFromScene(scene: Scene) -> list:
-    return [_sceneTitleOf(scene), scene.outline] \
-            + list(chain.from_iterable(_toOutlinesFromAction(v) for v in scene.actions))
-
-def _toOutlinesFromAction(action: AllActions) -> list:
-    # TODO: Action内容をどうするか考える
-    return []
-
-def _toScenariosFrom(story: Story, is_comment) -> list:
-    return [(ScenarioType.TITLE, _storyTitleOf(story))] \
-            + list(chain.from_iterable(_toScenariosFromChapter(v, is_comment) for v in story.chapters))
-
-def _toScenariosFromChapter(chapter: Chapter, is_comment: bool) -> list:
-    return [(ScenarioType.TITLE, _chapterTitleOf(chapter))] \
-            + list(chain.from_iterable(_toScenariosFromEpisode(v, is_comment) for v in chapter.episodes))
-
-def _toScenariosFromEpisode(episode: Episode, is_comment: bool) -> list:
-    return [(ScenarioType.TITLE, _episodeTitleOf(episode))] \
-            + list(chain.from_iterable(_toScenariosFromScene(v, is_comment) for v in episode.scenes))
-
-def _toScenariosFromScene(scene: Scene, is_comment: bool) -> list:
-    return [(ScenarioType.TITLE, _sceneTitleOf(scene))] \
-            + [(ScenarioType.PILLAR, f"{scene.stage.name}:{scene.day.name}:{scene.time.name}")] \
-            + list(chain.from_iterable(_toScenariosFromAction(v, is_comment) for v in scene.actions))
-
-def _toScenariosFromAction(action: AllActions, is_comment: bool) -> list:
-    if isinstance(action, CombAction):
-        return chain.from_iterable(_toScenariosFromAction(v, is_comment) for v in action.actions)
-    elif isinstance(action, TagAction):
-        return [(ScenarioType.TAG, toConvertTagAction(action, is_comment)),]
-    else:
-        if action.act_type is ActType.TALK or action.description.desc_type is DescType.DIALOGUE:
-            return [(ScenarioType.DIALOGUE, f"{action.subject.name}:{action.outline}"),]
+    @classmethod
+    def toOutlines(cls, src: StoryLike) -> Tuple[DataType, Any]:
+        if isinstance(src, Scene):
+            tmp = []
+            for ac in src.data:
+                if ac.tag_type is TagType.COMMENT:
+                    tmp.append((DataType.DATA_STR, ac.note))
+            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else ()) + tuple(tmp)
         else:
-            return [(ScenarioType.DIRECTION, action.outline)]
+            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else ()) + tuple(chain.from_iterable(
+                [cls.toOutlines(v) for v in src.data]))
 
-def _toScenariosAsLayerFrom(story: Story, head: str) -> list:
-    return [("__TITLE__", "", ScenarioType.TITLE, _storyTitleOf(story))] \
-            + list(chain.from_iterable(_toScenariosAsLayerFromChapter(v, head) for v in story.chapters))
+    @classmethod
+    def toLayerInfo(cls, src: StoryLike, words: (str, list, tuple)) -> Tuple[DataType, Action]:
+        if isinstance(src, Scene):
+            tmp = []
+            for ac in src.data:
+                if not ac.tag_type is TagType.NONE:
+                    continue
+                else:
+                    descs = strJoinIf(Extractor.stringsFrom(ac), "/")
+                    objs = strJoinIf([v.name for v in Extractor.objectsFrom(ac)], "/")
+                    if containsWordsIn(descs, words):
+                        tmp.append((DataType.DATA_STR, f"「{descs}」" if ac.act_type is ActType.TALK else descs))
+                    if containsWordsIn(objs, words):
+                        tmp.append((DataType.DATA_STR, objs))
+            return (cls.titleOf(src),) + tuple(tmp)
+        else:
+            return (cls.titleOf(src),) + tuple(chain.from_iterable(
+                [cls.toLayerInfo(v, words) for v in src.data]))
 
-def _toScenariosAsLayerFromChapter(chapter: Chapter, head: str) -> list:
-    return list(chain.from_iterable(_toScenariosAsLayerFromEpisode(v, f"{chapter.title}") for v in chapter.episodes))
+    ## methods (for parts)
+    @classmethod
+    def conteContentOf(cls, action: Action) -> str:
+        meta = "/".join([v.note for v in Extractor.metadataFrom(action) if v.data is MetaType.INFO])
+        if action.act_type in DialogueLike:
+            return meta
+        else:
+            if meta:
+                return meta
+            else:
+                return strDuplicatedChopped("。".join(Extractor.stringsFrom(action)))
 
-def _toScenariosAsLayerFromEpisode(episode: Episode, head: str) -> list:
-    return list(chain.from_iterable(_toScenariosAsLayerFromScene(v, f"{head}-{episode.title}") for v in episode.scenes))
+    @classmethod
+    def conteDialogueOf(cls, action: Action) -> str:
+        if action.act_type in DialogueLike:
+            return strDuplicatedChopped("。".join(Extractor.stringsFrom(action)))
+        else:
+            return ""
 
-def _toScenariosAsLayerFromScene(scene: Scene, head: str) -> list:
-    return list(chain.from_iterable(_toScenariosAsLayerFromAction(v, f"{head}-{scene.title}|{scene.stage.name}:{scene.day.name}:{scene.time.name}") for v in scene.actions))
+    @classmethod
+    def conteObjectsOf(cls, action: Action) -> tuple:
+        return tuple([v for v in Extractor.directionsFrom(action) if isinstance(v, ObjectLike)])
 
-def _toScenariosAsLayerFromAction(action: AllActions, head: str) -> list:
-    _head, pillar = head.split('|')
-    layer = action.actions[0].layer if isinstance(action, CombAction) else action.layer
-    tmp = _toScenariosFromAction(action, False)[0]
-    return [(f"{_head}:{layer}", pillar, tmp[0], tmp[1])]
+    @classmethod
+    def descFrom(cls, action: Action) -> str:
+        tmp = "。".join(Extractor.stringsFrom(action))
+        if not action.act_type is ActType.TALK:
+            tmp += "。"
+        return strDuplicatedChopped(tmp)
 
-## utility
-def _storyTitleOf(story: Story) -> str:
-    return f"# {story.title}"
+    @classmethod
+    def descTypeOf(cls, action: Action) -> DataType:
+        if action.act_type is ActType.TALK:
+            return DataType.DIALOGUE
+        elif action.act_type is ActType.THINK:
+            return DataType.MONOLOGUE
+        elif action.act_type is ActType.EXPLAIN:
+            return DataType.NARRATION
+        elif action.act_type is ActType.VOICE:
+            return DataType.VOICE
+        else:
+            return DataType.DESCRIPTION
 
-def _chapterTitleOf(chapter: Chapter) -> str:
-    return f"## {chapter.title}"
+    @classmethod
+    def tagOf(cls, action: Action) -> Tuple[DataType, str]:
+        if action.tag_type is TagType.BR:
+            return (DataType.TAG, "\n")
+        elif action.tag_type is TagType.COMMENT:
+            return (DataType.TAG, action.note)
+        elif action.tag_type is TagType.OUTLINE:
+            return (DataType.TAG, action.note)
+        elif action.tag_type is TagType.HR:
+            return (DataType.TAG, "--------" * 8)
+        elif action.tag_type is TagType.SYMBOL:
+            return (DataType.TAG, action.note)
+        elif action.tag_type is TagType.TITLE:
+            return (DataType.TITLE, action.note)
+        else:
+            return (DataType.NONE, "")
 
-def _episodeTitleOf(episode: Episode) -> str:
-    return f"### {episode.title}"
-
-def _sceneTitleOf(scene: Scene) -> str:
-    return f"**{scene.title}**"
-
-def _listExceptedNone(target: list) -> list:
-    return [v for v in target if v]
+    @classmethod
+    def titleOf(cls, src: StoryLike) -> Tuple[DataType, str]:
+        if isinstance(src, Story):
+            return (DataType.STORY_TITLE, src.title)
+        elif isinstance(src, Chapter):
+            return (DataType.CHAPTER_TITLE, src.title)
+        elif isinstance(src, Episode):
+            return (DataType.EPISODE_TITLE, src.title)
+        else:
+            return (DataType.SCENE_TITLE, assertion.isInstance(src, Scene).title)

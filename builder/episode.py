@@ -1,31 +1,37 @@
 # -*- coding: utf-8 -*-
-"""Define episode class.
+"""Define scene container.
 """
-from . import assertion
-from .basecontainer import BaseContainer
-from .scene import Scene
-from . import __DEF_PRIORITY__
+## public libs
+from __future__ import annotations
+from typing import Tuple
+## local libs
+from utils import assertion
+from utils.util_str import tupleFiltered
+## local files
+from builder import __PRIORITY_NORMAL__
+from builder.basecontainer import BaseContainer
+from builder.scene import Scene
 
 
+## define class
 class Episode(BaseContainer):
-    """The container for scenes.
+    """The container class for scenes.
+
+    Attributes:
+        title (str): a episode title
+        scenes (tuple:Scene): 0. scenes
+        note (str): 1. a note
     """
-    def __init__(self, title: str, outline: str, *args):
-        super().__init__(title, __DEF_PRIORITY__)
-        self._outline = assertion.is_str(outline)
-        self._scenes = Episode._validatedScenes(*args)
+    def __init__(self, title: str, *args: Scene,
+            note: str="", priority: int=__PRIORITY_NORMAL__):
+        super().__init__(title,
+                assertion.isTuple(tupleFiltered(args, Scene)),
+                note=note,
+                priority=priority)
 
-    def inherited(self, *scs, title: str=None, outline: str=None):
-        return Episode(self.title if not title else assertion.is_str(title),
-                self.outline if not outline else assertion.is_str(outline),
-                *scs).setPriority(self.priority)
-
-    @property
-    def outline(self): return self._outline
-
-    @property
-    def scenes(self): return self._scenes
-
-    # private
-    def _validatedScenes(*args):
-        return args if [assertion.is_instance(v, Scene) for v in args] else ()
+    ## methods
+    def inherited(self, *args: Scene, title: str="") -> Episode:
+        return Episode(title if title else self.title,
+                *args,
+                note=self.note,
+                priority=self.priority)
