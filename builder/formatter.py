@@ -226,6 +226,19 @@ class Formatter(object):
         return tmp
 
     @classmethod
+    def toHistoryPersons(cls, title: str, src: list) -> list:
+        tmp = []
+        for data in src:
+            if DataType.HEAD is data[0]:
+                tmp.append(f"\n## {data[1]}\n")
+            elif DataType.DATA_LIST is data[0]:
+                for hi in data[1]:
+                    age, cont = hi.content.split(":")
+                    _age = f"{float(age):.1f}"
+                    tmp.append(f"{hi.date} | {_age:>6} | {cont:\u3000<32} | {hi.note}")
+        return [f"# {title}\n"] + tmp
+
+    @classmethod
     def toKanjiInfo(cls, title: str, src: list) -> list:
         tmp = []
         total, kanji = 0, 0

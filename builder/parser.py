@@ -2,23 +2,28 @@
 """Define tool for parser
 """
 ## public libs
+import datetime
+from dateutil.relativedelta import relativedelta
 from itertools import chain
-from typing import Any, Tuple
+from typing import Any, Tuple, List
 ## local libs
 from utils import assertion
-from utils.util_str import strDuplicatedChopped, dictCombined, containsWordsIn
+from utils.util_str import strDuplicatedChopped, dictCombined, containsWordsIn, strReplacedTagByDict
 from utils.util_str import strJoinIf
 from builder.utility import hasThen
 ## local files
 from builder import ActType, DataType, TagType, MetaType
 from builder import ConteData
+from builder import History
 from builder.action import Action
 from builder.chapter import Chapter
+from builder.converter import Converter
 from builder.conjuction import Then
 from builder.day import Day
 from builder.episode import Episode
 from builder.extractor import Extractor
 from builder.item import Item
+from builder.lifenote import LifeNote
 from builder.metadata import MetaData
 from builder.person import Person
 from builder.scene import Scene
@@ -153,6 +158,43 @@ class Parser(object):
                             discards.append(k)
                 tmp.append((v[0], dsc))
         return tuple(tmp)
+
+    @classmethod
+    def toLifeNote(cls, src: LifeNote, tags: dict, prefix: str) -> Tuple[DataType, Any]:
+        tmp = []
+        notes = []
+        current = src.subject
+        for ac in src.data:
+            conv_act, current = Converter.actionReplacedPronoun(ac, current)
+            conv_act = Converter.actionReplacedTags(conv_act, tags, prefix, current)
+            notes.append(conv_act)
+        sc = Scene(strReplacedTagByDict(src.title, tags, prefix), *notes)
+        return cls.toDescriptions(sc)
+
+    @classmethod
+    def toHistory(cls, subject: Person, basedate: datetime.date, src: List[History]) -> list:
+        tmp = []
+        birth = basedate - relativedelta(years=subject.age)
+        tmp.append(History(birth + relativedelta(month=subject.birth[0], day=subject.birth[1]),
+            "0:誕生日", ""))
+        ## reorder date
+        for hi in src:
+            day = birth
+            if isinstance(hi.date, int):
+                day = birth + relativedelta(years=hi.date)
+            elif isinstance(hi.date, str) and ":" in hi.date:
+                years = hi.date.split(':')
+                if len(years) == 2:
+                    day = birth + relativedelta(years=int(years[0]), months=int(years[1]))
+                else:
+                    day = birth + relativedelta(years=int(years[0]), months=int(years[1]), days=int(years[2]))
+            elif isinstance(hi.date, str) and "-" in hi.date:
+                day = datetime.date.fromisoformat(hi.date)
+            else:
+                day = birth
+            age = (day - birth).days / 365
+            tmp.append(History(day, f"{age}:{hi.content}", hi.note))
+        return sorted(tmp, key=lambda h: h[0])
 
     @classmethod
     def toOutlines(cls, src: StoryLike) -> Tuple[DataType, Any]:

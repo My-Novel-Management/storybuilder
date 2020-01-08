@@ -26,7 +26,7 @@ class Person(BaseData):
     """
     __CALLING__ = "me:私"
     __NOTE__ = "nothing"
-    def __init__(self, name: str, fullname: str, age: int, sex: str, job: str,
+    def __init__(self, name: str, fullname: str, age: int, birth: (list, tuple), sex: str, job: str,
             calling: [dict, str]=__CALLING__, note: str=__NOTE__):
         super().__init__(name,
                 (assertion.isStr(fullname),
@@ -37,8 +37,13 @@ class Person(BaseData):
                     ),
                 note=note,
                 )
+        self._birth = birth if isinstance(birth, tuple) else list(assertion.isList(birth))
 
     ## property
+    @property
+    def birth(self) -> tuple:
+        return self._birth
+
     @property
     def fullname(self) -> str:
         return self.data[0]
@@ -72,7 +77,7 @@ class Person(BaseData):
 
     @classmethod
     def getGod(cls) -> Person:
-        return Person("■", "", 99, "none", "god")
+        return Person("■", "", 99, (1,1), "none", "god")
 
     ## privates
     def _callingConstructed(self, calling: (str, dict), name: str):

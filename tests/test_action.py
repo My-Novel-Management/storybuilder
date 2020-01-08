@@ -23,8 +23,8 @@ class ActionTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Action class")
 
     def setUp(self):
-        self.taro = Person("Taro", "山田,太郎", 15, "male", "student")
-        self.hana = Person("Hana", "田中,花子", 17, "female", "parttimer")
+        self.taro = Person("Taro", "山田,太郎", 15, (1,1), "male", "student")
+        self.hana = Person("Hana", "田中,花子", 17, (1,1), "female", "parttimer")
 
     def test_attributes(self):
         attrs = ("data", "subject", "act_type", "tag_type", "note", "itemCount")

@@ -22,7 +22,7 @@ class WriterTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Writer class")
 
     def setUp(self):
-        self.taro = Person("Taro", "", 15, "male", "student")
+        self.taro = Person("Taro", "", 15, (1,1), "male", "student")
 
     def test_attributes(self):
         tmp = Writer(self.taro)

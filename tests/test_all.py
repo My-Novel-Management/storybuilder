@@ -25,6 +25,7 @@ import test_extractor
 import test_formatter
 import test_item
 import test_layer
+import test_lifenote
 import test_metadata
 import test_parser
 import test_person
@@ -69,6 +70,7 @@ def suite():
         unittest.makeSuite(test_basecontainer.BaseContainerTest),# base
         unittest.makeSuite(test_action.ActionTest),
         unittest.makeSuite(test_block.BlockTest),
+        unittest.makeSuite(test_lifenote.LifeNoteTest),
         unittest.makeSuite(test_scene.SceneTest),
         unittest.makeSuite(test_episode.EpisodeTest),
         unittest.makeSuite(test_chapter.ChapterTest),

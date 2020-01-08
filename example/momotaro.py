@@ -190,6 +190,27 @@ def set_persons(w: World):
                 ["髪", "黒くて長い",
                     "体躯", "すらりと長身"])
 
+def life_taro(w: World):
+    taro = W(w.taro)
+    return w.lifenote("$taroの成長",w.taro,
+                taro.do("よく食べてよく眠る子だった"),
+                taro.do("朝起きたらいきなり走り回り、畑仕事を手伝う"),
+                taro.do("ご飯は三合をぺろりと平らげ、おじいさんおばあさんを驚かせた"),
+                )
+
+def hist_taro(w: World):
+    return w.createHistories(
+            (1, "猪に勝つ"),
+            (5, "相撲で負けなし"),
+            )
+
+def hist_granma(w: World):
+    return w.createHistories(
+            ("50:5", "おじいさんと再婚"),
+            ("0100-05-05", "最初の結婚をする"),
+            (74, "桃太郎を授かる"),
+            )
+
 ## stages
 def set_stages(w: World):
     w.setTexture("on_home",
@@ -219,9 +240,19 @@ def create_world():
     w.buildDB(PERSONS,
             STAGES, ITEMS, DAYS, TIMES, WORDS,
             RUBIS, LAYERS)
+    #   set base year
+    w.setBaseDate(113)
     #   set textures
     set_persons(w)
     set_stages(w)
+    #   set blocks
+    #   set history
+    w.entryHistory(w.taro, *hist_taro(w))
+    w.entryHistory(w.granma, *hist_granma(w))
+    #   set lifenotes
+    w.entryLifeNote(
+            life_taro(w),
+            )
     return w
 
 def main(): # pragma: no cover

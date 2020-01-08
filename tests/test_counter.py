@@ -26,7 +26,7 @@ class CounterTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Counter class")
 
     def setUp(self):
-        self.taro = Person("太郎", "", 15, "male", "student", "me:俺")
+        self.taro = Person("太郎", "", 15, (1,1), "male", "student", "me:俺")
         self.basedata = Story("test", Chapter("c1", Episode("e1",
             Scene("s1", Action("apple", subject=self.taro)))))
 

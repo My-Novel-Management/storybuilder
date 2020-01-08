@@ -30,7 +30,7 @@ class ExtractorTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Extractor class")
 
     def setUp(self):
-        self.taro = Person("太郎", "", 15, "male", "student")
+        self.taro = Person("太郎", "", 15, (1,1), "male", "student")
 
     def _getStory(self, act: Action):
         return Story("test", Chapter("c1", Episode("e1",

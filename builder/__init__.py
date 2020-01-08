@@ -73,6 +73,7 @@ class DataType(Enum):
     HEAD = auto() # sceneより上位のcontainer
     TITLE = auto() # title
     DATA_STR = auto()
+    DATA_LIST = auto()
     DATA_DICT = auto()
     STORY_TITLE = auto()
     CHAPTER_TITLE = auto()
@@ -117,5 +118,9 @@ class WordClasses(Enum):
     PREFIX = "接頭詞"
     OTHER = "その他"
 
+## named tuple
 ConteData = namedtuple("ConteData",
-                        ("type", "dialogue", "subject", "objects", "content", "count", "note"))
+        ("type", "dialogue", "subject", "objects", "content", "count", "note"))
+
+History = namedtuple("History",
+        ("date", "content", "note"))

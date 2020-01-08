@@ -7,6 +7,7 @@ cache: pip
 
 install:
     - pip install coveralls
+    - pip install python-dateutil
     - pip install mecab-python3
 
 script:

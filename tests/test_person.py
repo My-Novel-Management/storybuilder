@@ -22,22 +22,22 @@ class PersonTest(unittest.TestCase):
         pass
 
     def test_attributes(self):
-        attrs = ("fullname", "age", "sex", "job", "calling", "note")
+        attrs = ("fullname", "age", "birth", "sex", "job", "calling", "note")
         data = [
-                (False, "Taro", "山田,太郎", 15, "male", "student", "me:俺", "a man",
-                    ("山田,太郎", 15, "male", "student", {"me":"俺","S":"Taro","M":"俺"}, "a man")),
+                (False, "Taro", "山田,太郎", 15, (1,1), "male", "student", "me:俺", "a man",
+                    ("山田,太郎", 15, (1,1), "male", "student", {"me":"俺","S":"Taro","M":"俺"}, "a man")),
                 ]
-        def _creator(name, full, age, sex, job, calling, note):
+        def _creator(name, full, age, birth, sex, job, calling, note):
             if calling and note:
-                return Person(name, full, age, sex, job, calling, note)
+                return Person(name, full, age, birth, sex, job, calling, note)
             elif calling:
-                return Person(name, full, age, sex, job, calling)
+                return Person(name, full, age, birth, sex, job, calling)
             elif note:
-                return Person(name, full, age, sex, job, note=note)
+                return Person(name, full, age, birth, sex, job, note=note)
             else:
-                return Person(name, full, age, sex, job)
-        def _checkcode(name, full, age, sex, job, calling, note, expects):
-            tmp = _creator(name, full, age, sex, job, calling, note)
+                return Person(name, full, age, birth, sex, job)
+        def _checkcode(name, full, age, birth, sex, job, calling, note, expects):
+            tmp = _creator(name, full, age, birth, sex, job, calling, note)
             self.assertIsInstance(tmp, Person)
             for a,v in zip(attrs, expects):
                 with self.subTest(a=a, v=v):
@@ -46,7 +46,7 @@ class PersonTest(unittest.TestCase):
 
     def test_clsmethod_fullnamesConstructed(self):
         data = [
-                (False, Person("Taro", "山田,太郎", 15, "male", "student", "me:俺"),
+                (False, Person("Taro", "山田,太郎", 15, (1,1), "male", "student", "me:俺"),
                     ("山田", "太郎", "山田太郎", "太郎・山田")),
                 ]
         def _checkcode(v, expect):

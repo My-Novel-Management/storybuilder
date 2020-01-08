@@ -38,7 +38,7 @@ class WorldTest(unittest.TestCase):
     def test_setPersons(self):
         tmp = World("test")
         tmp.setPersons(
-                [["taro", "Taro", "", 15, "male", "student"],]
+                [["taro", "Taro", "", 15, (1,1), "male", "student"],]
                 )
         self.assertTrue(hasattr(tmp, "taro"))
 

@@ -29,8 +29,8 @@ class ConverterTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Converter class")
 
     def setUp(self):
-        self.taro = Person("Taro", "", 15, "male", "student", "me:俺")
-        self.hana = Person("Hana", "", 20, "female", "OL", "me:わたし")
+        self.taro = Person("Taro", "", 15, (1,1), "male", "student", "me:俺")
+        self.hana = Person("Hana", "", 20, (1,1), "female", "OL", "me:わたし")
 
     def test_attributes(self):
         tmp = Converter()

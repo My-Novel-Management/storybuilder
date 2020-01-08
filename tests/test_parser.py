@@ -31,8 +31,8 @@ class ParserTest(unittest.TestCase):
         printTestTitle(_FILENAME, "Parser class")
 
     def setUp(self):
-        self.taro = Person("太郎", "", 15, "male", "student", "me:俺")
-        self.hana = Person("花子", "", 15, "female", "student", "me:私")
+        self.taro = Person("太郎", "", 15, (1,1), "male", "student", "me:俺")
+        self.hana = Person("花子", "", 15, (1,1), "female", "student", "me:私")
         self.room = Stage("部屋")
 
     def test_attributes(self):

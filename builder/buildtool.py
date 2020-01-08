@@ -39,7 +39,9 @@ class Build(object):
     __BUILD_DIR__ = "build"
     __PERSON_DIR__ = "person"
     __ANALYZE_DIR__ = "analyze"
+    __HIST_DIR__ = "hist"
     __LAYER_DIR__ = "layer"
+    __LIFENOTE_DIR__ = "life"
     __LIST_DIR__ = "list"
     __EXTENTION__ = "md"
     def __init__(self, filename: str, extention: str=__EXTENTION__,
@@ -109,6 +111,7 @@ class Build(object):
             formattype: str,
             is_rubi: bool,
             is_scenario: bool, is_analyze: bool,
+            is_conteskip: bool,
             is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         '''output data
             0. basic info
@@ -129,7 +132,8 @@ class Build(object):
         ## outputs
         self.toInfoOfGeneral(src, is_debug)
         self.toOutline(src, is_debug)
-        self.toConte(src, analyzer, is_debug)
+        if not is_conteskip:
+            self.toConte(src, analyzer, is_debug)
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
@@ -151,7 +155,7 @@ class Build(object):
         #    self.toCheckObjects(src, is_debug)
         return True
 
-    def outputLists(self, world: dict, is_debug: bool) -> bool:
+    def outputLists(self, world: dict, is_debug: bool) -> bool: # pragma: no cover
         '''list
             - persons
             - stages
@@ -166,6 +170,31 @@ class Build(object):
         self.toListOfTimes(world, is_debug)
         self.toListOfItems(world, is_debug)
         self.toListOfWords(world, is_debug)
+        return True
+
+    def outputLifeNotes(self, notes: dict, tags: dict, prefix: str,
+            is_debug: bool) -> bool: # pragma: no cover
+        ftype = __FORMAT_DEFAULT__
+        idx = 1
+        for k,v in notes.items():
+            self.outputTo(
+                    Formatter.toDescription(f"LifeNote: {k}",
+                        Parser.toLifeNote(v, tags, prefix), ftype),
+                    f"L{idx}_", v.subject.name, self.extention,
+                    os.path.join(self.builddir, self.__LIFENOTE_DIR__), is_debug)
+            idx += 1
+        return True
+
+    def outputHistories(self, basedate: datetime.date, hists: dict,
+            is_debug: bool) -> bool: # pragma: no cover
+        for k,v in hists.items():
+            tmp = []
+            if v:
+                tmp.append((DataType.DATA_LIST, Parser.toHistory(k, basedate, v)))
+                self.outputTo(
+                        Formatter.toHistoryPersons(f"HistoryNote: {k.name}", tmp),
+                        k.name, "", self.extention,
+                        os.path.join(self.builddir, self.__HIST_DIR__), is_debug)
         return True
 
     def checkStory(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
@@ -365,7 +394,7 @@ class Build(object):
         return True
 
     ## to list
-    def toListOfDays(self, src: dict, is_debug: bool) -> bool:
+    def toListOfDays(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         days = daytimeDictSorted(self.getFromWorld(src, Day), False)
         title = f"Days list of {src.title}"
         res = [(DataType.DATA_DICT,dict([(k,v) for k,v in days.items()]))]
@@ -373,7 +402,7 @@ class Build(object):
                 self.filename, "_days", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 
-    def toListOfItems(self, src: dict, is_debug: bool) -> bool:
+    def toListOfItems(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         items = dictSorted(self.getFromWorld(src, Item), False)
         title = f"Items list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k,v) for k,v in items.items()]))]
@@ -381,7 +410,7 @@ class Build(object):
                 self.filename, "_items", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 
-    def toListOfPersons(self, src: dict, is_debug: bool) -> bool:
+    def toListOfPersons(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         persons = dictSorted(self.getFromWorld(src, Person), False)
         title = f"Persons list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k, v) for k,v in persons.items()]))]
@@ -389,7 +418,7 @@ class Build(object):
                 self.filename, "_persons", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 
-    def toListOfStages(self, src: dict, is_debug: bool) -> bool:
+    def toListOfStages(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         stages = dictSorted(dict([(k,v) for k,v in self.getFromWorld(src, Stage).items() if not ("_int" in k or "_ext" in k)]), False)
         title = f"Stages list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k,v) for k,v in stages.items()]))]
@@ -397,7 +426,7 @@ class Build(object):
                 self.filename, "_stages", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 
-    def toListOfTimes(self, src: dict, is_debug: bool) -> bool:
+    def toListOfTimes(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         times = daytimeDictSorted(self.getFromWorld(src, Time), False)
         title = f"Times list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k,v) for k,v in times.items()]))]
@@ -405,7 +434,7 @@ class Build(object):
                 self.filename, "_times", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 
-    def toListOfWords(self, src: dict, is_debug: bool) -> bool:
+    def toListOfWords(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         words = dictSorted(self.getFromWorld(src, Word), False)
         title = f"Words list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k,v) for k,v in words.items()]))]

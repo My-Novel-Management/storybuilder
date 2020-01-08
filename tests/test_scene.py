@@ -30,7 +30,7 @@ class SceneTest(unittest.TestCase):
 
     def test_attributes(self):
         attrs = ("camera", "stage", "day", "time", "data", "note")
-        p1 = Person("Taro", "", 15, "male", "student")
+        p1 = Person("Taro", "", 15, (1,1), "male", "student")
         st1 = Stage("room")
         dy1 = Day("a day")
         tm1 = Time("night", 22,0,0)

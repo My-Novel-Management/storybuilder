@@ -25,7 +25,8 @@ class Checker(object):
     """The tool class for check.
     """
     @classmethod
-    def validateConditions(cls, src: Story) -> bool:
+    def validateConditions(cls, src: Story) -> bool: # pragma: no cover
+        # TODO: test
         msg = []
         status = set()
         def _haveStr(ac, it):
@@ -72,7 +73,8 @@ class Checker(object):
             return True
 
     @classmethod
-    def validateObjects(cls, src: Story) -> bool:
+    def validateObjects(cls, src: Story) -> bool: # pragma: no cover
+        # TODO: test
         msg = []
         for ch in src.data:
             for ep in ch.data:
