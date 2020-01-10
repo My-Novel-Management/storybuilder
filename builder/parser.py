@@ -253,7 +253,7 @@ class Parser(object):
     @classmethod
     def descFrom(cls, action: Action) -> str:
         tmp = "。".join(Extractor.stringsFrom(action))
-        if not action.act_type is ActType.TALK:
+        if not action.act_type in (ActType.TALK, ActType.VOICE):
             tmp += "。"
         return strDuplicatedChopped(tmp)
 

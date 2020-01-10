@@ -144,3 +144,16 @@ class ParserTest(unittest.TestCase):
             tmp = Parser.toDescriptionsWithRubi(v, rubis)
             self.assertEqual(tmp, expect)
         validatedTestingWithFail(self, "toDescriptionsWithRubi", _checkcode, data)
+
+    ## methods (for parts)
+    def test_descFrom(self):
+        data = [
+                (False, Action("apple", "orange"),
+                    "apple。orange。"),
+                (False, Action("apple", "orange", act_type=ActType.TALK),
+                    "apple。orange"),
+                (False, Action("apple", "orange", act_type=ActType.VOICE),
+                    "apple。orange"),
+                ]
+        validatedTestingWithFail(self, "descFrom", lambda v, expect: self.assertEqual(
+            Parser.descFrom(v), expect), data)
