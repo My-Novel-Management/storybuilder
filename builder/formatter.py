@@ -184,9 +184,9 @@ class Formatter(object):
                     elif "rows" == k:
                         rows = v
                     elif "columns" == k:
-                        columns == v
+                        columns = v
                     elif "chapters" == k:
-                        chapters == v
+                        chapters = v
                     elif "episodes" == k:
                         episodes = v
                     elif "scenes" == k:

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-2] - 2020-01-10
+### Fixed
+- chapter count ouput: typo
+
 ## [0.4.3-1] - 2020-01-10
 ### Fixed
 - output without maru using ActType.Voice
@@ -236,7 +240,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-1...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-2...HEAD
+[0.4.3-2]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-2
 [0.4.3-1]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-1
 [0.4.3]: https://github.com/nagisc007/storybuilder/releases/v0.4.3
 [0.4.2]: https://github.com/nagisc007/storybuilder/releases/v0.4.2
