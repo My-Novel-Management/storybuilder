@@ -238,7 +238,7 @@ def create_world():
     w.setAssets(basic.ASSET)
     #   set DB (user)
     w.buildDB(PERSONS,
-            STAGES, ITEMS, DAYS, TIMES, WORDS,
+            STAGES, DAYS, TIMES, ITEMS, WORDS,
             RUBIS, LAYERS)
     #   set base year
     w.setBaseDate(113)

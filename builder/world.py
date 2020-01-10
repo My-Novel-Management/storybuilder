@@ -130,16 +130,17 @@ class World(UtilityDict):
     def build(self, *args, **kwargs): # pragma: no cover
         return not self.buildStory(self.filename, *args, **kwargs)
 
-    def buildDB(self, persons: list, stages: list, items: list,
-            days: list, times: list, words: list,
+    def buildDB(self, persons: list, stages: list,
+            days: list, times: list,
+            items: list, words: list,
             rubis: list, layers: list) -> bool: # pragma: no cover
         '''Build database
         '''
         self.setPersons(persons)
         self.setStages(stages)
-        self.setItems(items)
         self.setDays(days)
         self.setTimes(times)
+        self.setItems(items)
         self.setWords(words)
         self.setRubis(rubis)
         self.setLayers(layers)
