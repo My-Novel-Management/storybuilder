@@ -9,6 +9,7 @@ from utils import assertion
 from utils.util_str import dictFromStrBySplitter
 from utils.utildict import UtilityDict
 ## local files
+from builder import __BASE_COLUMN__, __BASE_ROW__
 from builder import __PREFIX_DAY__
 from builder import __PREFIX_STAGE__, __SUFFIX_STAGE_INT__, __SUFFIX_STAGE_EXT__
 from builder import __PREFIX_TIME__, __PREFIX_WORD__
@@ -69,6 +70,8 @@ class World(UtilityDict):
         self._histories = {}
         self._outline = "_Story description_"
         self._mecabdir = World.__MECAB_DIRS__[mecabdir] if isinstance(mecabdir, int) else (mecabdir if isinstance(mecabdir, str) else "")
+        self._columns = __BASE_COLUMN__
+        self._rows = __BASE_ROW__
 
     ## property
     @property
@@ -78,6 +81,10 @@ class World(UtilityDict):
     @property
     def blocks(self) -> dict:
         return self._blocks
+
+    @property
+    def columns(self) -> int:
+        return self._columns
 
     @property
     def daytimes(self) -> dict:
@@ -114,6 +121,10 @@ class World(UtilityDict):
     @property
     def outline(self) -> str:
         return self._outline
+
+    @property
+    def rows(self) -> int:
+        return self._rows
 
     @property
     def rubis(self) -> dict:
@@ -185,6 +196,11 @@ class World(UtilityDict):
         is_lifenote = opts.life
         is_conteskip = opts.skip
         is_debug = opts.debug
+        col_row = opts.colrow
+        columns, rows = self.columns, self.rows
+        if col_row and ":" in col_row:
+            tmp = col_row.split(":")
+            columns, rows = int(tmp[0]), int(tmp[1])
         builder = Build(filename)
         ## compile
         src = builder.compile(self.title, priority,
@@ -204,7 +220,9 @@ class World(UtilityDict):
         return builder.output(src, self.rubis, self.layers,
                 self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
                 mecabdir,
-                formattype, is_rubi,
+                formattype,
+                columns, rows,
+                is_rubi,
                 is_scenario, is_analyze,
                 is_conteskip,
                 is_comment, is_debug)
@@ -228,6 +246,11 @@ class World(UtilityDict):
 
     def setBaseDate(self, year: int, mon: int=1, day: int=1):
         self._basedate = datetime.date(year, mon, day)
+        return self
+
+    def setColumnRow(self, col: int, row: int):
+        self._columns = assertion.isInt(col)
+        self._rows = assertion.isInt(row)
         return self
 
     def setPersons(self, persons: list):
@@ -429,6 +452,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
         -l, --list: list output
         -s, --senario: senario mode
         -z, --analyze: analyzed info
+        --colrow: set columns and rows
         --comment: output with comment
         --debug: output to console
         --forcemecab: for travis ci
@@ -447,6 +471,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
     parser.add_argument('-l', '--list', help="output all list", action='store_true')
     parser.add_argument('-s', '--scenario', help="output as the scenario mode", action='store_true')
     parser.add_argument('-z', '--analyze', help="output the analyzed info", action='store_true')
+    parser.add_argument('--colrow', help='set columns and rows', type=str)
     parser.add_argument('--comment', help='output with comment', action='store_true')
     parser.add_argument('--debug', help="with a debug mode", action='store_true')
     parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')

@@ -45,14 +45,11 @@ class Build(object):
     __LIST_DIR__ = "list"
     __EXTENTION__ = "md"
     def __init__(self, filename: str, extention: str=__EXTENTION__,
-            builddir: str=__BUILD_DIR__,
-            column: int=__BASE_COLUMN__, row: int=__BASE_ROW__):
+            builddir: str=__BUILD_DIR__):
         self._builddir = assertion.isStr(builddir)
         self._date = datetime.date.today()
         self._extention = assertion.isStr(extention)
         self._filename = assertion.isStr(filename)
-        self._column = assertion.isInt(column)
-        self._row = assertion.isInt(row)
 
     ## property
     @property
@@ -70,14 +67,6 @@ class Build(object):
     @property
     def filename(self) -> str:
         return self._filename
-
-    @property
-    def column(self) -> int:
-        return self._column
-
-    @property
-    def row(self) -> int:
-        return self._row
 
     ## methods
     def compile(self, title: str, priority: int,
@@ -110,6 +99,7 @@ class Build(object):
             stages: dict, daytimes: dict, fashions: dict, foods: dict,
             mecabdir: str,
             formattype: str,
+            columns: int, rows: int,
             is_rubi: bool,
             is_scenario: bool, is_analyze: bool,
             is_conteskip: bool,
@@ -131,7 +121,7 @@ class Build(object):
         '''
         analyzer = Analyzer(mecabdir)
         ## outputs
-        self.toInfoOfGeneral(src, is_debug)
+        self.toInfoOfGeneral(src, columns, rows, is_debug)
         self.toOutline(src, is_debug)
         if not is_conteskip:
             self.toConte(src, analyzer, is_debug)
@@ -262,15 +252,17 @@ class Build(object):
                 self.filename, "_food", self.extention,
                 os.path.join(self.builddir, self.__LAYER_DIR__), is_debug)
 
-    def toInfoOfGeneral(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+    def toInfoOfGeneral(self, src: Story,
+            columns: int, rows: int,
+            is_debug: bool) -> bool: # pragma: no cover
         # TODO
         #   - colum, rowの指定を可能に。ない場合はデフォルト
         cnt = Counter()
         title = "General Info:"
         def _getTotals(v):
             return [("total", cnt.descriptions(v)),
-                ("manupaper", cnt.manupaperRows(v, self.column)),
-                ("rows", self.row), ("columns", self.column),
+                ("manupaper", cnt.manupaperRows(v, columns)),
+                ("rows", rows), ("columns", columns),
                 ("chapters", cnt.chapters(v)),
                 ("episodes", cnt.episodes(v)),
                 ("scenes", cnt.scenes(v)),
