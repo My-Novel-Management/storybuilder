@@ -384,7 +384,36 @@ class Build(object):
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         title = f"Outline of {src.title}"
-        res = Parser.toOutlines(src)
+        res = []
+        ## story
+        res.append((DataType.DATA_STR, Extractor.notesOfStory(src)))
+        ## character info
+        res.append((DataType.HEAD, f"## Characters: {Counter.noteChars(src)}c\n"))
+        ## chapters
+        idx = 1
+        res.append((DataType.TAG, "hr"))
+        for title, note in zip(Extractor.titlesOfChapters(src), Extractor.notesOfChapters(src)):
+            res.append((DataType.HEAD, f"## Ch-{idx}: {title}\n"))
+            res.append((DataType.DATA_STR, note))
+            idx += 1
+        ## episodes
+        idx = 1
+        res.append((DataType.TAG, "hr"))
+        for title, note in zip(Extractor.titlesOfEpisodes(src), Extractor.notesOfEpisodes(src)):
+            res.append((DataType.HEAD, f"## Ep-{idx}: {title}\n"))
+            res.append((DataType.DATA_STR, note))
+            idx += 1
+        ## scenes
+        idx = 1
+        res.append((DataType.TAG, "hr"))
+        for title, note in zip(Extractor.titlesOfScenes(src), Extractor.notesOfScenes(src)):
+            res.append((DataType.HEAD, f"## Sc-{idx}: {title}\n"))
+            res.append((DataType.DATA_STR, note))
+            idx += 1
+        ## all
+        res.append((DataType.TAG, "hr"))
+        res.append((DataType.COMMAND, "all"))
+        res.extend(Parser.toOutlines(src))
         return self.outputTo(Formatter.toOutline(title, res),
                 self.filename, "_out", self.extention, self.builddir, is_debug)
 

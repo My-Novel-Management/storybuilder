@@ -90,6 +90,22 @@ class Extractor(object):
         return cls._someObjectsFrom(src, MetaData)
 
     @classmethod
+    def notesOfStory(cls, src: Story) -> tuple:
+        return tuple(cls.storyFrom(src).note,)
+
+    @classmethod
+    def notesOfChapters(cls, src: StoryLike) -> tuple:
+        return tuple(v.note for v in cls.chaptersFrom(src))
+
+    @classmethod
+    def notesOfEpisodes(cls, src: StoryLike) -> tuple:
+        return tuple(v.note for v in cls.episodesFrom(src))
+
+    @classmethod
+    def notesOfScenes(cls, src: StoryLike) -> tuple:
+        return tuple(v.note for v in cls.scenesFrom(src))
+
+    @classmethod
     def objectsFrom(cls, src: StoryLike) -> Tuple[U_Subjects, ...]:
         return cls._someObjectsFrom(src,
                 (Person, Stage, Day, Time, Item, Word))
@@ -122,6 +138,22 @@ class Extractor(object):
     @classmethod
     def timesFrom(cls, src: StoryLike) -> Tuple[Time, ...]:
         return cls._someObjectsFrom(src, Time)
+
+    @classmethod
+    def titlesOfStory(cls, src: StoryLike) -> tuple:
+        return (cls.storyFrom(src).title,)
+
+    @classmethod
+    def titlesOfChapters(cls, src: StoryLike) -> tuple:
+        return tuple(v.title for v in cls.chaptersFrom(src))
+
+    @classmethod
+    def titlesOfEpisodes(cls, src: StoryLike) -> tuple:
+        return tuple(v.title for v in cls.episodesFrom(src))
+
+    @classmethod
+    def titlesOfScenes(cls, src: StoryLike) -> tuple:
+        return tuple(v.title for v in cls.scenesFrom(src))
 
     @classmethod
     def wordsFrom(cls, src: StoryLike) -> Tuple[Word, ...]:

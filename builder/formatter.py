@@ -258,11 +258,30 @@ class Formatter(object):
     @classmethod
     def toOutline(cls, title: str, src: list) -> list:
         tmp = []
-        for data in cls.srcConvertedTitleWithNum(src):
-            if data[0] in TitleLike:
+        src_cmt = []
+        isComment = False
+        for data in src:
+            if isComment:
+                src_cmt.append(data)
+            elif DataType.HEAD is data[0]:
                 tmp.append(data[1])
             elif DataType.DATA_STR is data[0]:
                 tmp.append(f"\t{data[1]}")
+            elif DataType.TAG is data[0]:
+                if "hr" == data[1]:
+                    tmp.append("--------"*8)
+            elif DataType.COMMAND is data[0] and "all" == data[1]:
+                isComment = True
+        for data in cls.srcConvertedTitleWithNum(src_cmt):
+            if data[0] in TitleLike:
+                tmp.append(data[1])
+            if DataType.HEAD is data[0]:
+                tmp.append(data[1])
+            elif DataType.DATA_STR is data[0]:
+                tmp.append(f"\t{data[1]}")
+            elif DataType.TAG is data[0]:
+                if "hr" == data[1]:
+                    tmp.append("--------"*8)
         return [f"# {title}\n",] + tmp
 
     @classmethod

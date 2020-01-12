@@ -203,9 +203,9 @@ class Parser(object):
             for ac in src.data:
                 if ac.tag_type is TagType.COMMENT:
                     tmp.append((DataType.DATA_STR, ac.note))
-            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else ()) + tuple(tmp)
+            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else (DataType.NONE, "")) + tuple(tmp)
         else:
-            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else ()) + tuple(chain.from_iterable(
+            return (cls.titleOf(src), (DataType.DATA_STR, src.note) if src.note else (DataType.NONE,"")) + tuple(chain.from_iterable(
                 [cls.toOutlines(v) for v in src.data]))
 
     @classmethod

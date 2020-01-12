@@ -64,6 +64,13 @@ class Counter(object):
     def kanjis(cls, src: StoryLike) -> int:
         return sum(len(kanjiOf(v)) for v in Extractor.stringsFrom(src))
 
+    @classmethod
+    def noteChars(cls, src: StoryLike) -> int:
+        if isinstance(src, (Scene, Action)):
+            return 0
+        else:
+            return sum(cls.noteChars(v) for v in src.data) + len(src.note)
+
     ## methods (manupapers)
     @classmethod
     def manupaperRows(cls, src: StoryLike, column: int) -> int:

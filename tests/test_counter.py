@@ -85,6 +85,17 @@ class CounterTest(unittest.TestCase):
         validatedTestingWithFail(self, "kanjis", lambda v,expect: self.assertEqual(
             Counter.kanjis(v), expect), data)
 
+    def test_noteChars(self):
+        data = [
+                (False, Story("test",
+                    Chapter("c1",
+                        Episode("e1",
+                            Scene("s1", note="apple"), note="grape"), note="melon"), note="lemon"),
+                        15),
+                ]
+        validatedTestingWithFail(self, "noteChars", lambda v,expect: self.assertEqual(
+            Counter.noteChars(v), expect), data)
+
     def test_manupaperRows(self):
         data = [
                 (False, self.basedata, 20, 1),

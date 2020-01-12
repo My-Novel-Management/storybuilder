@@ -89,6 +89,7 @@ class DataType(Enum):
     MONOLOGUE = auto()
     NARRATION = auto()
     VOICE = auto()
+    COMMAND = auto() # 特殊なもので利用。方式の切り替え等
 
 class MetaType(Enum):
     NONE = auto()
