@@ -253,6 +253,8 @@ def create_world():
     w.entryLifeNote(
             life_taro(w),
             )
+    #   set outline
+    w.setOutline("桃太郎が鬼退治をする")
     return w
 
 def main(): # pragma: no cover

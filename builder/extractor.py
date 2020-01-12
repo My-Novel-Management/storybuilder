@@ -91,7 +91,7 @@ class Extractor(object):
 
     @classmethod
     def notesOfStory(cls, src: Story) -> tuple:
-        return tuple(cls.storyFrom(src).note,)
+        return (cls.storyFrom(src).note,)
 
     @classmethod
     def notesOfChapters(cls, src: StoryLike) -> tuple:

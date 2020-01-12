@@ -83,6 +83,7 @@ class Build(object):
     def compile(self, title: str, priority: int,
             tags: dict, prefix: str,
             outtype: str, start: int, end: int,
+            outline: str,
             *args) -> Story: # pragma: no cover
         ''' compile source
             1. serialize (block to actions)
@@ -90,7 +91,7 @@ class Build(object):
             3. replace pronouns
             4. replace tags
         '''
-        tmp = Story(title, *args)
+        tmp = Story(title, *args, note=outline)
         cnv = Converter()
         tmp = cnv.srcExpandBlocks(tmp)
         tmp = cnv.srcFilterByPriority(tmp, priority)
@@ -383,10 +384,10 @@ class Build(object):
                 os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
-        title = f"Outline of {src.title}"
+        maintitle = f"Outline of {src.title}"
         res = []
         ## story
-        res.append((DataType.DATA_STR, Extractor.notesOfStory(src)))
+        res.append((DataType.DATA_STR, Extractor.notesOfStory(src)[0]))
         ## character info
         res.append((DataType.HEAD, f"## Characters: {Counter.noteChars(src)}c\n"))
         ## chapters
@@ -414,7 +415,7 @@ class Build(object):
         res.append((DataType.TAG, "hr"))
         res.append((DataType.COMMAND, "all"))
         res.extend(Parser.toOutlines(src))
-        return self.outputTo(Formatter.toOutline(title, res),
+        return self.outputTo(Formatter.toOutline(maintitle, res),
                 self.filename, "_out", self.extention, self.builddir, is_debug)
 
     def toScenario(self, src: Story, is_debug: bool) -> bool: # pragma: no cover

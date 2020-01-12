@@ -67,6 +67,7 @@ class World(UtilityDict):
         self._tags = {}
         self._lifenotes = {}
         self._histories = {}
+        self._outline = "_Story description_"
         self._mecabdir = World.__MECAB_DIRS__[mecabdir] if isinstance(mecabdir, int) else (mecabdir if isinstance(mecabdir, str) else "")
 
     ## property
@@ -111,6 +112,10 @@ class World(UtilityDict):
         return self._mecabdir
 
     @property
+    def outline(self) -> str:
+        return self._outline
+
+    @property
     def rubis(self) -> dict:
         return self._rubis
 
@@ -128,7 +133,7 @@ class World(UtilityDict):
 
     ## methods (build)
     def build(self, *args, **kwargs): # pragma: no cover
-        return not self.buildStory(self.filename, *args, **kwargs)
+        return not self.buildStory(self.filename, self.outline, *args, **kwargs)
 
     def buildDB(self, persons: list, stages: list,
             days: list, times: list,
@@ -146,7 +151,7 @@ class World(UtilityDict):
         self.setLayers(layers)
         return True
 
-    def buildStory(self, filename: str, *args: Chapter,
+    def buildStory(self, filename: str, outline: str, *args: Chapter,
             extention: str="", builddir: str="",
             is_testing: bool=False) -> bool: # pragma: no cover
         '''Build story object and Output creation
@@ -185,6 +190,7 @@ class World(UtilityDict):
         src = builder.compile(self.title, priority,
                 self._tags, __TAG_PREFIX__,
                 outtype, int(partstart), int(partend),
+                outline,
                 *args)
         ## sub data
         if is_list:
@@ -326,6 +332,10 @@ class World(UtilityDict):
                     self.setRubis(assetfile[v.upper()])
                 elif v.lower() == "layers":
                     self.setLayers(assetfile[v.upper()])
+        return self
+
+    def setOutline(self, outline: str):
+        self._outline = assertion.isStr(outline)
         return self
 
     def setTexture(self, key: str, texture: (list, tuple, dict)):
