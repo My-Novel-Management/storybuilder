@@ -92,6 +92,8 @@ class Action(BaseContainer):
                 tmp.append(v)
             elif isinstance(v, MetaData):
                 tmp.append(v)
+            elif isinstance(v, Then):
+                tmp.append(v)
         return tuple(tmp)
 
     @classmethod

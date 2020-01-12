@@ -1,8 +1,8 @@
 ---
-name: Feature request
+name: Document request
 about: Suggest an idea for this project
 title: 'Prefix: simple title'
-labels: feature
+labels: document
 assignees: ''
 
 ---
