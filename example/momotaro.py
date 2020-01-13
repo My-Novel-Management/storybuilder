@@ -64,6 +64,7 @@ def sc_birth_taro(w: World):
     gma, gpa = W(w.granma), W(w.granpa)
     taro = W(w.taro)
     return w.scene("誕生",
+            w.br(),
             gma.be("#居間に座っていた"),
             gpa.be(),
             gma.talk("おじいさん見ておくれよ、この大きな桃"),
@@ -84,6 +85,7 @@ def sc_voyage(w: World):
     taro = W(w.taro)
     gma, gpa = W(w.granma), W(w.granpa)
     return w.scene("旅立ち",
+            w.symbol("◆"),
             taro.be(),
             taro.explain("$Sはすくすくと育ち、あっという間に大きく逞しく成長しました"),
             taro.do("ある日、村人から鬼の悪行を聞いた$Sは考えました"),

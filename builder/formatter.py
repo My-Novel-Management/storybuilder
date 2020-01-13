@@ -134,11 +134,13 @@ class Formatter(object):
         ld_sp = "\n" * spacing[1]
         dl_sp = "\n" * spacing[2]
         dd_sp = "\n" * spacing[3]
-        for v in cls.srcConvertedTitleWithNum(src):
-            if v[0] in TitleLike:
-                tmp.append(v[1])
-            elif v[0] in (DataType.DIALOGUE, DataType.VOICE):
-                base = f"「{v[1]}」" if DataType.DIALOGUE is v[0] else f"『{v[1]}』"
+        for data in cls.srcConvertedTitleWithNum(src):
+            if data[0] in TitleLike:
+                tmp.append(data[1])
+            elif DataType.TAG is data[0]:
+                tmp.append(data[1])
+            elif data[0] in (DataType.DIALOGUE, DataType.VOICE):
+                base = f"「{data[1]}」" if DataType.DIALOGUE is data[0] else f"『{data[1]}』"
                 if inDialogue: # D-D
                     tmp.append(f"{dd_sp}{base}")
                 else: # L-D
@@ -146,9 +148,9 @@ class Formatter(object):
                     inDialogue = True
             else:
                 if inDialogue: # D-L
-                    tmp.append(f"{dl_sp}　{v[1]}")
+                    tmp.append(f"{dl_sp}　{data[1]}")
                 else: # L-L
-                    tmp.append(f"{ll_sp}　{v[1]}")
+                    tmp.append(f"{ll_sp}　{data[1]}")
         return [f"# {title}\n",
                 ] + tmp
 

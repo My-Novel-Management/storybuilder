@@ -86,6 +86,8 @@ class Counter(object):
                     tmp = 0
             if tmp:
                 res.append(_conv(tmp, column))
+            res.append(len([v for v in Extractor.brTagsFrom(src)]))
+            res.append(sum([3 for v in Extractor.symbolesFrom(src)]))
             return sum(res)
         else:
             return sum(cls.manupaperRows(v, column) for v in src.data)

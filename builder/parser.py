@@ -281,7 +281,7 @@ class Parser(object):
         elif action.tag_type is TagType.HR:
             return (DataType.TAG, "--------" * 8)
         elif action.tag_type is TagType.SYMBOL:
-            return (DataType.TAG, action.note)
+            return (DataType.TAG, f"\n{action.note}\n")
         elif action.tag_type is TagType.TITLE:
             return (DataType.TITLE, action.note)
         else:

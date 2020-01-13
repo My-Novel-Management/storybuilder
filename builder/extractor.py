@@ -8,6 +8,7 @@ from typing import Any, Optional, Tuple, Union
 from utils import assertion
 from utils.util_str import containsWordsIn
 ## local files
+from builder import ActType, TagType
 from builder.action import Action
 from builder.block import Block
 from builder.chapter import Chapter
@@ -74,6 +75,10 @@ class Extractor(object):
 
     ## methods (data)
     @classmethod
+    def brTagsFrom(cls, src: StoryLike) -> Tuple[str, ...]:
+        return tuple(v.note for v in cls.tagsFrom(src) if v.tag_type is TagType.BR)
+
+    @classmethod
     def daysFrom(cls, src: StoryLike) -> Tuple[Day, ...]:
         return cls._someObjectsFrom(src, Day)
 
@@ -134,6 +139,14 @@ class Extractor(object):
     @classmethod
     def subjectsWithoutWhoFrom(cls, src: StoryLike) -> Tuple[U_Subjects, ...]:
         return tuple(v.subject for v in cls.actionsFrom(src) if not isinstance(v.subject, Who))
+
+    @classmethod
+    def symbolesFrom(cls, src: StoryLike) -> Tuple[str, ...]:
+        return tuple(v.note for v in cls.tagsFrom(src) if v.tag_type is TagType.SYMBOL)
+
+    @classmethod
+    def tagsFrom(cls, src: StoryLike) -> Tuple[Action, ...]:
+        return tuple(v for v in cls.actionsFrom(src) if v.act_type is ActType.TAG)
 
     @classmethod
     def timesFrom(cls, src: StoryLike) -> Tuple[Time, ...]:
