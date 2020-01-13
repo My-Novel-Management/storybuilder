@@ -195,6 +195,7 @@ class World(UtilityDict):
         is_check = opts.check
         is_lifenote = opts.life
         is_conteskip = opts.skip
+        is_text = opts.text
         is_debug = opts.debug
         col_row = opts.colrow
         columns, rows = self.columns, self.rows
@@ -224,7 +225,7 @@ class World(UtilityDict):
                 columns, rows,
                 is_rubi,
                 is_scenario, is_analyze,
-                is_conteskip,
+                is_conteskip, is_text,
                 is_comment, is_debug)
 
     def entryBlock(self, *args: Block) -> bool:
@@ -462,6 +463,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
         --pri: set priority
         --rubi: rubi mode
         --skip: conte output skip
+        --text: output description as plain text
     Returns:
         :obj:`ArgumentParser`: contain commandline options.
     '''
@@ -481,6 +483,7 @@ def _optionsParsed(is_testing: bool): # pragma: no cover
     parser.add_argument('--pri', help='filter by priority(0 to 10)', type=int)
     parser.add_argument('--rubi', help='description with rubi', action='store_true')
     parser.add_argument('--skip', help='conte skipping', action='store_true')
+    parser.add_argument('--text', help='output plain text', action='store_true')
 
     # get result
     args = parser.parse_args(args=[]) if is_testing else parser.parse_args()

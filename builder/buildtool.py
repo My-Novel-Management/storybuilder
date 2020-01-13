@@ -102,7 +102,7 @@ class Build(object):
             columns: int, rows: int,
             is_rubi: bool,
             is_scenario: bool, is_analyze: bool,
-            is_conteskip: bool,
+            is_conteskip: bool, is_text: bool,
             is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         '''output data
             0. basic info
@@ -128,7 +128,7 @@ class Build(object):
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
-            self.toDescription(src, dictSorted(rubis), formattype, is_rubi, is_debug)
+            self.toDescription(src, dictSorted(rubis), formattype, is_rubi, is_text, is_debug)
         ## informations
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
@@ -205,9 +205,10 @@ class Build(object):
                 self.filename, "_cnt", self.extention, self.builddir, is_debug)
 
     def toDescription(self, src: Story, rubis: dict, formattype: str, is_rubi: bool,
-            is_debug: bool) -> bool: # pragma: no cover
+            is_text: bool, is_debug: bool) -> bool: # pragma: no cover
         title = f"Text of {src.title}"
         ftype = __FORMAT_DEFAULT__
+        ext = "txt" if is_text else self.extention
         ## format type
         if formattype in ("web", "w"):
             ftype = __FORMAT_WEB__
@@ -216,8 +217,8 @@ class Build(object):
         elif formattype in ("smart", "phone", "s"):
             ftype = __FORMAT_PHONE__
         res = Parser.toDescriptionsWithRubi(src, rubis) if is_rubi else Parser.toDescriptions(src)
-        return self.outputTo(Formatter.toDescription(title, res, ftype),
-                self.filename, "", self.extention, self.builddir, is_debug)
+        return self.outputTo(Formatter.toDescription(title, res, ftype, is_text),
+                self.filename, "", ext, self.builddir, is_debug)
 
     def toInfoOfCustom(self, src: Story, layers: dict,
             is_debug: bool) -> bool: # pragma: no cover

@@ -124,7 +124,7 @@ class Formatter(object):
                 ] + tmp
 
     @classmethod
-    def toDescription(cls, title: str, src: list, spacing: list) -> list:
+    def toDescription(cls, title: str, src: list, spacing: list, exceptTitle: bool=False) -> list:
         ## NOTE:
         ##  spacing (line-line, line-dialogue, dialogue-line, dialogue-dialogue)
         tmp = []
@@ -136,7 +136,8 @@ class Formatter(object):
         dd_sp = "\n" * spacing[3]
         for data in cls.srcConvertedTitleWithNum(src):
             if data[0] in TitleLike:
-                tmp.append(data[1])
+                if not exceptTitle:
+                    tmp.append(data[1])
             elif DataType.TAG is data[0]:
                 tmp.append(data[1])
             elif data[0] in (DataType.DIALOGUE, DataType.VOICE):
