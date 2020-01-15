@@ -19,6 +19,7 @@ from builder.action import Action
 from builder.chapter import Chapter
 from builder.converter import Converter
 from builder.conjuction import Then
+from builder.counter import Counter
 from builder.day import Day
 from builder.episode import Episode
 from builder.extractor import Extractor
@@ -91,7 +92,8 @@ class Parser(object):
                             ac.itemCount,
                             ac.note,
                             )))
-            return (cls.titleOf(src),) + tuple(tmp)
+            char_count = Counter.metainfos(src) + Counter.descriptions(src)
+            return ((DataType.SCENE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(tmp)
         else:
             return (cls.titleOf(src),) + tuple(chain.from_iterable(
                                     [cls.toContes(v) for v in src.data]))

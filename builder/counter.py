@@ -9,7 +9,7 @@ from utils.util_math import intCeiled
 from utils.util_str import kanjiOf, strDuplicatedChopped
 from builder.utility import hasThen
 ## local files
-from builder import ActType
+from builder import ActType, MetaType
 from builder.action import Action
 from builder.chapter import Chapter
 from builder.episode import Episode
@@ -63,6 +63,11 @@ class Counter(object):
     @classmethod
     def kanjis(cls, src: StoryLike) -> int:
         return sum(len(kanjiOf(v)) for v in Extractor.stringsFrom(src))
+
+    @classmethod
+    def metainfos(cls, src: StoryLike) -> int:
+        tmp = [v.note for v in Extractor.metadataFrom(src) if v.data is MetaType.INFO]
+        return sum(len(v) for v in tmp)
 
     @classmethod
     def noteChars(cls, src: StoryLike) -> int:
