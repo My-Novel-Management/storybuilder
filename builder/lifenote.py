@@ -32,9 +32,9 @@ class LifeNote(BaseContainer):
         return self._subject
 
     ## methods
-    def inherited(self, *args, title: str="") -> LifeNote:
+    def inherited(self, *args, title: str="", note: str=None) -> LifeNote:
         return LifeNote(title if title else self.title,
                 self.subject,
                 *args,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)

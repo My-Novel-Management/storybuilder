@@ -30,8 +30,8 @@ class Episode(BaseContainer):
                 priority=priority)
 
     ## methods
-    def inherited(self, *args: Scene, title: str="") -> Episode:
+    def inherited(self, *args: Scene, title: str="", note: str=None) -> Episode:
         return Episode(title if title else self.title,
                 *args,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)

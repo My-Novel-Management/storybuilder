@@ -24,8 +24,8 @@ class Block(BaseContainer):
                 priority=priority)
 
     ## methods
-    def inherited(self, *args, title: str="") -> Block:
+    def inherited(self, *args, title: str="", note: str=None) -> Block:
         return Block(title if title else self.title,
                 *args,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)

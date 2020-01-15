@@ -77,10 +77,12 @@ class Converter(object):
         if isinstance(src, Scene):
             return src.inherited(
                     *[cls.actionReplacedTags(v, tags, prefix, src.camera) for v in src.data],
-                    title=strReplacedTagByDict(src.title, tags, prefix))
+                    title=strReplacedTagByDict(src.title, tags, prefix),
+                    note=strReplacedTagByDict(src.note, tags, prefix))
         else:
             return src.inherited(*[cls.srcReplacedTags(v, tags, prefix) for v in src.data],
-                    title=strReplacedTagByDict(src.title, tags, prefix))
+                    title=strReplacedTagByDict(src.title, tags, prefix),
+                        note=strReplacedTagByDict(src.note, tags, prefix))
 
     @classmethod
     def actionReplacedTags(cls, action: Action, tags: dict, prefix: str, camera: Person) -> Action:
@@ -89,7 +91,8 @@ class Converter(object):
         else:
             return action.inherited(
                     *[cls.directionReplacedTags(v, tags, prefix, camera,
-                        action.subject) for v in action.data])
+                        action.subject) for v in action.data],
+                    note=strReplacedTagByDict(action.note, tags, prefix))
 
     @classmethod
     def directionReplacedTags(cls, dire:(str,  BaseData), tags: dict, prefix: str,

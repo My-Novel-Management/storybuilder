@@ -25,8 +25,8 @@ class Chapter(BaseContainer):
                 priority=priority)
 
     ## methods
-    def inherited(self, *args: Episode, title: str="") -> Chapter:
+    def inherited(self, *args: Episode, title: str="", note: str=None) -> Chapter:
         return Chapter(title if title else self.title,
                 *args,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)

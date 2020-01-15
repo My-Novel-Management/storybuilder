@@ -47,8 +47,9 @@ class BaseContainer(object):
     def isEqual(self, src: Any) -> bool:
         return isinstance(src, type(self)) and self.data == src.data
 
-    def inherited(self, *args, **kwargs) -> BaseContainer:
-        return BaseContainer(self.title, *args, note=self.note, priority=self.priority,
+    def inherited(self, *args, note: str=None, **kwargs) -> BaseContainer:
+        return BaseContainer(self.title, *args, note=note if note else self.note,
+                priority=self.priority,
                 **kwargs)
 
     def omit(self) -> BaseContainer:

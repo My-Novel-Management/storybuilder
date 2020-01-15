@@ -175,7 +175,7 @@ def ep_birth_momotaro(w: World):
     return w.episode("$taro誕生",
             sc_get_peach(w),
             sc_birth_taro(w),
-            note="流れてきた大きな桃には赤子が入っていた",
+            note="流れてきた大きな桃には赤子（$taro）が入っていた",
             )
 
 def ep_buster_daemon(w: World):

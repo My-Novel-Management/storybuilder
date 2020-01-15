@@ -68,6 +68,7 @@ class Scene(BaseContainer):
             stage: Optional[Stage]=None,
             day: Optional[Day]=None,
             time: Optional[Time]=None,
+            note: str=None,
             ) -> Scene:
         return Scene(title if title else self.title,
                 *args,
@@ -75,5 +76,5 @@ class Scene(BaseContainer):
                 stage=stage if stage else self.stage,
                 day=day if day else self.day,
                 time=time if time else self.time,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)

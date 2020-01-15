@@ -27,8 +27,8 @@ class Story(BaseContainer):
                 priority=priority)
 
     ## methods
-    def inherited(self, *args: Chapter, title: str="") -> Story:
+    def inherited(self, *args: Chapter, title: str="", note: str=None) -> Story:
         return Story(title if title else self.title,
                 *args,
-                note=self.note,
+                note=note if note else self.note,
                 priority=self.priority)
