@@ -52,8 +52,7 @@ class Formatter(object):
             if v[0] in TitleLike:
                 tmp.append(v[1])
             elif DataType.TAG is v[0]:
-                ## TODO
-                continue
+                tmp.append(v[1])
             ## settings
             elif DataType.SCENE_SETTING is v[0]:
                 tmp.append(f"○{data['stage']}（{data['time']}） - {data['day']}({_weekday(data['week'])}) - ＜{data['camera']}＞")

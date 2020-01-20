@@ -124,11 +124,11 @@ class Build(object):
         self.toInfoOfGeneral(src, columns, rows, is_debug)
         self.toOutline(src, is_debug)
         if not is_conteskip:
-            self.toConte(src, analyzer, is_debug)
+            self.toConte(src, analyzer, is_comment, is_debug)
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
-            self.toDescription(src, dictSorted(rubis), formattype, is_rubi, is_text, is_debug)
+            self.toDescription(src, dictSorted(rubis), formattype, is_rubi, is_text, is_comment, is_debug)
         ## informations
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
@@ -198,14 +198,14 @@ class Build(object):
         return True
 
     ## methods (output data)
-    def toConte(self, src: Story, analyzer: Analyzer, is_debug: bool) -> bool: # pragma: no cover
+    def toConte(self, src: Story, analyzer: Analyzer, is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         title = f"Conte of {src.title}"
-        res = Parser.toContes(src)
+        res = Parser.toContes(src, is_comment)
         return self.outputTo(Formatter.toConte(title, res, analyzer),
                 self.filename, "_cnt", self.extention, self.builddir, is_debug)
 
     def toDescription(self, src: Story, rubis: dict, formattype: str, is_rubi: bool,
-            is_text: bool, is_debug: bool) -> bool: # pragma: no cover
+            is_text: bool, is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         title = f"Text of {src.title}"
         ftype = __FORMAT_DEFAULT__
         ext = "txt" if is_text else self.extention
@@ -216,7 +216,7 @@ class Build(object):
             ftype = __FORMAT_ESTAR__
         elif formattype in ("smart", "phone", "s"):
             ftype = __FORMAT_PHONE__
-        res = Parser.toDescriptionsWithRubi(src, rubis) if is_rubi else Parser.toDescriptions(src)
+        res = Parser.toDescriptionsWithRubi(src, rubis, is_comment) if is_rubi else Parser.toDescriptions(src, is_comment)
         return self.outputTo(Formatter.toDescription(title, res, ftype, is_text),
                 self.filename, "", ext, self.builddir, is_debug)
 

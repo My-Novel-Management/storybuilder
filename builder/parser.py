@@ -48,7 +48,7 @@ class Parser(object):
     """
     ## methods
     @classmethod
-    def toContes(cls, src: StoryLike) -> Tuple[DataType, Any]:
+    def toContes(cls, src: StoryLike, is_comment: bool=False) -> Tuple[DataType, Any]:
         # TODO: その他の情報とかを乗せるかどうか
         #       例えばカメラ等の諸情報や、舞台設備など
         if isinstance(src, Scene):
@@ -79,7 +79,12 @@ class Parser(object):
                     tmp.append((DataType.SCENE_OBJECT, dictCombined({"name":v.name}, v.textures)))
             for ac in src.data:
                 if ActType.TAG is ac.act_type:
-                    continue
+                    if TagType.BR is ac.tag_type:
+                        continue
+                    elif TagType.COMMENT is ac.tag_type and not is_comment:
+                        continue
+                    else:
+                        tmp.append(cls.tagOf(ac))
                 elif ActType.META is ac.act_type:
                     continue
                 else:
@@ -96,10 +101,10 @@ class Parser(object):
             return ((DataType.SCENE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(tmp)
         else:
             return (cls.titleOf(src),) + tuple(chain.from_iterable(
-                                    [cls.toContes(v) for v in src.data]))
+                                    [cls.toContes(v, is_comment) for v in src.data]))
 
     @classmethod
-    def toDescriptions(cls, src: StoryLike) -> Tuple[DataType, Any]:
+    def toDescriptions(cls, src: StoryLike, is_comment: bool=False) -> Tuple[DataType, Any]:
         def _conv(descs, desc_type, ac, inPara):
             return (desc_type if inPara else cls.descTypeOf(ac),
                     strDuplicatedChopped("。".join(descs)))
@@ -114,7 +119,10 @@ class Parser(object):
                 if ActType.META is ac.act_type:
                     continue
                 if not ac.tag_type is TagType.NONE:
-                    tmp.append(cls.tagOf(ac))
+                    if ac.tag_type is TagType.COMMENT and not is_comment:
+                            continue
+                    else:
+                        tmp.append(cls.tagOf(ac))
                 elif not Extractor.stringsFrom(ac):
                     continue
                 else:
@@ -132,11 +140,11 @@ class Parser(object):
             return (cls.titleOf(src),) + tuple(tmp)
         else:
             return (cls.titleOf(src),) + tuple(chain.from_iterable(
-                                [cls.toDescriptions(v) for v in src.data]))
+                                [cls.toDescriptions(v, is_comment) for v in src.data]))
 
     @classmethod
-    def toDescriptionsWithRubi(cls, src: StoryLike, rubis: dict) -> Tuple[DataType, Any]:
-        descs = cls.toDescriptions(src)
+    def toDescriptionsWithRubi(cls, src: StoryLike, rubis: dict, is_comment: bool=False) -> Tuple[DataType, Any]:
+        descs = cls.toDescriptions(src, is_comment)
         tmp = []
         discards = []
         def _check_exclude(val, words):
@@ -277,7 +285,7 @@ class Parser(object):
         if action.tag_type is TagType.BR:
             return (DataType.TAG, "\n")
         elif action.tag_type is TagType.COMMENT:
-            return (DataType.TAG, action.note)
+            return (DataType.TAG, f"<!--{action.note}-->")
         elif action.tag_type is TagType.OUTLINE:
             return (DataType.TAG, action.note)
         elif action.tag_type is TagType.HR:
