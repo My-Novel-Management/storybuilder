@@ -129,6 +129,8 @@ class Build(object):
                 - time layer
                 - custom layers
                 - persons
+            6. line
+                - stage
         '''
         ## outputs
         self.toInfoOfGeneral(src, columns, rows, is_debug)
@@ -150,6 +152,8 @@ class Build(object):
         self.toInfoOfTimes(src, dictSorted(daytimes), is_debug)
         self.toInfoOfCustom(src, dictSorted(layers), is_debug)
         self.toInfoOfPersons(src, is_debug)
+        ## line
+        self.toLineOfStages(src, is_debug)
         ## check
         ## TODO
         #if is_analyze:
@@ -412,6 +416,19 @@ class Build(object):
         return self.outputTo(Formatter.toWordClassInfo(title, res),
                 self.filename, "_wordcls", self.extention,
                 os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
+
+    def toLineOfStages(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+        tmp = []
+        scenes = Extractor.scenesFrom(src)
+        for v in scenes:
+            tmp.append((DataType.SCENE_SETTING,
+                {"stage":v.stage.name,
+                    "camera":v.camera.name,
+                    "day":v.day.data,
+                    "week":v.day.data.weekday(),
+                    "time":v.time.name}))
+        return self.outputTo(Formatter.toConte("Stage lines", tmp, self.analyzer),
+                self.filename, "_line", self.extention, self.builddir, is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         maintitle = f"Outline of {src.title}"
