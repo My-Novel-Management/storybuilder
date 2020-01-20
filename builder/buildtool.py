@@ -44,14 +44,20 @@ class Build(object):
     __LIFENOTE_DIR__ = "life"
     __LIST_DIR__ = "list"
     __EXTENTION__ = "md"
-    def __init__(self, filename: str, extention: str=__EXTENTION__,
+    def __init__(self, filename: str, mecabdir: str, extention: str=__EXTENTION__,
             builddir: str=__BUILD_DIR__):
         self._builddir = assertion.isStr(builddir)
         self._date = datetime.date.today()
         self._extention = assertion.isStr(extention)
         self._filename = assertion.isStr(filename)
+        self._mecabdir = assertion.isStr(mecabdir)
+        self._analyzer = Analyzer(self._mecabdir)
 
     ## property
+    @property
+    def analyzer(self) -> Analyzer:
+        return self._analyzer
+
     @property
     def builddir(self) -> str:
         return self._builddir
@@ -67,6 +73,10 @@ class Build(object):
     @property
     def filename(self) -> str:
         return self._filename
+
+    @property
+    def mecabdir(self) -> str:
+        return self._mecabdir
 
     ## methods
     def compile(self, title: str, priority: int,
@@ -98,7 +108,6 @@ class Build(object):
 
     def output(self, src: Story, rubis: dict, layers: dict,
             stages: dict, daytimes: dict, fashions: dict, foods: dict,
-            mecabdir: str,
             formattype: str,
             columns: int, rows: int,
             is_rubi: bool,
@@ -109,8 +118,9 @@ class Build(object):
             0. basic info
             1. outline
             2. conte
-            3. description (or scenario)
-            4. info
+            3. blocks
+            4. description (or scenario)
+            5. info
                 - kanji
                 - wordclass
                 - stage layer
@@ -120,12 +130,11 @@ class Build(object):
                 - custom layers
                 - persons
         '''
-        analyzer = Analyzer(mecabdir)
         ## outputs
         self.toInfoOfGeneral(src, columns, rows, is_debug)
         self.toOutline(src, is_debug)
         if not is_conteskip:
-            self.toConte(src, analyzer, is_comment, is_debug)
+            self.toConte(src, self.analyzer, is_comment, is_debug)
         if is_scenario:
             self.toScenario(src, is_debug)
         else:
@@ -133,7 +142,7 @@ class Build(object):
         ## informations
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
-            self.toInfoOfWordClass(src, analyzer, is_debug)
+            self.toInfoOfWordClass(src, self.analyzer, is_debug)
         ## layers
         self.toInfoOfStages(src, dictSorted(stages), is_debug)
         self.toInfoOfFashions(src, dictSorted(fashions), is_debug)
@@ -199,6 +208,15 @@ class Build(object):
         return True
 
     ## methods (output data)
+    def toBlocks(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
+        tmp = []
+        for bk in src.values():
+            sc = Converter.sceneFromBlock(bk)
+            tmp.append((DataType.HEAD, f"Block of {sc.title}"))
+            tmp.extend(Parser.toContes(sc))
+        return self.outputTo(Formatter.toConte("Block info", tmp, self.analyzer),
+                self.filename, "_bk", self.extention, self.builddir, is_debug)
+
     def toConte(self, src: Story, analyzer: Analyzer, is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         title = f"Conte of {src.title}"
         res = Parser.toContes(src, is_comment)

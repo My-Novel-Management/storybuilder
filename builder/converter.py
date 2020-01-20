@@ -120,6 +120,11 @@ class Converter(object):
         return tmp
 
     @classmethod
+    def sceneFromBlock(cls, src: Block) -> Scene:
+        return Scene(src.title, *src.data,
+                camera=src.data[0].subject)
+
+    @classmethod
     def srcExpandBlocks(cls, src: StoryLike) -> StoryLike:
         if isinstance(src, Scene):
             return src.inherited(

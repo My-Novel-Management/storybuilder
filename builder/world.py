@@ -202,7 +202,7 @@ class World(UtilityDict):
         if col_row and ":" in col_row:
             tmp = col_row.split(":")
             columns, rows = int(tmp[0]), int(tmp[1])
-        builder = Build(filename)
+        builder = Build(filename, mecabdir)
         ## compile
         src = builder.compile(self.title, priority,
                 self._tags, __TAG_PREFIX__,
@@ -210,6 +210,7 @@ class World(UtilityDict):
                 outline,
                 *args)
         ## sub data
+        builder.toBlocks(self.blocks, is_debug)
         if is_list:
             builder.outputLists(self, is_debug)
         if is_lifenote:
@@ -220,7 +221,6 @@ class World(UtilityDict):
             builder.checkStory(src, is_debug)
         return builder.output(src, self.rubis, self.layers,
                 self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
-                mecabdir,
                 formattype,
                 columns, rows,
                 is_rubi,

@@ -36,6 +36,21 @@ class ConverterTest(unittest.TestCase):
         tmp = Converter()
         self.assertIsInstance(tmp, Converter)
 
+    def test_sceneFromBlock(self):
+        ac0 = Action("man", subject=self.taro)
+        ac1, ac2, ac3 = Action("apple"), Action("orange"), Action("melon")
+        data = [
+                (False, Block("test", ac0, ac1),
+                    Scene("test", ac0, ac1, camera=self.taro)),
+                ]
+        def _checkcode(v, expect):
+            tmp = Converter.sceneFromBlock(v)
+            self.assertIsInstance(tmp, Scene)
+            self.assertEqual(tmp.title, expect.title)
+            self.assertEqual(tmp.camera, expect.camera)
+            self.assertEqual(tmp.data, expect.data)
+        validatedTestingWithFail(self, "sceneFromBlock", _checkcode, data)
+
     def test_srcExpandBlocks(self):
         ac1, ac2, ac3 = Action("apple"), Action("orange"), Action("melon")
         bk1, bk2 = Block("A", ac1), Block("B", ac2, ac3)

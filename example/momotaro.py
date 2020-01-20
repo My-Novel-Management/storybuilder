@@ -220,6 +220,13 @@ def set_stages(w: World):
                 "囲炉裏", "部屋の中央にある"])
 ## items
 
+## block
+def bk_dog(w: World):
+    taro = W(w.taro)
+    return w.block("犬を仲間に",
+            taro.do("歩いていた"),
+            )
+
 ## main
 def ch_main(w: World):
     # NOTE:
@@ -247,6 +254,7 @@ def create_world():
     set_persons(w)
     set_stages(w)
     #   set blocks
+    w.entryBlock(bk_dog(w),)
     #   set history
     w.entryHistory(w.taro, *hist_taro(w))
     w.entryHistory(w.granma, *hist_granma(w))

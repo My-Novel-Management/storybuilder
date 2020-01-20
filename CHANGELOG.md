@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.4.3-11] - 2020-01-20
 ### Added
 - chapter and episode char count output
+- block info output
 ### Changed
 - scene setting shared over episodes
 ### Fixed

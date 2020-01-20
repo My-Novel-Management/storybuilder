@@ -22,6 +22,6 @@ class BuildTest(unittest.TestCase):
         pass
 
     def test_attributes(self):
-        tmp = Build("test")
+        tmp = Build("test", "")
         self.assertIsInstance(tmp, Build)
 
