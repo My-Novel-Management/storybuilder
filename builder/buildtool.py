@@ -287,12 +287,30 @@ class Build(object):
                     [(DataType.DATA_DICT, dict(res_base + res_addition))])
         scenes = Extractor.scenesFrom(src)
         tmp = []
+        idx = 1
+        for ch in Extractor.chaptersFrom(src):
+            tmp.append((DataType.HEAD, f"Ch-{idx}: {ch.title}"))
+            tmp.append((DataType.DATA_DICT,
+                dict(_getTotals(ch) + _getActtypes(ch))))
+            idx += 1
+        res_chaps = Formatter.toGeneralInfoEachScene("Each Chapters:", tmp)
+        tmp = []
+        idx = 1
+        for ep in Extractor.episodesFrom(src):
+            tmp.append((DataType.HEAD, f"Ep-{idx}: {ep.title}"))
+            tmp.append((DataType.DATA_DICT,
+                dict(_getTotals(ep) + _getActtypes(ep))))
+            idx += 1
+        res_epis = Formatter.toGeneralInfoEachScene("Each Episodes:", tmp)
+        tmp = []
+        idx = 1
         for sc in scenes:
-            tmp.append((DataType.HEAD, sc.title))
+            tmp.append((DataType.HEAD, f"Sc-{idx}: {sc.title}"))
             tmp.append((DataType.DATA_DICT,
                 dict(_getTotals(sc) + _getActtypes(sc))))
+            idx += 1
         res_scenes = Formatter.toGeneralInfoEachScene("Each Scenes:", tmp)
-        return self.outputTo(res + res_scenes,
+        return self.outputTo(res + res_chaps + res_epis + res_scenes,
                 self.filename, "_info", self.extention, self.builddir, is_debug)
 
     def toInfoOfKanji(self, src: Story, is_debug: bool): # pragma: no cover

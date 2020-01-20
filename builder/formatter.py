@@ -167,7 +167,7 @@ class Formatter(object):
     def toGeneralInfoEachScene(cls, title: str, src: list) -> list:
         tmp = cls.toCharactersInfo(src, False)
         acttypes = cls.toActionTypeInfo(src)
-        return [f"# {title}\n"] + tmp + ["--------" * 8] + acttypes
+        return ["--------" * 8, f"# {title}\n"] + tmp + ["- - - - " * 8] + acttypes
 
     @classmethod
     def toCharactersInfo(cls, src: list, isSceneCount: bool=True) -> list:
