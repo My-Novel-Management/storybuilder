@@ -38,7 +38,7 @@ class Converter(object):
             return src.inherited(*[cls.srcFilterByPriority(v, priority) for v in src.data if v.priority >= priority])
 
     @classmethod
-    def srcReplacedPronouns(cls, src: StoryLike) -> StoryLike:
+    def srcPronounsReplaced(cls, src: StoryLike) -> StoryLike:
         if isinstance(src, Scene):
             tmp = []
             cur = src.camera
@@ -46,20 +46,28 @@ class Converter(object):
                 act, cur = cls.actionReplacedPronoun(v, cur)
                 tmp.append(act)
             return src.inherited(*tmp)
-        elif isinstance(src, Episode):
-            tmp = []
-            camera, stage, day, time = None, None, None, None
-            for v in src.data:
-                sc = v.inherited(*v.data,
-                        camera=camera if isinstance(v.camera, Who) else v.camera,
-                        stage=stage if isinstance(v.stage, Where) else v.stage,
-                        day=day if isinstance(v.day, When) else v.day,
-                        time=time if isinstance(v.time, When) else v.time)
-                camera, stage, day, time = sc.camera, sc.stage, sc.day, sc.time
-                tmp.append(cls.srcReplacedPronouns(sc))
-            return src.inherited(*tmp)
         else:
-            return src.inherited(*[cls.srcReplacedPronouns(v) for v in src.data])
+            return src.inherited(*[cls.srcPronounsReplaced(v) for v in src.data])
+
+    @classmethod
+    def sceneSettingPronounReplaced(cls, src: Story) -> Story:
+        tmp = []
+        camera, stage, day, time = None, None, None, None
+        for ch in src.data:
+            tmpEpisodes = []
+            for ep in ch.data:
+                tmpScenes = []
+                for sc in ep.data:
+                    tmpS = sc.inherited(*sc.data,
+                            camera=camera if isinstance(sc.camera, Who) else sc.camera,
+                            stage=stage if isinstance(sc.stage, Where) else sc.stage,
+                            day=day if isinstance(sc.day, When) else sc.day,
+                            time=time if isinstance(sc.time, When) else sc.time)
+                    camera, stage, day, time = tmpS.camera, tmpS.stage, tmpS.day, tmpS.time
+                    tmpScenes.append(tmpS)
+                tmpEpisodes.append(ep.inherited(*tmpScenes))
+            tmp.append(ch.inherited(*tmpEpisodes))
+        return src.inherited(*tmp)
 
     @classmethod
     def actionReplacedPronoun(cls, action: Action, current: Person) -> Tuple[Action, Person]:

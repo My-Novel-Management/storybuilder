@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-11] - 2020-01-20
+### Changed
+- scene setting shared over episodes
+### Fixed
+- comment output always
+
 ## [0.4.3-10] - 2020-01-15
 ### Added
 - note tag convert

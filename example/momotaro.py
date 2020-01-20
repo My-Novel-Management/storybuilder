@@ -106,8 +106,6 @@ def sc_voyage(w: World):
             taro.have(w.dango),
             taro.explain("こうして$Sは翌朝早くに旅立っていきました"),
             taro.go(),
-            camera=w.taro,
-            stage=w.on_home,
             day=w.in_voyage, time=w.at_morning,
             )
 

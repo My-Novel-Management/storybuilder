@@ -76,16 +76,16 @@ class ConverterTest(unittest.TestCase):
             self.assertEqual(len(tmp.data), len(expect.data))
         validatedTestingWithFail(self, "srfFilterByPriority", _checkcode, data)
 
-    def test_srcReplacedPronouns(self):
+    def test_srcPronounsReplaced(self):
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
                     Scene("s1", Action(subject=self.taro), Action("apple"))))),
                     [self.taro, self.taro]),
                 ]
         def _checkcode(v, expect):
-            tmp = Extractor.actionsFrom(Converter.srcReplacedPronouns(v))
+            tmp = Extractor.actionsFrom(Converter.srcPronounsReplaced(v))
             self.assertEqual([v.subject for v in tmp], expect)
-        validatedTestingWithFail(self, "srcReplacedPronouns", _checkcode, data)
+        validatedTestingWithFail(self, "srcPronounsReplaced", _checkcode, data)
 
     def test_srcReplacedTags(self):
         data = [

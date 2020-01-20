@@ -91,7 +91,8 @@ class Build(object):
             elif "e" in outtype:
                 ## episode output
                 tmp = Converter.srcReducedByEpisode(tmp, start, end)
-        tmp = cnv.srcReplacedPronouns(tmp)
+        tmp = cnv.sceneSettingPronounReplaced(tmp)
+        tmp = cnv.srcPronounsReplaced(tmp)
         tmp = cnv.srcReplacedTags(tmp, tags, prefix)
         return tmp
 
