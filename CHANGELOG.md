@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-12] - 2020-01-21
+### Changed
+- conte output format (icon adding)
+
 ## [0.4.3-11] - 2020-01-20
 ### Added
 - chapter and episode char count output
@@ -287,7 +291,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-11...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-12...HEAD
+[0.4.3-12]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-12
 [0.4.3-11]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-11
 [0.4.3-10]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-10
 [0.4.3-9]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-9

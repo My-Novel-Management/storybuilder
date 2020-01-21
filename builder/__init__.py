@@ -67,6 +67,25 @@ class ActType(Enum):
     TAG = auto() # tag
     META = auto() # meta
 
+    def emoji(self) -> str:
+        return {
+                ActType.ACT: "・",
+                ActType.BE: "∃",
+                ActType.COME: "→",
+                ActType.DESTROY: "壊",
+                ActType.DISCARD: "捨",
+                ActType.EXPLAIN: "※",
+                ActType.GO: "←",
+                ActType.HAVE: "∈",
+                ActType.HEAR: "♪",
+                ActType.LOOK: "■",
+                ActType.META: "∇",
+                ActType.TAG: "🔖",
+                ActType.TALK: "💬",
+                ActType.THINK: "😌",
+                ActType.VOICE: "📞",
+                }[self]
+
 class DataType(Enum):
     NONE = auto()
     ACTION = auto() # action

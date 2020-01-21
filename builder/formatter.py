@@ -30,7 +30,7 @@ class Formatter(object):
         def _weekday(v):
             return ("Mon","Tue","Wed","Thu","Fri","Sat","Sun")[v]
         def _conv(act_type, dialogue, subject, objects, content, count, note):
-            atype = act_type.name.upper()[0:2]
+            atype = act_type.emoji()#act_type.name.upper()[0:2]
             sub_obj = f"{subject}{objects}"
             dial = strEllipsis(dialogue, 24)
             sub = strEllipsis(sub_obj + f"×{count:2d}", 32) if count else strEllipsis(sub_obj, 32)
@@ -69,11 +69,11 @@ class Formatter(object):
             elif isinstance(data, ConteData):
                 if ActType.TALK is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, data.dialogue, name,
+                    tmp.append(_conv(data.type, f"「{data.dialogue}」", f"＞{name}",
                         _objs(data.objects), data.content, data.count, data.note))
                 elif ActType.THINK is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"（{data.dialogue}", name,
+                    tmp.append(_conv(data.type, f"（{data.dialogue}）", name,
                         _objs(data.objects), data.content, data.count, data.note))
                 elif ActType.EXPLAIN is data.type:
                     name = strEllipsis(data.subject, 3, "")
@@ -81,17 +81,18 @@ class Formatter(object):
                         _objs(data.objects), data.content, data.count, data.note))
                 elif ActType.VOICE is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"『{data.dialogue}", name,
+                    tmp.append(_conv(data.type, f"『{data.dialogue}』", name,
                         _objs(data.objects), data.content, data.count, data.note))
                 ## effects
                 elif ActType.HEAR is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"♪{data.dialogue}", name,
-                        _objs(data.objects), data.content, data.count, data.note))
+                    tmp.append(_conv(data.type, f"【{data.content}】", name,
+                        _objs(data.objects), "", data.count, data.note))
                 elif ActType.LOOK is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, data.dialogue, name,
-                        _objs(data.objects), data.content, data.count, data.note))
+                    tmp.append(_conv(data.type, data.dialogue,
+                        f"{name}｛{data.content}｝",
+                        _objs(data.objects), "", data.count, data.note))
                 ## control
                 elif ActType.BE is data.type:
                     tmp.append(_conv(data.type, data.dialogue, f"［{data.subject}］",
@@ -115,8 +116,8 @@ class Formatter(object):
                 ## others
                 else:
                     name = strEllipsis(data.subject, 3, "")
-                    acts = analyzer.verbs(data.content)
-                    subject = f"{name}" + "".join([f"〈{v}〉" for v in acts])
+                    acts = "／".join([v for v in set(analyzer.verbs(data.content))])
+                    subject = f"{name}＜{acts}＞"
                     tmp.append(_conv(data.type, data.dialogue, subject,
                         "".join([f"［{v}］" for v in data.objects]), data.content, data.count, data.note))
         return [f"# {title}\n",
