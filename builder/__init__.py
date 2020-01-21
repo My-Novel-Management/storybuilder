@@ -69,7 +69,7 @@ class ActType(Enum):
 
     def emoji(self) -> str:
         return {
-                ActType.ACT: "・",
+                ActType.ACT: "↓",
                 ActType.BE: "∃",
                 ActType.COME: "→",
                 ActType.DESTROY: "壊",

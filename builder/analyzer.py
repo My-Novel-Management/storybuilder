@@ -97,7 +97,7 @@ class Analyzer(object):
                 }
     ## methods (singles)
     def verbs(self, src: (str, list, tuple)) -> list:
-        parsed = self.tokenizer.parse("\n".join(src)).split('\n')
+        _src = src if not isinstance(src, str) else (src,)
+        parsed = self.tokenizer.parse("\n".join(_src)).split('\n')
         tokens = (re.split('[\t,]', v) for v in parsed)
-        tmp = []
         return [v[7] for v in tokens if len(v) > 1 and (v[1] == "動詞" or v[2] == "サ変接続" or v[3] == "サ変接続")]

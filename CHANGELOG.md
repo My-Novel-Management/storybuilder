@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-14] - 2020-01-21
+### Fixed
+- mecab verbs analyzer
+
 ## [0.4.3-13] - 2020-01-21
 ### Fixed
 - writer subject using not person
@@ -295,7 +299,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-13...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-14...HEAD
+[0.4.3-14]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-14
 [0.4.3-13]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-13
 [0.4.3-12]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-12
 [0.4.3-11]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-11
