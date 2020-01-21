@@ -9,12 +9,13 @@ from utils import assertion
 from utils.util_str import dictCombined, strReplacedTagByDict
 ## local files
 from builder import __PRIORITY_MAX__, __PRIORITY_MIN__, __PRIORITY_NORMAL__
-from builder import TagType
+from builder import ActType, TagType
 from builder.action import Action
 from builder.basedata import BaseData
 from builder.block import Block
 from builder.chapter import Chapter
 from builder.episode import Episode
+from builder.extractor import Extractor
 from builder.person import Person
 from builder.scene import Scene
 from builder.story import Story
@@ -79,6 +80,32 @@ class Converter(object):
         else:
             cur = action.subject if isinstance(current, Who) else current
             return action, cur
+
+    @classmethod
+    def actionDividedFrom(cls, src: StoryLike) -> StoryLike:
+        if isinstance(src, Scene):
+            tmp = []
+            for ac in src.data:
+                if ActType.ACT is ac.act_type:
+                    dires = Extractor.directionsFrom(ac)
+                    strs = [v for v in dires if isinstance(v, str)]
+                    others = [v for v in dires if not isinstance(v, str)]
+                    descs = list(chain.from_iterable(v.split("。") for v in strs))
+                    descs = list(chain.from_iterable(v.split("、") for v in descs))
+                    for v in descs:
+                        tmp.append(Action(v, *others,
+                            subject=ac.subject,
+                            act_type=ActType.ACT,
+                            tag_type=TagType.NONE,
+                            itemCount=ac.itemCount,
+                            note=ac.note,
+                            priority=ac.priority,
+                            ))
+                else:
+                    tmp.append(ac)
+            return src.inherited(*tmp)
+        else:
+            return src.inherited(*[cls.actionDividedFrom(v) for v in src.data])
 
     @classmethod
     def srcReplacedTags(cls, src: StoryLike, tags: dict, prefix: str) -> StoryLike:

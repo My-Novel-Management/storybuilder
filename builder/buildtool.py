@@ -104,6 +104,7 @@ class Build(object):
         tmp = cnv.sceneSettingPronounReplaced(tmp)
         tmp = cnv.srcPronounsReplaced(tmp)
         tmp = cnv.srcReplacedTags(tmp, tags, prefix)
+        tmp = cnv.actionDividedFrom(tmp)
         return tmp
 
     def output(self, src: Story, rubis: dict, layers: dict,

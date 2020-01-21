@@ -79,7 +79,7 @@ class Parser(object):
                     tmp.append((DataType.SCENE_OBJECT, dictCombined({"name":v.name}, v.textures)))
             for ac in src.data:
                 if ActType.TAG is ac.act_type:
-                    if TagType.BR is ac.tag_type:
+                    if ac.tag_type in (TagType.BR, TagType.SYMBOL):
                         continue
                     elif TagType.COMMENT is ac.tag_type and not is_comment:
                         continue
