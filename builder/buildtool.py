@@ -355,7 +355,7 @@ class Build(object):
     def toInfoOfPersons(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         # TODO
         #   - dialogue
-        persons = Extractor.personAndSubjectsFrom(src)
+        persons = [v for v in Extractor.personAndSubjectsFrom(src) if isinstance(v, Person)]
         def _buildLayer(p: Person):
             last, first, full, exfull = Person.fullnamesConstructed(p)
             tmp = Layer(p.name,

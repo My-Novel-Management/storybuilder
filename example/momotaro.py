@@ -85,6 +85,7 @@ def sc_birth_taro(w: World):
 def sc_voyage(w: World):
     taro = W(w.taro)
     gma, gpa = W(w.granma), W(w.granpa)
+    dango = W(w.dango)
     return w.scene("旅立ち",
             w.symbol("◆"),
             taro.be(),
@@ -103,7 +104,8 @@ def sc_voyage(w: World):
             taro.talk("こんな大切なものを", "$meは絶対に鬼をやっつけてきます"),
             gma.talk("それじゃあ$meは$dangoでも作ろうかね"),
             taro.talk("ありがとうございます"),
-            taro.have(w.dango),
+            taro.have(w.dango, "おばあさんからは$dangoを貰った"),
+            dango.look("きな粉がまぶされ、美味しそうだ"),
             taro.explain("こうして$Sは翌朝早くに旅立っていきました"),
             taro.go(),
             day=w.in_voyage, time=w.at_morning,
