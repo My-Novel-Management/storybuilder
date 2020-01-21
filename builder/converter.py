@@ -78,8 +78,7 @@ class Converter(object):
             tmp = action.inherited(*action.data, subject=current)
             return tmp, current
         else:
-            cur = action.subject if isinstance(current, Who) else current
-            return action, cur
+            return action, action.subject
 
     @classmethod
     def actionDividedFrom(cls, src: StoryLike) -> StoryLike:
