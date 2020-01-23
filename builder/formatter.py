@@ -119,7 +119,7 @@ class Formatter(object):
                     acts = "／".join([v for v in set(analyzer.verbs(data.content))])
                     subject = f"{name}＜{acts}＞"
                     tmp.append(_conv(data.type, data.dialogue, subject,
-                        "".join([f"［{v}］" for v in data.objects]), data.content, data.count, data.note))
+                        "".join([f"［{v.name}］" for v in data.objects]), data.content, data.count, data.note))
         return [f"# {title}\n",
                 ] + tmp
 
