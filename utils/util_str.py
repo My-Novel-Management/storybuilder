@@ -73,7 +73,7 @@ def strDuplicatedChopped(target: str):
     return re.sub(r'(。)+', r'\1',
             re.sub(r'(、)+', r'\1',
                 re.sub(r'、。', r'、',
-                    re.sub(r'([!?！？])(\S)', r'\1　\2',
+                    re.sub(r'([!?！？])([^ \u3000!?！？])', r'\1　\2',
                         re.sub(r'([!?！？])[、。]', r'\1　',
                             assertion.isStr(target))))))
 
