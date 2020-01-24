@@ -39,6 +39,10 @@ class BaseData(object):
     def textures(self) -> dict:
         return self._textures
 
+    ## methods (compare)
+    def equals(self, obj) -> bool:
+        return type(self) is type(obj) and self.name == obj.name and self.data is obj.data
+
     ## methods (setter)
     def setTexture(self, key: str, val: str):
         self._textures[assertion.isStr(key)] = assertion.isStr(val)

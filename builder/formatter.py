@@ -24,6 +24,16 @@ class Formatter(object):
 
     ## methods
     @classmethod
+    def toActionEachPerson(cls, title: str, src: list) -> list:
+        tmp = []
+        for data in src:
+            if DataType.HEAD is data[0]:
+                tmp.append(data[1])
+            elif DataType.DATA_DICT is data[0]:
+                tmp.append("|".join([f"{k}:{v}" for k,v in data[1].items()]))
+        return [f"# {title}\n"] + tmp
+
+    @classmethod
     def toConte(cls, title: str, src: list, analyzer: Analyzer) -> list:
         tmp = []
         discards = [] # for texture

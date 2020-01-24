@@ -14,6 +14,7 @@ from builder.action import Action
 from builder.chapter import Chapter
 from builder.episode import Episode
 from builder.extractor import Extractor
+from builder.person import Person
 from builder.scene import Scene
 from builder.story import Story
 
@@ -52,6 +53,12 @@ class Counter(object):
     @classmethod
     def scenes(cls, src: StoryLike) -> int:
         return len(Extractor.scenesFrom(src))
+
+    ## methods (actions)
+    @classmethod
+    def actionsPerPerson(cls, src: StoryLike, person: Person) -> int:
+        tmp = Extractor.actionsFrom(src)
+        return len([v for v in tmp if person.equals(v.subject)])
 
     ## methods (characters)
     @classmethod

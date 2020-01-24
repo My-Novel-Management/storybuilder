@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-19] - 2020-01-24
+### Added
+- action per person output
+
 ## [0.4.3-18] - 2020-01-23
 ### Fixed
 - conte output in action do with item object
@@ -315,7 +319,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-18...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-19...HEAD
+[0.4.3-19]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-19
 [0.4.3-18]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-18
 [0.4.3-17]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-17
 [0.4.3-16]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-16

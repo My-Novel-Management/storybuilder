@@ -132,6 +132,7 @@ class Build(object):
                 - persons
             6. line
                 - stage
+            7. act percent
         '''
         ## outputs
         self.toInfoOfGeneral(src, columns, rows, is_debug)
@@ -155,6 +156,8 @@ class Build(object):
         self.toInfoOfPersons(src, is_debug)
         ## line
         self.toLineOfStages(src, is_debug)
+        ## act analyzed
+        self.toActionOerder(src, is_debug)
         ## check
         ## TODO
         #if is_analyze:
@@ -213,6 +216,18 @@ class Build(object):
         return True
 
     ## methods (output data)
+    def toActionOerder(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+        # TODO: each chapter, episode, scenes
+        persons = [v for v in Extractor.personAndSubjectsFrom(src) if isinstance(v, Person)]
+        tmp = {}
+        for p in persons:
+            tmp[p.name] = Counter.actionsPerPerson(src, p)
+        res = [(DataType.HEAD, "## Totals"),
+                (DataType.DATA_DICT,
+            dict(sorted(tmp.items(), key=lambda x:x[1], reverse=True)))]
+        return self.outputTo(Formatter.toActionEachPerson("Action info", res),
+                self.filename, "_act", self.extention, self.builddir, is_debug)
+
     def toBlocks(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
         tmp = []
         for bk in src.values():

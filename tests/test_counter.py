@@ -41,6 +41,16 @@ class CounterTest(unittest.TestCase):
         validatedTestingWithFail(self, "actions", lambda v,expect: self.assertEqual(
             Counter.actions(v), expect), data)
 
+    def test_actionsPerPerson(self):
+        data = [
+                (False, Story("test",Chapter("c1",Episode("e1",
+                    Scene("s1",Action("apple",subject=self.taro),Action("orange"))))),
+                    self.taro, 1),
+                ]
+        validatedTestingWithFail(self, "actionsPerPerson",
+                lambda v,p,expect: self.assertEqual(
+                    Counter.actionsPerPerson(v,p),expect), data)
+
     def test_actType(self):
         data = [
                 (False, self.basedata, ActType.ACT, 1),
