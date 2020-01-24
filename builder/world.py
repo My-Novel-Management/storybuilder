@@ -206,7 +206,7 @@ class World(UtilityDict):
         ## compile
         src = builder.compile(self.title, priority,
                 self._tags, __TAG_PREFIX__,
-                outtype, int(partstart), int(partend),
+                outtype, int(partstart) - 1, int(partend) - 1,
                 outline,
                 *args)
         ## sub data
