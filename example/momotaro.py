@@ -182,10 +182,14 @@ def ep_birth_momotaro(w: World):
             note="流れてきた大きな桃には赤子（$taro）が入っていた",
             )
 
-def ep_buster_daemon(w: World):
-    return w.episode("$w_daemon退治",
+def ep_ally(w: World):
+    return w.episode("味方",
             sc_voyage(w),
             sc_ally(w),
+            )
+
+def ep_buster_daemon(w: World):
+    return w.episode("$w_daemon退治",
             sc_island(w),
             note="道中で家来を手に入れて、鬼退治する",
             )
@@ -238,6 +242,7 @@ def ch_main(w: World):
     #   create chapters and set episodes
     return w.chapter("main",
             ep_birth_momotaro(w),
+            ep_ally(w),
             ep_buster_daemon(w),
             )
 

@@ -186,7 +186,7 @@ class World(UtilityDict):
                     partend = int(v)
                 idx += 1
             if partend >= 0 and partend <= partstart:
-                partend = partstart + 1
+                partend = partstart
         is_list = opts.list
         is_scenario = opts.scenario
         is_analyze = opts.analyze

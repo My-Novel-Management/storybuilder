@@ -117,7 +117,7 @@ class ConverterTest(unittest.TestCase):
     def test_srcReducedByChapter(self):
         ch1, ch2 = Chapter("c1"), Chapter("c2")
         data = [
-                (False, Story("test", ch1, ch2), 0,2,
+                (False, Story("test", ch1, ch2), 0,1,
                     (ch1, ch2)),
                 (False, Story("test", ch1, ch2), 1,1,
                     (ch2,)),
@@ -132,7 +132,7 @@ class ConverterTest(unittest.TestCase):
     def test_srcReducedByEpisode(self):
         ep1, ep2 = Episode("e1"), Episode("e2")
         data = [
-                (False, Story("test", Chapter("c1",ep1), Chapter("c2",ep2)), 0,2,
+                (False, Story("test", Chapter("c1",ep1), Chapter("c2",ep2)), 0,1,
                     (ep1,ep2)),
                 (False, Story("test", Chapter("c1",ep1), Chapter("c2",ep2)), 1,1,
                     (ep2,)),

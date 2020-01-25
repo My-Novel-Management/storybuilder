@@ -163,13 +163,8 @@ class Converter(object):
     def srcReducedByChapter(cls, src: Story, start: int, end: int) -> Story:
         tmp = []
         idx = 0
-        inEnabled = False
         for ch in src.data:
-            if idx == start:
-                inEnabled = True
-            elif end > 0 and idx == end:
-                inEnabled = False
-            if inEnabled:
+            if idx >= start and (idx <= end or end < 0):
                 tmp.append(ch)
             idx += 1
         return src.inherited(*tmp)
@@ -178,15 +173,10 @@ class Converter(object):
     def srcReducedByEpisode(cls, src: Story, start: int, end: int) -> Story:
         tmp = []
         idx = 0
-        inEnabled = False
         for ch in src.data:
             eps = []
             for ep in ch.data:
-                if idx == start:
-                    inEnabled = True
-                elif end > 0 and idx == end:
-                    inEnabled = False
-                if inEnabled:
+                if idx >= start and (idx <= end or end < 0):
                     eps.append(ep)
                 idx += 1
             tmp.append(ch.inherited(*eps))
