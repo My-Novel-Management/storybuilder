@@ -108,6 +108,7 @@ class DataType(Enum):
     MONOLOGUE = auto()
     NARRATION = auto()
     VOICE = auto()
+    META = auto()
     COMMAND = auto() # 特殊なもので利用。方式の切り替え等
 
 class MetaType(Enum):
@@ -115,6 +116,8 @@ class MetaType(Enum):
     INFO = auto()
     TEST_EXISTS_THAT = auto()       # A subejct exists (in scene)
     TEST_HAS_THAT = auto()          # the subject has A item (object)
+    BLOCK_START = auto()
+    BLOCK_END = auto()
 
 class TagType(Enum):
     NONE = auto()

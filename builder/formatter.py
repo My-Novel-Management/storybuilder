@@ -40,7 +40,7 @@ class Formatter(object):
         def _weekday(v):
             return ("Mon","Tue","Wed","Thu","Fri","Sat","Sun")[v]
         def _conv(act_type, dialogue, subject, objects, content, count, note):
-            atype = act_type.emoji()#act_type.name.upper()[0:2]
+            atype = act_type.emoji() if isinstance(act_type, ActType) else act_type
             sub_obj = f"{subject}{objects}"
             dial = strEllipsis(dialogue, 24)
             sub = strEllipsis(sub_obj + f"×{count:2d}", 32) if count else strEllipsis(sub_obj, 32)
@@ -75,6 +75,14 @@ class Formatter(object):
             elif DataType.SCENE_OBJECT is v[0] and not data['name'] in discards:
                 tmp.append(_texture(data))
                 discards.append(data['name'])
+            ## meta data
+            elif DataType.META is v[0]:
+                if "blockstart" in v[1]:
+                    _, title = v[1].split(":")
+                    tmp.append(_conv("📼", "ー"*20, "", "", f"[{title}](:開始)", "", "",))
+                elif "blockend" in v[1]:
+                    _, title = v[1].split(":")
+                    tmp.append(_conv("🔚", "ー"*20, "", "", f"[{title}](:終了)", "", "",))
             ## word like
             elif isinstance(data, ConteData):
                 if ActType.TALK is data.type:

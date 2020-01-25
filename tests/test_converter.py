@@ -7,12 +7,14 @@ import unittest
 ## local files (test utils)
 from testutils import printTestTitle, validatedTestingWithFail
 ## local files
+from builder import ActType, MetaType
 from builder.action import Action
 from builder.block import Block
 from builder.chapter import Chapter
 from builder.converter import Converter
 from builder.episode import Episode
 from builder.extractor import Extractor
+from builder.metadata import MetaData
 from builder.person import Person
 from builder.scene import Scene
 from builder.story import Story
@@ -59,12 +61,16 @@ class ConverterTest(unittest.TestCase):
                     Scene("s1", ac1, ac2)))),
                     (ac1, ac2)),
                 (False, Story("test", Chapter("c1", Episode("e1",
-                    Scene("s1", bk1, bk2)))),
-                    (ac1, ac2, ac3)),
+                    Scene("s1", bk2)))),
+                    (Action(MetaData(MetaType.BLOCK_START,info="B"),act_type=ActType.META), ac2, ac3, Action(MetaData(MetaType.BLOCK_END,info="B"),act_type=ActType.META))),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor.actionsFrom(Converter.srcExpandBlocks(v))
-            self.assertEqual(tmp, expect)
+            for v, e in zip(tmp, expect):
+                if isinstance(v.data[0], MetaData):
+                    self.assertEqual(v.data[0].data, e.data[0].data)
+                else:
+                    self.assertEqual(v.data, e.data)
         validatedTestingWithFail(self, "srcExpandBlocks", _checkcode, data)
 
     def test_srcFilterByPriority(self):

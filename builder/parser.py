@@ -51,6 +51,15 @@ class Parser(object):
     def toContes(cls, src: StoryLike, is_comment: bool=False) -> Tuple[DataType, Any]:
         # TODO: その他の情報とかを乗せるかどうか
         #       例えばカメラ等の諸情報や、舞台設備など
+        def _hasMetaBlock(ac: Action, isEnd: bool):
+            tmp = Extractor.metadataFrom(ac)
+            for v in tmp:
+                if isEnd and v.data is MetaType.BLOCK_END:
+                    return True
+                elif v.data is MetaType.BLOCK_START:
+                    return True
+            else:
+                return False
         if isinstance(src, Scene):
             tmp = []
             tmp.append((DataType.SCENE_SETTING,
@@ -86,7 +95,14 @@ class Parser(object):
                     else:
                         tmp.append(cls.tagOf(ac))
                 elif ActType.META is ac.act_type:
-                    continue
+                    if _hasMetaBlock(ac, False):
+                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_START][0].note
+                        tmp.append((DataType.META, f"blockstart:{title}"))
+                    elif _hasMetaBlock(ac, True):
+                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_END][0].note
+                        tmp.append((DataType.META, f"blockend:{title}"))
+                    else:
+                        continue
                 else:
                     tmp.append((DataType.ACTION,
                         ConteData(ac.act_type,

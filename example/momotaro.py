@@ -118,12 +118,7 @@ def sc_ally(w: World):
     dog, monkey, bird = W(w.dog), W(w.monkey), W(w.bird)
     return w.scene("家来",
             taro.hasThat(w.dango),
-            taro.come("村を出た$Sは街道を歩いていた"),
-            dog.be("すると前方で一匹の犬がうずくまっている"),
-            taro.talk("どうしたんだ？"),
-            dog.talk("お腹が空いて動けないのです"),
-            taro.do("そこで$Sは持っていた$dangoを犬にやった"),
-            dog.have(w.dango),
+            w.load("犬を仲間に"),
             dog.talk("助かりました", "ところで$taroさんはどこに行くのですか？"),
             taro.talk("鬼を退治しに行くところなんだ"),
             dog.talk("それなら$meがお供しましょう", "鬼はこの牙が苦手と言います"),
@@ -231,9 +226,14 @@ def set_stages(w: World):
 
 ## block
 def bk_dog(w: World):
-    taro = W(w.taro)
+    taro, dog = W(w.taro), W(w.dog)
     return w.block("犬を仲間に",
-            taro.do("歩いていた"),
+            taro.come("村を出た$Sは街道を歩いていた"),
+            dog.be("すると前方で一匹の犬がうずくまっている"),
+            taro.talk("どうしたんだ？"),
+            dog.talk("お腹が空いて動けないのです"),
+            taro.do("そこで$Sは持っていた$dangoを犬にやった"),
+            dog.have(w.dango),
             )
 
 ## main

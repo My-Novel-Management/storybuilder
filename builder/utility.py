@@ -12,3 +12,4 @@ from builder.conjuction import Then
 ## define methods
 def hasThen(action: Action) -> bool:
     return len([v for v in action.data if isinstance(v, Then)]) > 0
+

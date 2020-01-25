@@ -9,13 +9,14 @@ from utils import assertion
 from utils.util_str import dictCombined, strReplacedTagByDict
 ## local files
 from builder import __PRIORITY_MAX__, __PRIORITY_MIN__, __PRIORITY_NORMAL__
-from builder import ActType, TagType
+from builder import ActType, MetaType, TagType
 from builder.action import Action
 from builder.basedata import BaseData
 from builder.block import Block
 from builder.chapter import Chapter
 from builder.episode import Episode
 from builder.extractor import Extractor
+from builder.metadata import MetaData
 from builder.person import Person
 from builder.scene import Scene
 from builder.story import Story
@@ -152,10 +153,12 @@ class Converter(object):
 
     @classmethod
     def srcExpandBlocks(cls, src: StoryLike) -> StoryLike:
+        def _blockPacked(block: Block):
+            return (Action(MetaData(MetaType.BLOCK_START, info=block.title),act_type=ActType.META),) + block.data + (Action(MetaData(MetaType.BLOCK_END, info=block.title),act_type=ActType.META),)
         if isinstance(src, Scene):
             return src.inherited(
                     *list(chain.from_iterable(
-                        [[v] if isinstance(v, Action) else v.data for v in src.data])))
+                        [[v] if isinstance(v, Action) else _blockPacked(v) for v in src.data])))
         else:
             return src.inherited(*[cls.srcExpandBlocks(v) for v in src.data])
 

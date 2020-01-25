@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-22] - 2020-01-25
+### Added
+- block title display on conte
+
 ## [0.4.3-21] - 2020-01-25
 ### Fixed
 - part output end number
@@ -327,7 +331,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-21...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-22...HEAD
+[0.4.3-22]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-22
 [0.4.3-21]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-21
 [0.4.3-20]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-20
 [0.4.3-19]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-19
