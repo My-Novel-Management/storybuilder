@@ -12,7 +12,7 @@ from utils.util_str import dictSorted, daytimeDictSorted
 ## local files
 from builder import __BASE_COLUMN__, __BASE_ROW__
 from builder import __FORMAT_DEFAULT__, __FORMAT_ESTAR__, __FORMAT_PHONE__, __FORMAT_WEB__
-from builder import ActType, DataType
+from builder import ActType, MetaType, DataType
 from builder import WordClasses
 from builder.analyzer import Analyzer
 from builder.chapter import Chapter
@@ -132,6 +132,7 @@ class Build(object):
                 - persons
             6. line
                 - stage
+                - event
             7. act percent
         '''
         ## outputs
@@ -156,6 +157,7 @@ class Build(object):
         self.toInfoOfPersons(src, is_debug)
         ## line
         self.toLineOfStages(src, is_debug)
+        self.toLineOfEvents(src, is_debug)
         ## act analyzed
         self.toActionOerder(src, is_debug)
         ## check
@@ -433,17 +435,43 @@ class Build(object):
                 self.filename, "_wordcls", self.extention,
                 os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
 
+    def toLineOfEvents(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+        # TODO
+        print("unimplemented    line of events")
+        tmp = []
+        ch_idx, ep_idx = 1, 1
+        chapters = Extractor.chaptersFrom(src)
+        for ch in chapters:
+            tmp.append((DataType.HEAD, f"## Ch-{ch_idx}: {ch.title}"))
+            ch_idx += 1
+            for ep in Extractor.episodesFrom(ch):
+                tmp.append((DataType.HEAD, f"### Ep-{ep_idx}: {ep.title}"))
+                ep_idx += 1
+                metas = Extractor.metadataFrom(ep)
+                for m in metas:
+                    if m.data is MetaType.EVENT_START:
+                        tmp.append((DataType.DATA_STR, f"start:{m.note}"))
+                    elif m.data is MetaType.EVENT_END:
+                        tmp.append((DataType.DATA_STR, f"end:{m.note}"))
+        return self.outputTo(Formatter.toLinescaleOfEvents("Event lines", tmp),
+                self.filename, "_evt", self.extention, self.builddir, is_debug)
+
     def toLineOfStages(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         tmp = []
-        scenes = Extractor.scenesFrom(src)
-        for v in scenes:
-            tmp.append((DataType.SCENE_SETTING,
+        chapters = Extractor.chaptersFrom(src)
+        idx = 1
+        for ch in chapters:
+            tmp.append((DataType.HEAD, f"## Ch-{idx}: {ch.title}"))
+            idx += 1
+            scenes = Extractor.scenesFrom(ch)
+            for v in scenes:
+                tmp.append((DataType.SCENE_SETTING,
                 {"stage":v.stage.name,
                     "camera":v.camera.name,
                     "day":v.day.data,
                     "week":v.day.data.weekday(),
                     "time":v.time.name}))
-        return self.outputTo(Formatter.toConte("Stage lines", tmp, self.analyzer),
+        return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp),
                 self.filename, "_line", self.extention, self.builddir, is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover

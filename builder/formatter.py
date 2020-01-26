@@ -63,6 +63,8 @@ class Formatter(object):
                 tmp.append(v[1])
             elif DataType.TAG is v[0]:
                 tmp.append(v[1])
+            elif DataType.HEAD is v[0]:
+                tmp.append(f"\n{v[1]}\n")
             ## settings
             elif DataType.SCENE_SETTING is v[0]:
                 tmp.append(f"○{data['stage']}（{data['time']}） - {data['day']}({_weekday(data['week'])}) - ＜{data['camera']}＞")
@@ -280,6 +282,54 @@ class Formatter(object):
                         kanji = v
                 percent = kanji / total * 100 if total else 0
                 tmp.append(f"* Kanji: {percent:.2f}% - {kanji}c / {total}c")
+        return [f"# {title}\n",] + tmp
+
+    @classmethod
+    def toLinescaleOfEvents(cls, title: str, src: list) -> list:
+        tmp = []
+        for data in src:
+            if DataType.HEAD is data[0]:
+                tmp.append(f"\n{data[1]}\n")
+            elif DataType.DATA_STR is data[0]:
+                if "start" in data[1]:
+                    _, title = data[1].split(":")
+                    tmp.append(f"[{title}](:start)")
+                elif "end" in data[1]:
+                    _, title = data[1].split(":")
+                    tmp.append(f"[{title}](:end)")
+        return [f"# {title}\n"] + tmp
+
+    @classmethod
+    def toLinescaleOfStage(cls, title: str, src: list) -> list:
+        # TODO: 距離順などに並べられるとより良い
+        tmp = []
+        stages = []
+        for data in src:
+            if DataType.SCENE_SETTING is data[0]:
+                stages.append(data[1]["stage"])
+        stagelist = sorted(list(set(stages)))
+        def _getNum(v):
+            idx = 0
+            for i in stagelist:
+                if v == i:
+                    return idx
+                idx += 1
+            return idx
+        def _chopped(v):
+            if len(v) >= 4:
+                return v[0:4]
+            else:
+                return f"{v:\u3000<4}"
+        heads = "|".join([_chopped(v) for v in stagelist])
+        for data in src:
+            if DataType.HEAD is data[0]:
+                tmp.append(f"\n{data[1]}\n")
+                tmp.append(f"{heads}|")
+            elif DataType.SCENE_SETTING is data[0]:
+                num = _getNum(data[1]["stage"])
+                pattern = "　　　　|"
+                idt = pattern * num + "●　　　|" + pattern * (len(stagelist) - num - 1)
+                tmp.append(f"{idt}:{data[1]['time']:\u3000<4}/{data[1]['day']}")
         return [f"# {title}\n",] + tmp
 
     @classmethod
