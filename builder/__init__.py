@@ -118,6 +118,8 @@ class MetaType(Enum):
     TEST_HAS_THAT = auto()          # the subject has A item (object)
     BLOCK_START = auto()
     BLOCK_END = auto()
+    EVENT_START = auto()
+    EVENT_END = auto()
 
 class TagType(Enum):
     NONE = auto()

@@ -19,7 +19,7 @@ from builder import __TAG_PREFIX__
 from builder import __DEF_FILENAME__
 from builder import __ASSET_ELEMENTS__
 from builder import __DEF_YEAR__, __DEF_MON__, __DEF_DAY__
-from builder import ActType, TagType
+from builder import ActType, MetaType, TagType
 from builder import History
 from builder.action import Action
 from builder.block import Block
@@ -31,6 +31,7 @@ from builder.episode import Episode
 from builder.item import Item
 from builder.layer import Layer
 from builder.lifenote import LifeNote
+from builder.metadata import MetaData
 from builder.person import Person
 from builder.rubi import Rubi
 from builder.scene import Scene
@@ -428,6 +429,17 @@ class World(UtilityDict):
     def symbol(self, symbol: str) -> Action:
         return Action(act_type=ActType.TAG, tag_type=TagType.SYMBOL,
                 note=symbol)
+
+    ## meta
+    def eventStart(self, title: str) -> Action:
+        return self.event(title, False)
+
+    def eventEnd(self, title: str) -> Action:
+        return self.event(title, True)
+
+    def event(self, title: str, isEnd: bool=False) -> Action:
+        return Action(MetaData(MetaType.EVENT_END if isEnd else MetaType.EVENT_START, info=title),
+                act_type=ActType.META)
 
     ## utility
     def setCommonData(self): # pragma: no cover

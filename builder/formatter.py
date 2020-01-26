@@ -83,6 +83,12 @@ class Formatter(object):
                 elif "blockend" in v[1]:
                     _, title = v[1].split(":")
                     tmp.append(_conv("🔚", "ー"*20, "", "", f"[{title}](:終了)", "", "",))
+                elif "eventstart" in v[1]:
+                    _, title = v[1].split(":")
+                    tmp.append(_conv("🎬", "※"*20, "", "", f"[{title}](:オープン)", "", "",))
+                elif "eventend" in v[1]:
+                    _, title = v[1].split(":")
+                    tmp.append(_conv("🔝", "※"*20, "", "", f"[{title}](:クローズ)", "", "",))
             ## word like
             elif isinstance(data, ConteData):
                 if ActType.TALK is data.type:

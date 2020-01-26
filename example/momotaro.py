@@ -48,6 +48,7 @@ def sc_get_peach(w: World):
     gma = W(w.granma)
     return w.scene("桃を拾う",
             w.comment("序盤。おばあさんが桃を拾う"),
+            w.eventStart("桃太郎誕生"),
             gma.be("あるところにおじいさんとおばあさんがいました", "&"),
             gma.explain("おじいさんは山へ芝刈りに、おばあさんは川へ洗濯に出かけました"),
             gma.come("洗濯物を籠に入れ、河原にやってきた$Sでしたが、", "&"),
@@ -78,6 +79,7 @@ def sc_birth_taro(w: World):
             gpa.talk("よし！", "$taroと名付けよう",
                 "今日からお前は$taroだ"),
             taro.explain("こうして$Sは生まれました"),
+            w.eventEnd("桃太郎誕生"),
             stage=w.on_home,
             time=w.at_noon,
             )

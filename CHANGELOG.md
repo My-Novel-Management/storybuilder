@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-24] - 2020-01-26
+### Added
+- meta data: event
+
 ## [0.4.3-23] - 2020-01-26
 ### Fixed
 - info tag convert
@@ -335,7 +339,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-23...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-24...HEAD
+[0.4.3-24]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-24
 [0.4.3-23]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-23
 [0.4.3-22]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-22
 [0.4.3-21]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-21
