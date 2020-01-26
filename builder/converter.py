@@ -132,6 +132,8 @@ class Converter(object):
     @classmethod
     def directionReplacedTags(cls, dire:(str,  BaseData), tags: dict, prefix: str,
             camera: Person, subject: Person) -> (str, BaseData):
+        if isinstance(dire, MetaData):
+            return MetaData(info=cls.directionReplacedTags(dire.note, tags, prefix, camera, subject))
         if not isinstance(dire, str):
             return dire
         tmp = dire
