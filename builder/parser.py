@@ -16,6 +16,7 @@ from builder import ActType, DataType, TagType, MetaType
 from builder import ConteData
 from builder import History
 from builder.action import Action
+from builder.analyzer import Analyzer
 from builder.chapter import Chapter
 from builder.converter import Converter
 from builder.conjuction import Then
@@ -201,18 +202,6 @@ class Parser(object):
         return tuple(tmp)
 
     @classmethod
-    def toLifeNote(cls, src: LifeNote, tags: dict, prefix: str) -> Tuple[DataType, Any]:
-        tmp = []
-        notes = []
-        current = src.subject
-        for ac in src.data:
-            conv_act, current = Converter.actionReplacedPronoun(ac, current)
-            conv_act = Converter.actionReplacedTags(conv_act, tags, prefix, current)
-            notes.append(conv_act)
-        sc = Scene(strReplacedTagByDict(src.title, tags, prefix), *notes)
-        return cls.toDescriptions(sc)
-
-    @classmethod
     def toHistory(cls, subject: Person, basedate: datetime.date, src: List[History]) -> list:
         tmp = []
         birth = basedate - relativedelta(years=subject.age)
@@ -236,6 +225,42 @@ class Parser(object):
             age = (day - birth).days / 365
             tmp.append(History(day, f"{age}:{hi.content}", hi.note))
         return sorted(tmp, key=lambda h: h[0])
+
+    @classmethod
+    def toInfoVolumes(cls, src: Story, analyzer: Analyzer) -> list:
+        tmp = []
+        discards = []
+        for ch in src.data:
+            tmp.append(cls.titleOf(ch))
+            for ep in ch.data:
+                tmp.append(cls.titleOf(ep))
+                for sc in ep.data:
+                    tmp.append(cls.titleOf(sc))
+                    vols = 0
+                    fvols = 0
+                    for ac in sc.data:
+                        dires = Extractor.stringsFrom(ac)
+                        azd = analyzer.collectionsFrom(dires)
+                        for wcls,lst in azd.items():
+                            for v in lst:
+                                vols += wcls.convVolume()
+                                if not v in discards:
+                                    discards.append(v)
+                                    fvols += wcls.convVolume()
+                    tmp.append((DataType.DATA_STR, f"{fvols}/{vols}"))
+        return tmp
+
+    @classmethod
+    def toLifeNote(cls, src: LifeNote, tags: dict, prefix: str) -> Tuple[DataType, Any]:
+        tmp = []
+        notes = []
+        current = src.subject
+        for ac in src.data:
+            conv_act, current = Converter.actionReplacedPronoun(ac, current)
+            conv_act = Converter.actionReplacedTags(conv_act, tags, prefix, current)
+            notes.append(conv_act)
+        sc = Scene(strReplacedTagByDict(src.title, tags, prefix), *notes)
+        return cls.toDescriptions(sc)
 
     @classmethod
     def toOutlines(cls, src: StoryLike) -> Tuple[DataType, Any]:

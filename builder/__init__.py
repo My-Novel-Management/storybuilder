@@ -143,6 +143,21 @@ class WordClasses(Enum):
     PREFIX = "接頭詞"
     OTHER = "その他"
 
+    def convVolume(self) -> int:
+        return {
+                WordClasses.ADJECTIVE: 1,
+                WordClasses.ADVERB: 1,
+                WordClasses.AUXVERB: 0,
+                WordClasses.CONJUCTION: 0,
+                WordClasses.INTERJECTION: 1,
+                WordClasses.MARK: 0,
+                WordClasses.NOUN: 10,
+                WordClasses.OTHER: 0,
+                WordClasses.PARTICLE: 0,
+                WordClasses.PREFIX: 0,
+                WordClasses.VERB: 3,
+                }[self]
+
 ## named tuple
 ConteData = namedtuple("ConteData",
         ("type", "dialogue", "subject", "objects", "content", "count", "note"))

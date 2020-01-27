@@ -44,7 +44,7 @@ class AnalyzerTest(unittest.TestCase):
                 ]
         def _checkcode(v, wcls, expect):
             tmp = self.anal.collectionsWordClassByMecab(v)
-            self.assertEqual(tmp[wcls.name], expect)
+            self.assertEqual(tmp[wcls], expect)
         validatedTestingWithFail(self, "collectionsWordClassByMeCab", _checkcode, data)
 
     def test_verbs(self):

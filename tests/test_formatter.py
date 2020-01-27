@@ -36,7 +36,7 @@ class FormatterTest(unittest.TestCase):
                     (DataType.ACTION,
                         ConteData(ActType.TALK, "Im", "太郎", [], "テスト", 0, "a note"))),
                     ["# test\n", "\n** Sc-1: apple **\n",
-                        "💬|「Im」"+"　"*20 + "|＞太郎"+"　"*29+"|テスト"+"　"*21+"|a note"]),
+                        "💬|「Im」"+"　"*20 + "|＞太郎"+"　"*29+"|テスト"+"　"*21+"|  10|a note"]),
                 ]
         def _checkcode(v, expect):
             self.assertEqual(Formatter.toConte("test", v, self.anal), expect)

@@ -123,13 +123,15 @@ class Build(object):
             4. description (or scenario)
             5. info
                 - kanji
-                - wordclass
                 - stage layer
                 - fashion layer
                 - food layer
                 - time layer
                 - custom layers
                 - persons
+            6. analyzed info
+                - wordclass
+                - info volumes
             6. line
                 - stage
                 - event
@@ -148,6 +150,7 @@ class Build(object):
         self.toInfoOfKanji(src, is_debug)
         if is_analyze:
             self.toInfoOfWordClass(src, self.analyzer, is_debug)
+            self.toInfoVolumes(src, self.analyzer, is_debug)
         ## layers
         self.toInfoOfStages(src, dictSorted(stages), is_debug)
         self.toInfoOfFashions(src, dictSorted(fashions), is_debug)
@@ -418,8 +421,8 @@ class Build(object):
         title = f"Word class info of {src.title}"
         wcls = analyzer.collectionsWordClassByMecab(src)
         res = []
-        def _create(title, name):
-            base = PyCounter([v[0] for v in wcls[name]])
+        def _create(title, wtype):
+            base = PyCounter([v[0] for v in wcls[wtype]])
             maxnum = base.most_common()[0][1] if base.most_common() else 0
             res.append((DataType.HEAD, title))
             for i in reversed(range(maxnum)):
@@ -430,14 +433,19 @@ class Build(object):
                 if tmp:
                     res.append((DataType.DATA_STR, f"{i + 1}: {','.join(tmp)}"))
         for v in WordClasses:
-            _create(v.value, v.name)
+            _create(v.value, v)
         return self.outputTo(Formatter.toWordClassInfo(title, res),
                 self.filename, "_wordcls", self.extention,
                 os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
 
+    def toInfoVolumes(self, src: Story, analyzer: Analyzer, is_debug: bool) -> bool: # pragma: no cover
+        res = Parser.toInfoVolumes(src, analyzer)
+        return self.outputTo(Formatter.toInfoVolumes("Info volumes", res),
+                self.filename, "_vinf", self.extention,
+                os.path.join(self.builddir, self.__ANALYZE_DIR__), is_debug)
+
     def toLineOfEvents(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         # TODO
-        print("unimplemented    line of events")
         tmp = []
         ch_idx, ep_idx = 1, 1
         chapters = Extractor.chaptersFrom(src)

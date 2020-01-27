@@ -9,8 +9,9 @@ from utils.util_math import intCeiled
 from utils.util_str import kanjiOf, strDuplicatedChopped
 from builder.utility import hasThen
 ## local files
-from builder import ActType, MetaType
+from builder import ActType, MetaType ,WordClasses
 from builder.action import Action
+from builder.analyzer import Analyzer
 from builder.chapter import Chapter
 from builder.episode import Episode
 from builder.extractor import Extractor
@@ -104,3 +105,11 @@ class Counter(object):
         else:
             return sum(cls.manupaperRows(v, column) for v in src.data)
 
+    ## methods (info volume)
+    @classmethod
+    def infoVolumeOf(cls, src: str, analyzer: Analyzer):
+        tmp = analyzer.collectionsFrom(src)
+        res = 0
+        for key, val in tmp.items():
+            res += key.convVolume() * len(val)
+        return res

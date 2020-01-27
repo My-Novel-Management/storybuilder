@@ -33,7 +33,7 @@ class Analyzer(object):
         self.tokenizer.parse('')
 
     ## methods
-    def collectionsWordClassByMecab(self, src: StoryLike) -> Dict[str, list]:
+    def collectionsWordClassByMecab(self, src: StoryLike) -> Dict[WordClasses, list]:
         '''
             - 名詞
             - 動詞
@@ -83,19 +83,70 @@ class Analyzer(object):
             else:
                 others.append(v)
         return {
-                WordClasses.NOUN.name: nouns,
-                WordClasses.VERB.name: verbs,
-                WordClasses.ADJECTIVE.name: adjectives,
-                WordClasses.ADVERB.name: adverbs,
-                WordClasses.CONJUCTION.name: conjuctions,
-                WordClasses.INTERJECTION.name: interjections,
-                WordClasses.AUXVERB.name: auxverbs,
-                WordClasses.PARTICLE.name: particles,
-                WordClasses.MARK.name: marks,
-                WordClasses.PREFIX.name: prefixs,
-                WordClasses.OTHER.name: others,
+                WordClasses.NOUN: nouns,
+                WordClasses.VERB: verbs,
+                WordClasses.ADJECTIVE: adjectives,
+                WordClasses.ADVERB: adverbs,
+                WordClasses.CONJUCTION: conjuctions,
+                WordClasses.INTERJECTION: interjections,
+                WordClasses.AUXVERB: auxverbs,
+                WordClasses.PARTICLE: particles,
+                WordClasses.MARK: marks,
+                WordClasses.PREFIX: prefixs,
+                WordClasses.OTHER: others,
                 }
+
     ## methods (singles)
+    def collectionsFrom(self, src: (str, list, tuple)) -> Dict[WordClasses, list]:
+        nouns, verbs, adjectives, adverbs = [], [], [], []
+        conjuctions, interjections, auxverbs, particles = [], [], [], []
+        marks, prefixs, others = [], [], []
+        tmp = [src] if isinstance(src, str) else src
+        def _excepted(target: str):
+            return target in ('EOS', '', 't', 'ー')
+        parsed = self.tokenizer.parse("\n".join(tmp)).split("\n")
+        tokens = (re.split('[\t,]', v) for v in parsed)
+        for v in tokens:
+            if _excepted(v[0]):
+                continue
+            elif len(v) == 1:
+                continue
+            elif v[1] == "名詞":
+                nouns.append(v)
+            elif v[1] == "動詞":
+                verbs.append(v)
+            elif v[1] == "形容詞":
+                adjectives.append(v)
+            elif v[1] == "副詞":
+                adverbs.append(v)
+            elif v[1] == "接続詞":
+                conjuctions.append(v)
+            elif v[1] == "感動詞":
+                interjections.append(v)
+            elif v[1] == "助動詞":
+                auxverbs.append(v)
+            elif v[1] == "助詞":
+                particles.append(v)
+            elif v[1] == "記号":
+                marks.append(v)
+            elif v[1] == "接頭詞":
+                prefixs.append(v)
+            else:
+                others.append(v)
+        return {
+                WordClasses.NOUN: nouns,
+                WordClasses.VERB: verbs,
+                WordClasses.ADJECTIVE: adjectives,
+                WordClasses.ADVERB: adverbs,
+                WordClasses.CONJUCTION: conjuctions,
+                WordClasses.INTERJECTION: interjections,
+                WordClasses.AUXVERB: auxverbs,
+                WordClasses.PARTICLE: particles,
+                WordClasses.MARK: marks,
+                WordClasses.PREFIX: prefixs,
+                WordClasses.OTHER: others,
+                }
+
     def verbs(self, src: (str, list, tuple)) -> list:
         _src = src if not isinstance(src, str) else (src,)
         parsed = self.tokenizer.parse("\n".join(_src)).split('\n')
