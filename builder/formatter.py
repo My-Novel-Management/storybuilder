@@ -2,6 +2,7 @@
 """Define tool for format
 """
 ## public libs
+import datetime
 ## local libs
 from utils import assertion
 from utils.util_str import strEllipsis
@@ -313,10 +314,11 @@ class Formatter(object):
         return [f"# {title}\n"] + tmp
 
     @classmethod
-    def toLinescaleOfStage(cls, title: str, src: list) -> list:
+    def toLinescaleOfStage(cls, title: str, src: list, basedate: datetime.date) -> list:
         # TODO: 距離順などに並べられるとより良い
         tmp = []
         stages = []
+        before = basedate
         for data in src:
             if DataType.SCENE_SETTING is data[0]:
                 stages.append(data[1]["stage"])
@@ -333,6 +335,21 @@ class Formatter(object):
                 return v[0:4]
             else:
                 return f"{v:\u3000<4}"
+        def _daydelta(day: datetime.date, bef:datetime.date):
+            if day.year > bef.year:
+                return "▼"
+            elif day.year < bef.year:
+                return "▲"
+            elif day.month > bef.month:
+                return "▽"
+            elif day.month < bef.month:
+                return "△"
+            elif day.day > bef.day:
+                return "↓"
+            elif day.day < bef.day:
+                return "↑"
+            else:
+                return "︙"
         heads = "|".join([_chopped(v) for v in stagelist])
         for data in src:
             if DataType.HEAD is data[0]:
@@ -341,7 +358,9 @@ class Formatter(object):
             elif DataType.SCENE_SETTING is data[0]:
                 num = _getNum(data[1]["stage"])
                 pattern = "　　　　|"
-                idt = pattern * num + "●　　　|" + pattern * (len(stagelist) - num - 1)
+                delta = _daydelta(data[1]['day'], before)
+                before = data[1]['day']
+                idt = pattern * num + f"{delta}　　　|" + pattern * (len(stagelist) - num - 1)
                 tmp.append(f"{idt}:{data[1]['time']:\u3000<4}/{data[1]['day']}")
         return [f"# {title}\n",] + tmp
 

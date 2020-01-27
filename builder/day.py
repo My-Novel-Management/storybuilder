@@ -30,4 +30,28 @@ class Day(BaseData):
                     ),
                 note=note,
                 )
+    ## property
+    @property
+    def day(self) -> int:
+        return self.data.day
 
+    @property
+    def mon(self) -> int:
+        return self.data.month
+
+    @property
+    def year(self) -> int:
+        return self.data.year
+
+    ## methods
+    def nextDay(self):
+        return Day(self.name + "・翌日",
+                mon=self.mon, day=self.day + 1, year=self.year, note=self.note)
+
+    def nextMonth(self):
+        return Day(self.name + "・翌月",
+                mon=self.mon + 1, day=self.day, year=self.year, note=self.note)
+
+    def nextYear(self):
+        return Day(self.name + "・翌年",
+                mon=self.mon, day=self.day, year=self.year + 1, note=self.note)

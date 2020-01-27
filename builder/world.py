@@ -224,6 +224,7 @@ class World(UtilityDict):
                 self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
                 formattype,
                 columns, rows,
+                self.basedate,
                 is_rubi,
                 is_scenario, is_analyze,
                 is_conteskip, is_text,

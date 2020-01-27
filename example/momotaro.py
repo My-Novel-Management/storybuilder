@@ -148,6 +148,7 @@ def sc_ally(w: World):
             taro.do("$Sはお礼にと$dangoを渡したが、$birdは鬼退治に行くという話を聞き、一緒に行ってくれることになった"),
             taro.explain("$Sは家来として犬、猿、雉とそれぞれ引き連れ、$on_islandを目指しました"),
             stage=w.on_street,
+            day=w.in_voyage.nextDay(),
             time=w.at_afternoon,
             )
 

@@ -111,6 +111,7 @@ class Build(object):
             stages: dict, daytimes: dict, fashions: dict, foods: dict,
             formattype: str,
             columns: int, rows: int,
+            basedate: datetime.date,
             is_rubi: bool,
             is_scenario: bool, is_analyze: bool,
             is_conteskip: bool, is_text: bool,
@@ -159,7 +160,7 @@ class Build(object):
         self.toInfoOfCustom(src, dictSorted(layers), is_debug)
         self.toInfoOfPersons(src, is_debug)
         ## line
-        self.toLineOfStages(src, is_debug)
+        self.toLineOfStages(src, basedate, is_debug)
         self.toLineOfEvents(src, is_debug)
         ## act analyzed
         self.toActionOerder(src, is_debug)
@@ -464,7 +465,7 @@ class Build(object):
         return self.outputTo(Formatter.toLinescaleOfEvents("Event lines", tmp),
                 self.filename, "_evt", self.extention, self.builddir, is_debug)
 
-    def toLineOfStages(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+    def toLineOfStages(self, src: Story, basedate: datetime.date, is_debug: bool) -> bool: # pragma: no cover
         tmp = []
         chapters = Extractor.chaptersFrom(src)
         idx = 1
@@ -479,7 +480,7 @@ class Build(object):
                     "day":v.day.data,
                     "week":v.day.data.weekday(),
                     "time":v.time.name}))
-        return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp),
+        return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp, basedate),
                 self.filename, "_line", self.extention, self.builddir, is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
