@@ -98,6 +98,8 @@ class MethodsTest(unittest.TestCase):
         data = [
                 (False, "てすと。。", "てすと。"),
                 (False, "てすと。、", "てすと。"),
+                (False, "てすと！」", "てすと！」"),
+                (False, "てすと！？』", "てすと！？』"),
                 (False, "てすと！？", "てすと！？"),
                 (False, "てすと！？　だぞ！", "てすと！？　だぞ！"),
                 ]
