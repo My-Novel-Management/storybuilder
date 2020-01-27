@@ -39,10 +39,26 @@ class Formatter(object):
     def toConte(cls, title: str, src: list, analyzer: Analyzer) -> list:
         tmp = []
         discards = [] # for texture
+        class SubMaker(object):
+            def __init__(self):
+                self.buf = ""
+            def getSub(self, cur):
+                if cur == self.buf:
+                    return "　︙"
+                else:
+                    self.buf = cur
+                    return cur
         def _weekday(v):
             return ("Mon","Tue","Wed","Thu","Fri","Sat","Sun")[v]
-        def _conv(act_type, dialogue, subject, objects, content, count, note, volume):
+        def _getSub(cur, bef, count):
+            if cur == bef:
+                _ = "︙"
+                return f"{_:\u3000<32}"
+            else:
+                return f"{cur:\u3000<33}" if count else f"{cur:\u3000<32}"
+        def _conv(act_type, dialogue, subject, suffix, objects, content, count, note, volume, submaker):
             atype = act_type.emoji() if isinstance(act_type, ActType) else act_type
+            subject = submaker.getSub(subject) + suffix
             sub_obj = f"{subject}{objects}"
             dial = strEllipsis(dialogue, 24)
             sub = strEllipsis(sub_obj + f"×{count:2d}", 32) if count else strEllipsis(sub_obj, 32)
@@ -60,6 +76,7 @@ class Formatter(object):
                 else:
                     tmp.append(f"{k}:{v}")
             return "/".join(tmp)
+        submaker = SubMaker()
         for v in cls.srcConvertedTitleWithNum(src):
             data = v[1]
             if v[0] in TitleLike:
@@ -84,72 +101,71 @@ class Formatter(object):
             elif DataType.META is v[0]:
                 if "blockstart" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("📼", "ー"*20, "", "", f"[{title}](:開始)", "", "", 0))
+                    tmp.append(_conv("📼", "ー"*20, "", "", "", f"[{title}](:開始)", "", "", 0, submaker))
                 elif "blockend" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("🔚", "ー"*20, "", "", f"[{title}](:終了)", "", "", 0))
+                    tmp.append(_conv("🔚", "ー"*20, "", "", "", f"[{title}](:終了)", "", "", 0, submaker))
                 elif "eventstart" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("🎬", "※"*20, "", "", f"[{title}](:オープン)", "", "", 0))
+                    tmp.append(_conv("🎬", "※"*20, "", "", "", f"[{title}](:オープン)", "", "", 0, submaker))
                 elif "eventend" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("🔝", "※"*20, "", "", f"[{title}](:クローズ)", "", "", 0))
+                    tmp.append(_conv("🔝", "※"*20, "", "", "", f"[{title}](:クローズ)", "", "", 0, submaker))
             ## word like
             elif isinstance(data, ConteData):
                 if ActType.TALK is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"「{data.dialogue}」", f"＞{name}",
-                        _objs(data.objects), data.content, data.count, data.note, data.dialogue))
+                    tmp.append(_conv(data.type, f"「{data.dialogue}」", f"＞{name}", "",
+                        _objs(data.objects), data.content, data.count, data.note, data.dialogue, submaker))
                 elif ActType.THINK is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"（{data.dialogue}）", name,
-                        _objs(data.objects), data.content, data.count, data.note, data.dialogue))
+                    tmp.append(_conv(data.type, f"（{data.dialogue}）", name, "",
+                        _objs(data.objects), data.content, data.count, data.note, data.dialogue, submaker))
                 elif ActType.EXPLAIN is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"＃{data.dialogue}", name,
-                        _objs(data.objects), data.content, data.count, data.note, data.dialogue))
+                    tmp.append(_conv(data.type, f"＃{data.dialogue}", name, "",
+                        _objs(data.objects), data.content, data.count, data.note, data.dialogue, submaker))
                 elif ActType.VOICE is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"『{data.dialogue}』", name,
-                        _objs(data.objects), data.content, data.count, data.note, data.dialogue))
+                    tmp.append(_conv(data.type, f"『{data.dialogue}』", name, "",
+                        _objs(data.objects), data.content, data.count, data.note, data.dialogue, submaker))
                 ## effects
                 elif ActType.HEAR is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, f"【{data.content}】", name,
-                        _objs(data.objects), "", data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, f"【{data.content}】", name, "",
+                        _objs(data.objects), "", data.count, data.note, data.content, submaker))
                 elif ActType.LOOK is data.type:
                     name = strEllipsis(data.subject, 3, "")
                     tmp.append(_conv(data.type, data.dialogue,
-                        f"{name}｛{data.content}｝",
-                        _objs(data.objects), "", data.count, data.note, data.content))
+                        name, f"｛{data.content}｝",
+                        _objs(data.objects), "", data.count, data.note, data.content, submaker))
                 ## control
                 elif ActType.BE is data.type:
-                    tmp.append(_conv(data.type, data.dialogue, f"［{data.subject}］",
+                    tmp.append(_conv(data.type, data.dialogue, f"［{data.subject}］", "",
                         _objs(data.objects), data.content, data.count, data.note,
-                        data.subject + data.content))
+                        data.subject + data.content, submaker))
                 elif ActType.DESTROY is data.type:
-                    tmp.append(_conv(data.type, data.dialogue, f"〜{data.subject}",
-                        _objs(data.objects), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, f"〜{data.subject}", "",
+                        _objs(data.objects), data.content, data.count, data.note, data.content, submaker))
                 elif ActType.HAVE is data.type:
                     name = strEllipsis(data.subject, 3, "")
-                    tmp.append(_conv(data.type, data.dialogue, name,
-                        _objs(data.objects), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, name, "",
+                        _objs(data.objects), data.content, data.count, data.note, data.content, submaker))
                 elif ActType.DISCARD is data.type:
-                    tmp.append(_conv(data.type, data.dialogue, f"{data.subject}〜",
-                        _objs(data.objects), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, f"{data.subject}〜", "",
+                        _objs(data.objects), data.content, data.count, data.note, data.content, submaker))
                 elif ActType.COME is data.type:
-                    tmp.append(_conv(data.type, data.dialogue, f"→［{data.subject}］",
-                        _objs(data.objects), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, f"→［{data.subject}］", "",
+                        _objs(data.objects), data.content, data.count, data.note, data.content, submaker))
                 elif ActType.GO is data.type:
-                    tmp.append(_conv(data.type, data.dialogue, f"←〜{data.subject}",
-                        _objs(data.objects), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, f"←〜{data.subject}", "",
+                        _objs(data.objects), data.content, data.count, data.note, data.content, submaker))
                 ## others
                 else:
                     name = strEllipsis(data.subject, 3, "")
                     acts = "／".join([v for v in set(analyzer.verbs(data.content))])
-                    subject = f"{name}＜{acts}＞"
-                    tmp.append(_conv(data.type, data.dialogue, subject,
-                        "".join([f"［{v.name}］" for v in data.objects]), data.content, data.count, data.note, data.content))
+                    tmp.append(_conv(data.type, data.dialogue, name, f"＜{acts}＞",
+                        "".join([f"［{v.name}］" for v in data.objects]), data.content, data.count, data.note, data.content, submaker))
         return [f"# {title}\n",
                 ] + tmp
 

@@ -74,9 +74,10 @@ def strDuplicatedChopped(target: str):
             re.sub(r'(、)+', r'\1',
                 re.sub(r'。、', r'。',
                 re.sub(r'、。', r'、',
+                    re.sub(r'([!?！？])\u3000[、。]', r'\1',
                     re.sub(r'([!?！？])([^ \u3000!?！？])', r'\1　\2',
                         re.sub(r'([!?！？])[、。]', r'\1　',
-                            assertion.isStr(target)))))))
+                            assertion.isStr(target))))))))
 
 def strEllipsis(val: str, width: int, placeholder: str="…") -> str:
     return val[0:width - 1] + placeholder if len(val) >= width else val

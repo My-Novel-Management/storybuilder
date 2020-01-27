@@ -104,7 +104,6 @@ class Build(object):
         tmp = cnv.sceneSettingPronounReplaced(tmp)
         tmp = cnv.srcPronounsReplaced(tmp)
         tmp = cnv.srcReplacedTags(tmp, tags, prefix)
-        tmp = cnv.actionDividedFrom(tmp)
         return tmp
 
     def output(self, src: Story, rubis: dict, layers: dict,
@@ -245,7 +244,7 @@ class Build(object):
 
     def toConte(self, src: Story, analyzer: Analyzer, is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
         title = f"Conte of {src.title}"
-        res = Parser.toContes(src, is_comment)
+        res = Parser.toContes(Converter.actionDividedFrom(src), is_comment)
         return self.outputTo(Formatter.toConte(title, res, analyzer),
                 self.filename, "_cnt", self.extention, self.builddir, is_debug)
 

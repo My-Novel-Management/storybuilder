@@ -86,22 +86,22 @@ class Converter(object):
         if isinstance(src, Scene):
             tmp = []
             for ac in src.data:
-                if ActType.ACT is ac.act_type:
+                if ac.act_type in (ActType.ACT, ActType.LOOK, ActType.TALK, ActType.VOICE, ActType.EXPLAIN, ActType.THINK):
                     dires = Extractor.directionsFrom(ac)
                     strs = [v for v in dires if isinstance(v, str)]
                     others = [v for v in dires if not isinstance(v, str)]
                     descs = [f"{v}。" for v in list(chain.from_iterable(v.split("。") for v in strs))]
                     descs = [strDuplicatedChopped(f"{v}、") for v in list(chain.from_iterable(v.split("、") for v in descs))]
                     cnt = 0
+                    _others = others
                     for v in descs:
-                        _others = others
                         if len(descs)  - 1> cnt:
-                            _others = others + ["&"]
+                            _others = others + ["&"] if cnt == 0 else ["&"]
                         cnt += 1
                         tmp.append(Action(v, *_others,
                             subject=ac.subject,
-                            act_type=ActType.ACT,
-                            tag_type=TagType.NONE,
+                            act_type=ac.act_type,
+                            tag_type=ac.tag_type,
                             itemCount=ac.itemCount,
                             note=ac.note,
                             priority=ac.priority,
