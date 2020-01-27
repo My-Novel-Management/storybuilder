@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-28] - 2020-01-27
+### Fixed
+- combine to description bug: divided action
+
 ## [0.4.3-27] - 2020-01-27
 ### Changed
 - stage line output format: time delta arrow
@@ -353,7 +357,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-27...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-28...HEAD
+[0.4.3-28]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-28
 [0.4.3-27]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-27
 [0.4.3-26]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-26
 [0.4.3-25]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-25

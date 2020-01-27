@@ -6,7 +6,7 @@ from itertools import chain
 from typing import Tuple
 ## local libs
 from utils import assertion
-from utils.util_str import dictCombined, strReplacedTagByDict
+from utils.util_str import dictCombined, strReplacedTagByDict, strDuplicatedChopped
 ## local files
 from builder import __PRIORITY_MAX__, __PRIORITY_MIN__, __PRIORITY_NORMAL__
 from builder import ActType, MetaType, TagType
@@ -90,10 +90,15 @@ class Converter(object):
                     dires = Extractor.directionsFrom(ac)
                     strs = [v for v in dires if isinstance(v, str)]
                     others = [v for v in dires if not isinstance(v, str)]
-                    descs = list(chain.from_iterable(v.split("。") for v in strs))
-                    descs = list(chain.from_iterable(v.split("、") for v in descs))
+                    descs = [f"{v}。" for v in list(chain.from_iterable(v.split("。") for v in strs))]
+                    descs = [strDuplicatedChopped(f"{v}、") for v in list(chain.from_iterable(v.split("、") for v in descs))]
+                    cnt = 0
                     for v in descs:
-                        tmp.append(Action(v, *others,
+                        _others = others
+                        if len(descs)  - 1> cnt:
+                            _others = others + ["&"]
+                        cnt += 1
+                        tmp.append(Action(v, *_others,
                             subject=ac.subject,
                             act_type=ActType.ACT,
                             tag_type=TagType.NONE,
