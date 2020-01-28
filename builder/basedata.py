@@ -17,7 +17,7 @@ class BaseData(object):
         self._dataId = UtilityID.getNextId()
         self._name = assertion.isStr(name)
         self._note = assertion.isStr(note)
-        self._textures = {}
+        self._texture = ""
 
     @property
     def data(self) -> Any:
@@ -36,16 +36,13 @@ class BaseData(object):
         return self._note
 
     @property
-    def textures(self) -> dict:
-        return self._textures
+    def texture(self) -> dict:
+        return self._texture
 
     ## methods (compare)
     def equals(self, obj) -> bool:
         return type(self) is type(obj) and self.name == obj.name and self.data is obj.data
 
     ## methods (setter)
-    def setTexture(self, key: str, val: str):
-        self._textures[assertion.isStr(key)] = assertion.isStr(val)
-
-    def updateTextures(self, vals: dict):
-        self._textures.update(assertion.isDict(vals))
+    def setTexture(self, val: str):
+        self._texture = assertion.isStr(val)

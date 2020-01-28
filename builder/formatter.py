@@ -38,7 +38,6 @@ class Formatter(object):
     @classmethod
     def toConte(cls, title: str, src: list, analyzer: Analyzer) -> list:
         tmp = []
-        discards = [] # for texture
         class SubMaker(object):
             def __init__(self):
                 self.buf = ""
@@ -74,8 +73,8 @@ class Formatter(object):
                 if "name" == k:
                     tmp.append(f"[{v}]:")
                 else:
-                    tmp.append(f"{k}:{v}")
-            return "/".join(tmp)
+                    tmp.append(f"{v}")
+            return "".join(tmp)
         submaker = SubMaker()
         for v in cls.srcConvertedTitleWithNum(src):
             data = v[1]
@@ -88,15 +87,12 @@ class Formatter(object):
             ## settings
             elif DataType.SCENE_SETTING is v[0]:
                 tmp.append(f"○{data['stage']}（{data['time']}） - {data['day']}({_weekday(data['week'])}) - ＜{data['camera']}＞")
-            elif DataType.PERSON_SETTING is v[0] and not data['name'] in discards:
+            elif DataType.PERSON_SETTING is v[0]:
                 tmp.append(_texture(data))
-                discards.append(data['name'])
-            elif DataType.STAGE_SETTING is v[0] and not data['name'] in discards:
+            elif DataType.STAGE_SETTING is v[0]:
                 tmp.append(_texture(data))
-                discards.append(data['name'])
-            elif DataType.SCENE_OBJECT is v[0] and not data['name'] in discards:
+            elif DataType.SCENE_OBJECT is v[0]:
                 tmp.append(_texture(data))
-                discards.append(data['name'])
             ## meta data
             elif DataType.META is v[0]:
                 if "blockstart" in v[1]:
@@ -142,6 +138,8 @@ class Formatter(object):
                     tmp.append(_conv(data.type, data.dialogue,
                         name, f"｛{data.content}｝",
                         _objs(data.objects), "", data.count, data.note, data.content, submaker))
+                elif ActType.WEAR is data.type:
+                    continue
                 ## control
                 elif ActType.BE is data.type:
                     tmp.append(_conv(data.type, data.dialogue, f"［{data.subject}］", "",

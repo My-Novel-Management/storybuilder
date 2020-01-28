@@ -79,6 +79,9 @@ class Writer(object):
     def voice(self, *args, **kwargs) -> Action:
         return Action(*args, subject=self.src, act_type=ActType.VOICE, **kwargs)
 
+    def wear(self, *args, **kwargs) -> Action:
+        return Action(*args, subject=self.src, act_type=ActType.WEAR, **kwargs)
+
     ## tag
     def br(self) -> Action:
         return Action(act_type=ActType.TAG, tag_type=TagType.BR)

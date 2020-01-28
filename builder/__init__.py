@@ -58,6 +58,7 @@ class ActType(Enum):
     # effect
     HEAR = auto() # sound effect
     LOOK = auto() # paint object
+    WEAR = auto() # put texture
     # talk action
     TALK = auto() # dialogue
     THINK = auto() # monologue
@@ -84,6 +85,7 @@ class ActType(Enum):
                 ActType.TALK: "💬",
                 ActType.THINK: "😌",
                 ActType.VOICE: "📞",
+                ActType.WEAR: "👕",
                 }[self]
 
 class DataType(Enum):

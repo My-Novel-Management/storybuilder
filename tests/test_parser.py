@@ -40,8 +40,8 @@ class ParserTest(unittest.TestCase):
         self.assertIsInstance(tmp, Parser)
 
     def test_toContes(self):
-        self.hana.setTexture("髪", "金髪ロング")
-        self.room.setTexture("壁", "ひび割れ")
+        self.hana.setTexture("金髪ロング")
+        self.room.setTexture("ひび割れ")
         data = [
                 (False, Story("test", Chapter("c1", Episode("e1",
                     Scene("s1", Action("apple", subject=self.taro))))),
@@ -86,8 +86,8 @@ class ParserTest(unittest.TestCase):
                                 "day":When().data,
                                 "week":When().data.weekday(),
                                 "time":"__when__"}),
-                        (DataType.STAGE_SETTING, {"name":"部屋","壁":"ひび割れ"}),
-                        (DataType.PERSON_SETTING, {"name":"花子","髪":"金髪ロング"}),
+                        (DataType.STAGE_SETTING, {"name":"部屋","texture":"ひび割れ"}),
+                        (DataType.PERSON_SETTING, {"name":"花子","texture":"金髪ロング"}),
                         (DataType.ACTION,
                             ConteData(ActType.ACT, "", "花子", (),"apple", 0, "")),
                         (DataType.DATA_LIST, ["花子"]),

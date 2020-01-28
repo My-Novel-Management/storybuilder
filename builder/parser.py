@@ -74,6 +74,7 @@ class Parser(object):
             tmp = []
             scene_sbjs = []
             scene_objs = []
+            discards = []
             tmp.append((DataType.SCENE_SETTING,
                 {"stage":src.stage.name,
                     "camera":src.camera.name,
@@ -83,21 +84,40 @@ class Parser(object):
                     }))
             persons = set(Extractor.subjectsFrom(src) + Extractor.personsFrom(src))
             items = set(Extractor.itemsFrom(src))
-            if src.stage.textures:
-                tmp.append((DataType.STAGE_SETTING, dictCombined({"name":src.stage.name},src.stage.textures)))
-            if src.camera.textures:
-                tmp.append((DataType.PERSON_SETTING, dictCombined({"name":src.camera.name}, src.camera.textures)))
+            if src.stage.texture:
+                name, tex = src.stage.name, src.stage.texture
+                if not name + tex in discards:
+                    tmp.append((DataType.STAGE_SETTING, {"name":name,"texture":tex}))
+                    discards.append(name + tex)
+            if src.camera.texture:
+                name, tex = src.camera.name, src.camera.texture
+                if not name + tex in discards:
+                    tmp.append((DataType.PERSON_SETTING, {"name":name, "texture":tex}))
+                    discards.append(name + tex)
                 persons = persons | set([src.camera,])
             ## NOTE: 人物情報
             ## TODO: 文章の人名からも取得できるようにする
             for v in persons:
-                if v.textures:
-                    tmp.append((DataType.PERSON_SETTING, dictCombined({"name":v.name}, v.textures)))
+                if v.texture:
+                    name, tex = v.name, v.texture
+                    if not name + tex in discards:
+                        tmp.append((DataType.PERSON_SETTING, {"name":name, "texture":tex}))
+                        discards.append(name + tex)
             ## NOTE: 小道具情報
             ## TODO: 文章中からも取得できるようにする
             for v in items:
-                if v.textures:
-                    tmp.append((DataType.SCENE_OBJECT, dictCombined({"name":v.name}, v.textures)))
+                if v.texture:
+                    name, tex = v.name, v.texture
+                    if not name + tex in discards:
+                        tmp.append((DataType.SCENE_OBJECT, {"name":name, "texture":tex}))
+                        discards.append(name + tex)
+            ## texture
+            for ac in src.data:
+                if ActType.WEAR is ac.act_type:
+                    name, tex = ac.subject.name, cls.conteContentOf(ac)
+                    if not name + tex in discards:
+                        tmp.append((DataType.SCENE_OBJECT, {"name":name, "texture":tex}))
+                        discards.append(name + tex)
             for ac in src.data:
                 if ActType.TAG is ac.act_type:
                     if ac.tag_type in (TagType.BR, TagType.SYMBOL):
@@ -162,6 +182,8 @@ class Parser(object):
                     else:
                         tmp.append(cls.tagOf(ac))
                 elif not Extractor.stringsFrom(ac):
+                    continue
+                elif ActType.WEAR is ac.act_type:
                     continue
                 else:
                     descs.append(cls.descFrom(ac))

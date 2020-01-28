@@ -364,15 +364,9 @@ class World(UtilityDict):
         self._outline = assertion.isStr(outline)
         return self
 
-    def setTexture(self, key: str, texture: (list, tuple, dict)):
+    def setTexture(self, key: str, texture: str):
         if key in self and isinstance(self[key], (Person, Stage, Day, Time, Item, Word)):
-            if isinstance(texture, (list, tuple)):
-                if ":" in texture[0]:
-                    self[key].updateTextures(dictFromStrBySplitter(val, ":"))
-                else:
-                    self[key].updateTextures(dict([(k,v) for k,v in zip(texture[0::2],texture[1::2])]))
-            elif isinstance(texture, dict):
-                self[key].updateTextures(texture)
+            self[key].setTexture(texture)
         return self
 
     ## methods (scenes)

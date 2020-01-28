@@ -22,10 +22,10 @@ class BaseDataTest(unittest.TestCase):
         pass
 
     def test_attributes(self):
-        attrs = ("name", "data", "note", "textures")
+        attrs = ("name", "data", "note", "texture")
         data = [
                 (False, "test", "a", "a note",
-                    ("test", "a", "a note", {})),
+                    ("test", "a", "a note", "")),
                 ]
         def _checkcode(name, data, note, expects):
             tmp = BaseData(name, *data, note=note)
@@ -41,8 +41,6 @@ class BaseDataTest(unittest.TestCase):
 
     def test_texture(self):
         tmp = BaseData("test")
-        self.assertEqual(tmp.textures, {})
-        tmp.setTexture("a", "apple")
-        self.assertEqual(tmp.textures, {"a":"apple"})
-        tmp.updateTextures({"a":"orange","b":"melon"})
-        self.assertEqual(tmp.textures, {"a":"orange","b":"melon"})
+        self.assertEqual(tmp.texture, "")
+        tmp.setTexture("apple")
+        self.assertEqual(tmp.texture, "apple")

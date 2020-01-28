@@ -51,6 +51,8 @@ def sc_get_peach(w: World):
             w.eventStart("桃太郎誕生"),
             gma.be("あるところにおじいさんとおばあさんがいました", "&"),
             gma.explain("おじいさんは山へ芝刈りに、おばあさんは川へ洗濯に出かけました"),
+            gma.wear("渋染の着物にほつれた草履", "ぼさぼさの白髪"),
+            gma.wear("目は小豆のよう"),
             gma.come("洗濯物を籠に入れ、河原にやってきた$Sでしたが、", "&"),
             gma.do("川の上流からどんぶらこと大きな桃が流れてくるのを見つけました。それを見て思います"),
             gma.talk("あれまあ、なんて大きな桃なんでしょう"),
@@ -74,6 +76,7 @@ def sc_birth_taro(w: World):
                 "早速$meが切ってやろう"),
             gpa.have(w.blade, "ナタを手にした$Sは大きく振り上げると、一気に桃に向かってブスリ、とやりました"),
             taro.be("#$S誕生する", "桃はパカーと真っ二つに割れて、中から玉のような赤子が出てきました"),
+            gma.wear("たすき掛け"),
             gma.talk("おじいさん、こりゃあ人の子だ！？　なんてことだ！"),
             _.talk("子どもがいない$meに神様が授けて下さったんだよぉ"),
             gpa.talk("よし！", "$taroと名付けよう",
@@ -194,9 +197,7 @@ def ep_buster_daemon(w: World):
 
 ## persons
 def set_persons(w: World):
-    w.setTexture("taro",
-                ["髪", "黒くて長い",
-                    "体躯", "すらりと長身"])
+    w.setTexture("taro", "黒くて長い髪、すらりと長身")
 
 def life_taro(w: World):
     taro = W(w.taro)
@@ -221,10 +222,8 @@ def hist_granma(w: World):
 
 ## stages
 def set_stages(w: World):
-    w.setTexture("on_home",
-            ["床", "板が貼ってあるがところどころ割れている",
-                "屋根", "茅葺き",
-                "囲炉裏", "部屋の中央にある"])
+    w.setTexture("on_home", "板張りの床、ところどころ割れている")
+
 ## items
 
 ## block
