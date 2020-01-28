@@ -90,8 +90,8 @@ class Converter(object):
                     dires = Extractor.directionsFrom(ac)
                     strs = [v for v in dires if isinstance(v, str)]
                     others = [v for v in dires if not isinstance(v, str)]
-                    descs = [f"{v}。" for v in list(chain.from_iterable(v.split("。") for v in strs))]
-                    descs = [strDuplicatedChopped(f"{v}、") for v in list(chain.from_iterable(v.split("、") for v in descs))]
+                    descs = [strDuplicatedChopped(f"{v}。") for v in list(chain.from_iterable(v.split("。") for v in strs)) if v]
+                    descs = [strDuplicatedChopped(f"{v}、") for v in list(chain.from_iterable(v.split("、") for v in descs)) if v]
                     cnt = 0
                     _others = []
                     for v in descs:
