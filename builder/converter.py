@@ -93,10 +93,14 @@ class Converter(object):
                     descs = [f"{v}。" for v in list(chain.from_iterable(v.split("。") for v in strs))]
                     descs = [strDuplicatedChopped(f"{v}、") for v in list(chain.from_iterable(v.split("、") for v in descs))]
                     cnt = 0
-                    _others = others
+                    _others = []
                     for v in descs:
-                        if len(descs)  - 1> cnt:
-                            _others = others + ["&"] if cnt == 0 else ["&"]
+                        if cnt == 0:
+                            _others = others
+                        elif len(descs)  - 1 > cnt:
+                            _others = ["&"]
+                        else:
+                            _others = ""
                         cnt += 1
                         tmp.append(Action(v, *_others,
                             subject=ac.subject,

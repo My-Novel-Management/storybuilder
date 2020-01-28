@@ -211,7 +211,7 @@ class World(UtilityDict):
                 outline,
                 *args)
         ## sub data
-        builder.toBlocks(self.blocks, is_debug)
+        builder.toBlocks(self.blocks, self._tags, __TAG_PREFIX__, is_debug)
         if is_list:
             builder.outputLists(self, is_debug)
         if is_lifenote:

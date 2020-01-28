@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-32] - 2020-01-28
+### Changed
+- block info output using tags
+### Fixed
+- action object dupulicated when dividing actions
+
 ## [0.4.3-31] - 2020-01-28
 ### Changed
 - stage line format
@@ -369,7 +375,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-31...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-32...HEAD
+[0.4.3-32]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-32
 [0.4.3-31]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-31
 [0.4.3-30]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-30
 [0.4.3-29]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-29

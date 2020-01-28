@@ -233,13 +233,16 @@ class Build(object):
         return self.outputTo(Formatter.toActionEachPerson("Action info", res),
                 self.filename, "_act", self.extention, self.builddir, is_debug)
 
-    def toBlocks(self, src: dict, is_debug: bool) -> bool: # pragma: no cover
-        tmp = []
+    def toBlocks(self, src: dict, tags: dict, prefix: str,is_debug: bool) -> bool: # pragma: no cover
+        res = []
         for bk in src.values():
-            sc = Converter.sceneFromBlock(bk)
-            tmp.append((DataType.HEAD, f"Block of {sc.title}"))
-            tmp.extend(Parser.toContes(sc))
-        return self.outputTo(Formatter.toConte("Block info", tmp, self.analyzer),
+            tmp = Converter.sceneFromBlock(bk)
+            tmp = Converter.srcPronounsReplaced(tmp)
+            tmp = Converter.srcReplacedTags(tmp, tags, prefix)
+            tmp = Converter.actionDividedFrom(tmp)
+            res.append((DataType.HEAD, f"Block of {tmp.title}"))
+            res.extend(Parser.toContes(tmp))
+        return self.outputTo(Formatter.toConte("Block info", res, self.analyzer),
                 self.filename, "_bk", self.extention, self.builddir, is_debug)
 
     def toConte(self, src: Story, analyzer: Analyzer, is_comment: bool, is_debug: bool) -> bool: # pragma: no cover
