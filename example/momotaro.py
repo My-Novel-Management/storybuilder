@@ -119,16 +119,21 @@ def sc_voyage(w: World):
             day=w.in_voyage, time=w.at_morning,
             )
 
-def sc_ally(w: World):
+def mo_ally(w: World):
     taro = W(w.taro)
     dog, monkey, bird = W(w.dog), W(w.monkey), W(w.bird)
-    return w.scene("家来",
+    return (w.scene("家来1",
             taro.hasThat(w.dango),
             w.load("犬を仲間に"),
             dog.talk("助かりました", "ところで$taroさんはどこに行くのですか？"),
             taro.talk("鬼を退治しに行くところなんだ"),
             dog.talk("それなら$meがお供しましょう", "鬼はこの牙が苦手と言います"),
             _.explain("こうして犬は$CSの家来となりました"),
+            stage=w.on_street,
+            day=w.in_voyage.nextDay(),
+            time=w.at_afternoon,
+            ),
+            w.scene("家来2",
             taro.hear("誰かの話しかける声"),
             taro.do("またしばらく歩いていきます。今度は猿が木の上から話しかけます"),
             monkey.be("#木の上に"),
@@ -143,6 +148,9 @@ def sc_ally(w: World):
             taro.talk("それなら$meと一緒に鬼退治に来てくれませんか？"),
             monkey.have(w.dango, "二つ返事で頷くと、$Sは$dangoを貰って一気に口に放り込んだ"),
             taro.explain("こうして犬に続き猿も家来にした$Sだったが、その行く手を阻むように川が横たわっていた"),
+            time=w.at_afternoon.elapsedHour(2),
+            ),
+            w.scene("家来3",
             taro.talk("困ったなあ"),
             bird.come("そこに$Sが優雅に翼を広げてやってくる"),
             bird.talk("おや、噂の$taroさんじゃありませんか", "どうかされましたか？"),
@@ -151,9 +159,8 @@ def sc_ally(w: World):
             _.do("そう言うと$Sはピーと鳴き、仲間を沢山集め、$taroたちを向こう岸へと運んでくれた"),
             taro.do("$Sはお礼にと$dangoを渡したが、$birdは鬼退治に行くという話を聞き、一緒に行ってくれることになった"),
             taro.explain("$Sは家来として犬、猿、雉とそれぞれ引き連れ、$on_islandを目指しました"),
-            stage=w.on_street,
-            day=w.in_voyage.nextDay(),
-            time=w.at_afternoon,
+            time=w.at_afternoon.elapsedHour(2),
+            ),
             )
 
 def sc_island(w: World):
@@ -187,7 +194,7 @@ def ep_birth_momotaro(w: World):
 def ep_ally(w: World):
     return w.episode("味方",
             sc_voyage(w),
-            sc_ally(w),
+            *mo_ally(w),
             )
 
 def ep_buster_daemon(w: World):

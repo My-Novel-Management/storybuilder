@@ -33,3 +33,28 @@ class Time(BaseData):
                 note=note,
                 )
 
+    ## property
+    @property
+    def hour(self) -> int:
+        return self.data.hour
+
+    @property
+    def minute(self) -> int:
+        return self.data.minute
+
+    @property
+    def second(self) -> int:
+        return self.data.second
+
+    ## methods
+    def elapsedHour(self, val: int):
+        return Time(self.name + f"・{val}時間経過",
+                self.hour + val, self.minute, self.second)
+
+    def elapsedMin(self, val: int):
+        return Time(self.name + f"・{val}分経過",
+                self.hour, self.minute + val, self.second)
+
+    def elapsedSec(self, val: int):
+        return Time(self.name + f"・{val}秒経過",
+                self.hour, self.minute, self.second + val)

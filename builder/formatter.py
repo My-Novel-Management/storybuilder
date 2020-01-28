@@ -386,7 +386,8 @@ class Formatter(object):
                 idt = pattern * num + f"{delta}" + pattern * (len(stagelist) - num - 1)
                 stage = strEllipsis(data[1]['stage'], 8) if oldplace != data[1]['stage'] else "　…"
                 oldplace = data[1]['stage']
-                tmp.append(f"{stage:\u3000<8}{data[1]['time'].name:\u3000<4}{data[1]['day']}|{idt}")
+                timename = strEllipsis(data[1]['time'].name, 4, "※")
+                tmp.append(f"{stage:\u3000<8}{timename:\u3000<4}{data[1]['day']}|{idt}")
         return [f"# {title}\n",] + tmp
 
     @classmethod
