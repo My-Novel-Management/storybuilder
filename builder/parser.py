@@ -72,6 +72,8 @@ class Parser(object):
                 return False
         if isinstance(src, Scene):
             tmp = []
+            scene_sbjs = []
+            scene_objs = []
             tmp.append((DataType.SCENE_SETTING,
                 {"stage":src.stage.name,
                     "camera":src.camera.name,
@@ -120,6 +122,8 @@ class Parser(object):
                     else:
                         continue
                 else:
+                    scene_sbjs += Extractor.subjectsFrom(ac)
+                    scene_objs += Extractor.objectsFrom(ac)
                     tmp.append((DataType.ACTION,
                         ConteData(ac.act_type,
                             cls.conteDialogueOf(ac),
@@ -129,6 +133,8 @@ class Parser(object):
                             ac.itemCount,
                             ac.note,
                             )))
+            tmp.append((DataType.DATA_LIST, list(set([v.name for v in scene_sbjs]))))
+            tmp.append((DataType.DATA_LIST, list(set([v.name for v in scene_objs]))))
             char_count = Counter.metainfos(src) + Counter.descriptions(src)
             return ((DataType.SCENE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(tmp)
         else:

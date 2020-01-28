@@ -111,6 +111,9 @@ class Formatter(object):
                 elif "eventend" in v[1]:
                     _, title = v[1].split(":")
                     tmp.append(_conv("🔝", "※"*20, "", "", "", f"[{title}](:クローズ)", "", "", 0, submaker))
+            ## object data
+            elif DataType.DATA_LIST is v[0]:
+                tmp.append("".join([f"[^{n}]" for n in v[1]]))
             ## word like
             elif isinstance(data, ConteData):
                 if ActType.TALK is data.type:
