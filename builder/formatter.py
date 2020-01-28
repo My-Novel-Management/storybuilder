@@ -334,7 +334,9 @@ class Formatter(object):
         # TODO: 距離順などに並べられるとより良い
         tmp = []
         stages = []
+        oldplace = ""
         before = basedate
+        past = datetime.time(0,0,0)
         for data in src:
             if DataType.SCENE_SETTING is data[0]:
                 stages.append(data[1]["stage"])
@@ -351,7 +353,8 @@ class Formatter(object):
                 return v[0:4]
             else:
                 return f"{v:\u3000<4}"
-        def _daydelta(day: datetime.date, bef:datetime.date):
+        def _daydelta(day: datetime.date, bef:datetime.date,
+                time: datetime.time, past: datetime.time):
             if day.year > bef.year:
                 return "▼"
             elif day.year < bef.year:
@@ -364,20 +367,25 @@ class Formatter(object):
                 return "↓"
             elif day.day < bef.day:
                 return "↑"
-            else:
+            elif time.hour > past.hour:
                 return "︙"
+            else:
+                return "⊥"
         heads = "|".join([_chopped(v) for v in stagelist])
         for data in src:
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
-                tmp.append(f"{heads}|")
+                #tmp.append(f"{heads}|")
             elif DataType.SCENE_SETTING is data[0]:
                 num = _getNum(data[1]["stage"])
-                pattern = "　　　　|"
-                delta = _daydelta(data[1]['day'], before)
+                pattern = "　"
+                delta = _daydelta(data[1]['day'], before, data[1]['time'].data, past)
                 before = data[1]['day']
-                idt = pattern * num + f"{delta}　　　|" + pattern * (len(stagelist) - num - 1)
-                tmp.append(f"{idt}:{data[1]['time']:\u3000<4}/{data[1]['day']}")
+                past = data[1]['time'].data
+                idt = pattern * num + f"{delta}" + pattern * (len(stagelist) - num - 1)
+                stage = strEllipsis(data[1]['stage'], 8) if oldplace != data[1]['stage'] else "　…"
+                oldplace = data[1]['stage']
+                tmp.append(f"{stage:\u3000<8}{data[1]['time'].name:\u3000<4}{data[1]['day']}|{idt}")
         return [f"# {title}\n",] + tmp
 
     @classmethod

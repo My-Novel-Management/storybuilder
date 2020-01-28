@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.3-31] - 2020-01-28
+### Changed
+- stage line format
+
 ## [0.4.3-30] - 2020-01-27
 ### Fixed
 - question and kakko bug: invalid inserting a space
@@ -365,7 +369,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-30...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.3-31...HEAD
+[0.4.3-31]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-31
 [0.4.3-30]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-30
 [0.4.3-29]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-29
 [0.4.3-28]: https://github.com/nagisc007/storybuilder/releases/v0.4.3-28

@@ -478,7 +478,7 @@ class Build(object):
                     "camera":v.camera.name,
                     "day":v.day.data,
                     "week":v.day.data.weekday(),
-                    "time":v.time.name}))
+                    "time":v.time}))
         return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp, basedate),
                 self.filename, "_line", self.extention, self.builddir, is_debug)
 
