@@ -64,8 +64,12 @@ class Counter(object):
     ## methods (characters)
     @classmethod
     def descriptions(cls, src: StoryLike) -> int:
-        tmp = Extractor.stringsFrom(src)
-        chars = strDuplicatedChopped("。".join(tmp))
+        tmp = []
+        for ac in Extractor.actionsFrom(src):
+            if ActType.WEAR is ac.act_type:
+                continue
+            tmp.append(ac)
+        chars = strDuplicatedChopped("。".join(Extractor.stringsFrom(Scene("_",*tmp))))
         return len(tmp) * 2 + len(chars)
 
     @classmethod
@@ -93,6 +97,8 @@ class Counter(object):
             res = []
             tmp = 0
             for ac in src.data:
+                if ActType.WEAR is ac.act_type:
+                    continue
                 tmp += sum([len(v) for v in Extractor.stringsFrom(ac)])
                 if not hasThen(ac):
                     res.append(_conv(tmp, column))
