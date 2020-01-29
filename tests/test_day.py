@@ -45,3 +45,34 @@ class DayTest(unittest.TestCase):
             self.assertEqual(tmp.note, exp_note)
         validatedTestingWithFail(self, "class attributes", _checkcode, data)
 
+    def test_methods(self):
+        data = [
+                (False, ("日", 10,5, 2000), "y", 1, ("日・1年後", 2001)),
+                (False, ("日", 10,5, 2000), "m", 1, ("日・1月後", 11)),
+                (False, ("日", 10,5, 2000), "d", 1, ("日・1日後", 6)),
+                ]
+        def _checkcode(vals, d, v, expect):
+            tmp = Day(*vals)
+            if d == "y":
+                tmp1 = tmp.elapsedYear(v)
+                self.assertEqual(tmp1.name, expect[0])
+                self.assertEqual(tmp1.year, expect[1])
+            elif d == "m":
+                tmp1 = tmp.elapsedMonth(v)
+                self.assertEqual(tmp1.name, expect[0])
+                self.assertEqual(tmp1.mon, expect[1])
+            else:
+                tmp1 = tmp.elapsedDay(v)
+                self.assertEqual(tmp1.name, expect[0])
+                self.assertEqual(tmp1.day, expect[1])
+        validatedTestingWithFail(self, "methods", _checkcode, data)
+
+    def test_nextmethods(self):
+        tmp = Day("日", 10,5,2000)
+        tmp1, tmp2, tmp3 = tmp.nextDay(), tmp.nextMonth(), tmp.nextYear()
+        self.assertEqual(tmp1.name, "日・翌日")
+        self.assertEqual(tmp2.name, "日・翌月")
+        self.assertEqual(tmp3.name, "日・翌年")
+        self.assertEqual(tmp1.day, 6)
+        self.assertEqual(tmp2.mon, 11)
+        self.assertEqual(tmp3.year, 2001)

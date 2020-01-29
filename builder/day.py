@@ -44,6 +44,18 @@ class Day(BaseData):
         return self.data.year
 
     ## methods
+    def elapsedDay(self, val: int):
+        return Day(self.name + f"・{val}日後",
+                self.mon, self.day + val, self.year, note=self.note)
+
+    def elapsedMonth(self, val: int):
+        return Day(self.name + f"・{val}月後",
+                self.mon + val, self.day, self.year, note=self.note)
+
+    def elapsedYear(self, val: int):
+        return Day(self.name + f"・{val}年後",
+                self.mon, self.day, self.year + val, note=self.note)
+
     def nextDay(self):
         return Day(self.name + "・翌日",
                 mon=self.mon, day=self.day + 1, year=self.year, note=self.note)

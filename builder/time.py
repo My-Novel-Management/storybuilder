@@ -49,12 +49,12 @@ class Time(BaseData):
     ## methods
     def elapsedHour(self, val: int):
         return Time(self.name + f"・{val}時間経過",
-                self.hour + val, self.minute, self.second)
+                self.hour + val, self.minute, self.second, note=self.note)
 
     def elapsedMin(self, val: int):
         return Time(self.name + f"・{val}分経過",
-                self.hour, self.minute + val, self.second)
+                self.hour, self.minute + val, self.second, note=self.note)
 
     def elapsedSec(self, val: int):
         return Time(self.name + f"・{val}秒経過",
-                self.hour, self.minute, self.second + val)
+                self.hour, self.minute, self.second + val, note=self.note)
