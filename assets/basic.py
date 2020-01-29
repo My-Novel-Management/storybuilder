@@ -92,6 +92,7 @@ ASSET = {
         ("earlymorning", "早朝", 6, 0),
         ("morning", "朝", 8, 0),
         ("midmorning", "午前", 10, 0),
+        ("beforenoon", "昼前", 11, 0),
         ("noon", "正午", 12, 0),
         ("afternoon", "午後", 14, 0),
         ("afterschool", "放課後", 16, 0),
@@ -102,6 +103,22 @@ ASSET = {
         ),
         "ITEMS":(
         # Tag / 名前 / 紹介
+        ("ceiling", "天井"),
+        ("door", "ドア"),
+        ("exterior", "外装"),
+        ("floor", "床"),
+        ("gate", "門"),
+        ("inside", "中の様子"),
+        ("interior", "内装"),
+        ("light", "電灯"),
+        ("mountain", "山"),
+        ("outside", "外の様子"),
+        ("pillar", "柱"),
+        ("road", "道"),
+        ("sky", "空"),
+        ("tree", "木"),
+        ("wall", "壁"),
+        ("window", "窓"),
         ),
         "WORDS":(
         # Tag / 名前 / 紹介

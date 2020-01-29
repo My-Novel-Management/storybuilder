@@ -11,7 +11,7 @@ sys.path.append('builder')
 from builder.world import World
 from builder.writer import Writer
 ## local files
-from assets import basic
+from assets import basic, accessory
 from config import DAYS, ITEMS, LAYERS, PERSONS, RUBIS, STAGES, TIMES, WORDS
 
 
@@ -267,6 +267,7 @@ def create_world():
     w.setCommonData()
     #   set base asset
     w.setAssets(basic.ASSET)
+    w.setAssets(accessory.ASSET)
     #   set DB (user)
     w.buildDB(PERSONS,
             STAGES, DAYS, TIMES, ITEMS, WORDS,
