@@ -370,6 +370,8 @@ class Formatter(object):
                 return "↑"
             elif time.hour > past.hour:
                 return "︙"
+            elif time.minute > past.minute:
+                return "︰"
             else:
                 return "⊥"
         heads = "|".join([_chopped(v) for v in stagelist])

@@ -148,7 +148,7 @@ def mo_ally(w: World):
             taro.talk("それなら$meと一緒に鬼退治に来てくれませんか？"),
             monkey.have(w.dango, "二つ返事で頷くと、$Sは$dangoを貰って一気に口に放り込んだ"),
             taro.explain("こうして犬に続き猿も家来にした$Sだったが、その行く手を阻むように川が横たわっていた"),
-            time=w.at_afternoon.elapsedHour(2),
+            time=w.at_afternoon.elapsedMin(30),
             ),
             w.scene("家来3",
             taro.talk("困ったなあ"),
