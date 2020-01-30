@@ -276,6 +276,7 @@ def create_world():
             RUBIS, LAYERS)
     #   set base year
     w.setBaseDate(113)
+    w.setBaseArea("Tokyo")
     #   set textures
     set_persons(w)
     set_stages(w)

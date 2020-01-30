@@ -32,7 +32,7 @@ __BASE_ROW__ = 20
 __DEF_FILENAME__ = "story"
 
 __ASSET_ELEMENTS__ = (
-        "PERSONS", "STAGES", "DAYS", "TIMES", "ITEMS", "WORDS", "RUBIS", "LAYERS",
+        "PERSONS", "AREAS", "STAGES", "DAYS", "TIMES", "ITEMS", "WORDS", "RUBIS", "LAYERS",
         )
 
 __FORMAT_DEFAULT__ = (0, 0, 0, 0)
