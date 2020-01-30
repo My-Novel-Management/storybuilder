@@ -10,6 +10,7 @@ from utils.util_str import strEllipsis
 from builder import DataType, ConteData
 from builder import ActType, TagType
 from builder.analyzer import Analyzer
+from builder.area import Area
 from builder.counter import Counter
 from builder.extractor import Extractor
 
@@ -86,7 +87,7 @@ class Formatter(object):
                 tmp.append(f"\n{v[1]}\n")
             ## settings
             elif DataType.SCENE_SETTING is v[0]:
-                tmp.append(f"○{data['stage']}（{data['time']}） - {data['day']}({_weekday(data['week'])}) - ＜{data['camera']}＞")
+                tmp.append(f"○{data['stage']}［{data['area']}］（{data['time']}） - {data['day']}({_weekday(data['week'])}) - ＜{data['camera']}＞")
             elif DataType.PERSON_SETTING is v[0]:
                 tmp.append(_texture(data))
             elif DataType.STAGE_SETTING is v[0]:
@@ -331,17 +332,25 @@ class Formatter(object):
         return [f"# {title}\n"] + tmp
 
     @classmethod
-    def toLinescaleOfStage(cls, title: str, src: list, basedate: datetime.date) -> list:
+    def toLinescaleOfStage(cls, title: str, src: list, areas: list, basedate: datetime.date) -> list:
         # TODO: 距離順などに並べられるとより良い
         tmp = []
         stages = []
+        oldarea = ""
         oldplace = ""
         before = basedate
         past = datetime.time(0,0,0)
         for data in src:
             if DataType.SCENE_SETTING is data[0]:
                 stages.append(data[1]["stage"])
-        stagelist = sorted(list(set(stages)))
+        stagelist = sorted(list(set([v.name for v in stages])))
+        def _getArea(v):
+            idx = 0
+            for a in areas:
+                if a.tag == v.area:
+                    return idx
+                idx += 1
+            return idx
         def _getNum(v):
             idx = 0
             for i in stagelist:
@@ -374,23 +383,22 @@ class Formatter(object):
                 return "︰"
             else:
                 return "⊥"
-        heads = "|".join([_chopped(v) for v in stagelist])
+        heads = "|".join([f"{strEllipsis(v.name, 8, ''):\u3000<8}" for v in areas]) + "|その他"
         for data in src:
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
-                #tmp.append(f"{heads}|")
             elif DataType.SCENE_SETTING is data[0]:
-                num = _getNum(data[1]["stage"])
+                num = _getArea(data[1]["stage"])
                 pattern = "　"
                 delta = _daydelta(data[1]['day'], before, data[1]['time'].data, past)
                 before = data[1]['day']
                 past = data[1]['time'].data
                 idt = pattern * num + f"{delta}" + pattern * (len(stagelist) - num - 1)
-                stage = strEllipsis(data[1]['stage'], 8) if oldplace != data[1]['stage'] else "　…"
-                oldplace = data[1]['stage']
+                stage = strEllipsis(data[1]['stage'].name, 8) if oldplace != data[1]['stage'].name else "　…"
+                oldplace = data[1]['stage'].name
                 timename = strEllipsis(data[1]['time'].name, 4, "※")
                 tmp.append(f"{stage:\u3000<8}{timename:\u3000<4}{data[1]['day']}|{idt}")
-        return [f"# {title}\n",] + tmp
+        return [f"# {title}\n", "## Areas\n", f"{heads}"] + tmp
 
     @classmethod
     def toOutline(cls, title: str, src: list) -> list:
@@ -466,6 +474,15 @@ class Formatter(object):
                 for k,v in data[1].items():
                     full = v.fullname.replace(',','')
                     tmp.append(f"- {k:<24} | {v.name:\u3000<10} | {full:\u3000<12} | {v.age}歳 | {v.sex:<6} | {v.job:\u3000<10} | {v.note}")
+        return [f"# {title}\n",] + tmp
+
+    @classmethod
+    def toListStage(cls, title: str, src: list) -> list:
+        tmp = []
+        for data in src:
+            if DataType.DATA_DICT is data[0]:
+                for k,v in data[1].items():
+                    tmp.append(f"- {k:<24} | {v.name:\u3000<16} | {v.area:\u3000<12} | {v.info}")
         return [f"# {title}\n",] + tmp
 
     @classmethod

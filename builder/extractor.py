@@ -10,6 +10,7 @@ from utils.util_str import containsWordsIn
 ## local files
 from builder import ActType, TagType
 from builder.action import Action
+from builder.area import Area
 from builder.block import Block
 from builder.chapter import Chapter
 from builder.day import Day
@@ -75,6 +76,10 @@ class Extractor(object):
 
     ## methods (data)
     @classmethod
+    def areasFrom(cls, src: StoryLike) -> Tuple[Area, ...]:
+        return tuple([v.area for v in cls.scenesFrom(src)]) + cls._someObjectsFrom(src, Area)
+
+    @classmethod
     def brTagsFrom(cls, src: StoryLike) -> Tuple[str, ...]:
         return tuple(v.note for v in cls.tagsFrom(src) if v.tag_type is TagType.BR)
 
@@ -124,6 +129,7 @@ class Extractor(object):
         persons = cls.personsFrom(src)
         subjects = cls.subjectsWithoutWhoFrom(src)
         return tuple(set(persons) | set(subjects))
+
     @classmethod
     def stagesFrom(cls, src: StoryLike) -> Tuple[Stage, ...]:
         return cls._someObjectsFrom(src, Stage)

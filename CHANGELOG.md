@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.5] - 2020-01-30
+### Added
+- Area data class
+
 ## [0.4.4-5] - 2020-01-29
 ### Added
 - elapsed day
@@ -407,7 +411,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.4-5...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/nagisc007/storybuilder/releases/v0.4.5
 [0.4.4-5]: https://github.com/nagisc007/storybuilder/releases/v0.4.4-5
 [0.4.4-4]: https://github.com/nagisc007/storybuilder/releases/v0.4.4-4
 [0.4.4-3]: https://github.com/nagisc007/storybuilder/releases/v0.4.4-3

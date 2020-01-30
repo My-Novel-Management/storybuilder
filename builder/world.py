@@ -22,6 +22,7 @@ from builder import __DEF_YEAR__, __DEF_MON__, __DEF_DAY__
 from builder import ActType, MetaType, TagType
 from builder import History
 from builder.action import Action
+from builder.area import Area
 from builder.block import Block
 from builder.buildtool import Build
 from builder.chapter import Chapter
@@ -59,6 +60,7 @@ class World(UtilityDict):
         self._title = assertion.isStr(title)
         self._filename = assertion.isStr(filename)
         self._basedate = datetime.date(__DEF_YEAR__, __DEF_MON__, __DEF_DAY__)
+        self._basearea = Area.getDefault()
         self._rubis = {}
         self._layers = {}
         self._stagelayers = {}
@@ -75,6 +77,10 @@ class World(UtilityDict):
         self._rows = __BASE_ROW__
 
     ## property
+    @property
+    def basearea(self) -> Area:
+        return self._basearea
+
     @property
     def basedate(self) -> datetime.date:
         return self._basedate
@@ -147,13 +153,14 @@ class World(UtilityDict):
     def build(self, *args, **kwargs): # pragma: no cover
         return not self.buildStory(self.filename, self.outline, *args, **kwargs)
 
-    def buildDB(self, persons: list, stages: list,
+    def buildDB(self, persons: list, areas: list, stages: list,
             days: list, times: list,
             items: list, words: list,
             rubis: list, layers: list) -> bool: # pragma: no cover
         '''Build database
         '''
         self.setPersons(persons)
+        self.setAreas(areas)
         self.setStages(stages)
         self.setDays(days)
         self.setTimes(times)
@@ -224,7 +231,7 @@ class World(UtilityDict):
                 self.stagelayers, self.daytimes, self.fashionlayers, self.foodlayers,
                 formattype,
                 columns, rows,
-                self.basedate,
+                self.basedate, self.basearea,
                 is_rubi,
                 is_scenario, is_analyze,
                 is_conteskip, is_text,
@@ -247,6 +254,11 @@ class World(UtilityDict):
             self._histories[subject].append(assertion.isInstance(v, History))
         return True
 
+    def setBaseArea(self, key: str):
+        if key in self:
+            self._basearea = assertion.isInstance(self[key], Area)
+        return self
+
     def setBaseDate(self, year: int, mon: int=1, day: int=1):
         self._basedate = datetime.date(year, mon, day)
         return self
@@ -268,6 +280,13 @@ class World(UtilityDict):
             self._tags[f"full_{v[0]}"] = full
             self._tags[f"exfull_{v[0]}"] = exfull
             self._histories[tmp] = []
+        return self
+
+    def setAreas(self, areas: list):
+        for v in areas:
+            tmp = Area(*v)
+            self.__setitem__(v[0], tmp)
+            self._tags[f"{v[0]}"] = tmp.name
         return self
 
     def setStages(self, stages: list):
@@ -344,6 +363,8 @@ class World(UtilityDict):
             if v.upper() in assertion.isDict(assetfile):
                 if v.lower() == "persons":
                     self.setPersons(assetfile[v.upper()])
+                elif v.lower() == "areas":
+                    self.setAreas(assetfile[v.upper()])
                 elif v.lower() == "stages":
                     self.setStages(assetfile[v.upper()])
                 elif v.lower() == "days":

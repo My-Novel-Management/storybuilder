@@ -15,6 +15,7 @@ from builder import __FORMAT_DEFAULT__, __FORMAT_ESTAR__, __FORMAT_PHONE__, __FO
 from builder import ActType, MetaType, DataType
 from builder import WordClasses
 from builder.analyzer import Analyzer
+from builder.area import Area
 from builder.chapter import Chapter
 from builder.checker import Checker
 from builder.converter import Converter
@@ -111,6 +112,7 @@ class Build(object):
             formattype: str,
             columns: int, rows: int,
             basedate: datetime.date,
+            basearea: Area,
             is_rubi: bool,
             is_scenario: bool, is_analyze: bool,
             is_conteskip: bool, is_text: bool,
@@ -159,7 +161,7 @@ class Build(object):
         self.toInfoOfCustom(src, dictSorted(layers), is_debug)
         self.toInfoOfPersons(src, is_debug)
         ## line
-        self.toLineOfStages(src, basedate, is_debug)
+        self.toLineOfStages(src, basedate, basearea, is_debug)
         self.toLineOfEvents(src, is_debug)
         ## act analyzed
         self.toActionOerder(src, is_debug)
@@ -467,8 +469,10 @@ class Build(object):
         return self.outputTo(Formatter.toLinescaleOfEvents("Event lines", tmp),
                 self.filename, "_evt", self.extention, self.builddir, is_debug)
 
-    def toLineOfStages(self, src: Story, basedate: datetime.date, is_debug: bool) -> bool: # pragma: no cover
+    def toLineOfStages(self, src: Story, basedate: datetime.date, basearea: Area,
+            is_debug: bool) -> bool: # pragma: no cover
         tmp = []
+        areas = Converter.areasOrdered(basearea, src)
         chapters = Extractor.chaptersFrom(src)
         idx = 1
         for ch in chapters:
@@ -477,12 +481,14 @@ class Build(object):
             scenes = Extractor.scenesFrom(ch)
             for v in scenes:
                 tmp.append((DataType.SCENE_SETTING,
-                {"stage":v.stage.name,
+                {
+                    "area":v.area,
+                    "stage":v.stage,
                     "camera":v.camera.name,
                     "day":v.day.data,
                     "week":v.day.data.weekday(),
                     "time":v.time}))
-        return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp, basedate),
+        return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp, areas, basedate),
                 self.filename, "_line", self.extention, self.builddir, is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
@@ -554,7 +560,7 @@ class Build(object):
         stages = dictSorted(dict([(k,v) for k,v in self.getFromWorld(src, Stage).items() if not ("_int" in k or "_ext" in k)]), False)
         title = f"Stages list of {src.title}"
         res = [(DataType.DATA_DICT, dict([(k,v) for k,v in stages.items()]))]
-        return self.outputTo(Formatter.toListInfo(title, res),
+        return self.outputTo(Formatter.toListStage(title, res),
                 self.filename, "_stages", self.extention,
                 os.path.join(self.builddir, self.__LIST_DIR__), is_debug)
 

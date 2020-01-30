@@ -6,6 +6,7 @@ import unittest
 ## local files (test utils)
 from testutils import printTestTitle, validatedTestingWithFail
 ## local files
+from builder.area import Area
 from builder.stage import Stage
 
 
@@ -23,16 +24,18 @@ class StageTest(unittest.TestCase):
 
     def test_attributes(self):
         data = [
-                (False, "test", "a stage",
-                    "a stage"),
+                (False, "test", "Tokyo", "a stage",
+                    ("Tokyo", "a stage")),
                 ]
-        def _creator(name, info):
+        def _creator(name, area, info):
             if info:
-                return Stage(name, info)
+                return Stage(name, area, info)
+            elif area:
+                return Stage(name, area)
             else:
                 return Stage(name)
-        def _checkcode(name, info, expect):
-            tmp = _creator(name, info)
+        def _checkcode(name, area, info, expect):
+            tmp = _creator(name, area, info)
             self.assertIsInstance(tmp, Stage)
             self.assertEqual(tmp.name, name)
             self.assertEqual(tmp.data, expect)

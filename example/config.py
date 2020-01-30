@@ -38,14 +38,20 @@ PERSONS = (
         ("bird", "雉子", "", 17, (1,1), "female", "雉", "me:わたし"),
         )
 
+AREAS = (
+        # Tag / 名前 / x,y / 備考
+        ("Vila", "桃太郎の村", 10,10),
+        ("DaemonIsland", "鬼ヶ島", 30,30),
+        )
+
 STAGES = (
-        # Tag / 名前 / 紹介
-        ("river", "川辺"),
-        ("home", "太郎の家"),
-        ("vila", "村"),
+        # Tag / 名前 / 場所 / 紹介
+        ("river", "川辺", "Vila"),
+        ("home", "太郎の家", "Vila"),
+        ("vila", "村", "Vila"),
         ("street", "路上"),
-        ("ship", "船"),
-        ("island", "鬼ヶ島", "村からは十日かかる"),
+        ("ship", "船", "Drive"),
+        ("island", "鬼ヶ島", "DaemonIsland", "村からは十日かかる"),
         )
 
 DAYS = (

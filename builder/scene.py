@@ -10,6 +10,7 @@ from utils.util_str import tupleFiltered
 ## local files
 from builder import __PRIORITY_NORMAL__
 from builder.action import Action
+from builder.area import Area
 from builder.basecontainer import BaseContainer
 from builder.block import Block
 from builder.day import Day
@@ -22,6 +23,7 @@ from builder.time import Time
 ## define types
 ActionLike = (Action, Block)
 PersonLike = (Person, Who)
+AreaLike = (Area, Where)
 StageLike = (Stage, Where)
 DayLike = (Day, When)
 TimeLike = (Time, When)
@@ -33,6 +35,7 @@ class Scene(BaseContainer):
     """
     def __init__(self, title: str, *args: ActionLike,
             camera: Optional[Person]=None,
+            area: Optional[Area]=None,
             stage: Optional[Stage]=None,
             day: Optional[Day]=None,
             time: Optional[Time]=None,
@@ -41,6 +44,7 @@ class Scene(BaseContainer):
                 note=note,
                 priority=priority)
         self._camera = assertion.isInstance(camera, PersonLike) if camera else Who()
+        self._area = assertion.isInstance(area, AreaLike) if area else Where()
         self._stage = assertion.isInstance(stage, StageLike) if stage else Where()
         self._day = assertion.isInstance(day, DayLike) if day else When()
         self._time = assertion.isInstance(time, TimeLike) if time else When()
@@ -49,6 +53,10 @@ class Scene(BaseContainer):
     @property
     def camera(self) -> PersonLike:
         return self._camera
+
+    @property
+    def area(self) -> AreaLike:
+        return self._area
 
     @property
     def stage(self) -> StageLike:
@@ -65,6 +73,7 @@ class Scene(BaseContainer):
     ## methods
     def inherited(self, *args: ActionLike, title: str="",
             camera: Optional[Person]=None,
+            area: Optional[Area]=None,
             stage: Optional[Stage]=None,
             day: Optional[Day]=None,
             time: Optional[Time]=None,
@@ -73,6 +82,7 @@ class Scene(BaseContainer):
         return Scene(title if title else self.title,
                 *args,
                 camera=camera if camera else self.camera,
+                area=area if area else self.area,
                 stage=stage if stage else self.stage,
                 day=day if day else self.day,
                 time=time if time else self.time,

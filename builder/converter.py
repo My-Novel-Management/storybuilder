@@ -11,6 +11,7 @@ from utils.util_str import dictCombined, strReplacedTagByDict, strDuplicatedChop
 from builder import __PRIORITY_MAX__, __PRIORITY_MIN__, __PRIORITY_NORMAL__
 from builder import ActType, MetaType, TagType
 from builder.action import Action
+from builder.area import Area
 from builder.basedata import BaseData
 from builder.block import Block
 from builder.chapter import Chapter
@@ -33,6 +34,14 @@ class Converter(object):
     """
     ## methods
     @classmethod
+    def areasOrdered(cls, basepoint: Area, src: StoryLike) -> list:
+        tmp = []
+        for v in set(Extractor.areasFrom(src)):
+            tmp.append((v, basepoint.distance(v)))
+        tmp1 = dict(tmp)
+        return [v for v in dict(sorted(tmp1.items(), key=lambda x: x[1])).keys()]
+
+    @classmethod
     def srcFilterByPriority(cls, src: StoryLike, priority: int=__PRIORITY_NORMAL__) -> StoryLike:
         if isinstance(src, Scene):
             return src.inherited(*[ac for ac in src.data if ac.priority >= priority])
@@ -54,7 +63,7 @@ class Converter(object):
     @classmethod
     def sceneSettingPronounReplaced(cls, src: Story) -> Story:
         tmp = []
-        camera, stage, day, time = None, None, None, None
+        camera, area, stage, day, time = None, None, None, None, None
         for ch in src.data:
             tmpEpisodes = []
             for ep in ch.data:
@@ -62,10 +71,11 @@ class Converter(object):
                 for sc in ep.data:
                     tmpS = sc.inherited(*sc.data,
                             camera=camera if isinstance(sc.camera, Who) else sc.camera,
+                            area=area if isinstance(sc.area, Where) else sc.area,
                             stage=stage if isinstance(sc.stage, Where) else sc.stage,
                             day=day if isinstance(sc.day, When) else sc.day,
                             time=time if isinstance(sc.time, When) else sc.time)
-                    camera, stage, day, time = tmpS.camera, tmpS.stage, tmpS.day, tmpS.time
+                    camera, area, stage, day, time = tmpS.camera, tmpS.area, tmpS.stage, tmpS.day, tmpS.time
                     tmpScenes.append(tmpS)
                 tmpEpisodes.append(ep.inherited(*tmpScenes))
             tmp.append(ch.inherited(*tmpEpisodes))

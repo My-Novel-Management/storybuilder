@@ -17,6 +17,7 @@ from builder import ConteData
 from builder import History
 from builder.action import Action
 from builder.analyzer import Analyzer
+from builder.area import Area
 from builder.chapter import Chapter
 from builder.converter import Converter
 from builder.conjuction import Then
@@ -76,7 +77,9 @@ class Parser(object):
             scene_objs = []
             discards = []
             tmp.append((DataType.SCENE_SETTING,
-                {"stage":src.stage.name,
+                {
+                    "area":src.area.name,
+                    "stage":src.stage.name,
                     "camera":src.camera.name,
                     "day":src.day.data,
                     "week":src.day.data.weekday(),

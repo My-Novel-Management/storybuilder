@@ -12,6 +12,7 @@ import test_utils_str
 ## local files
 import test_action
 import test_analyzer
+import test_area
 import test_basecontainer
 import test_basedata
 import test_block
@@ -56,6 +57,7 @@ def suite():
         unittest.makeSuite(test_utility.MethodsTest),
         ## data
         unittest.makeSuite(test_basedata.BaseDataTest),# base
+        unittest.makeSuite(test_area.AreaTest),
         unittest.makeSuite(test_day.DayTest),
         unittest.makeSuite(test_item.ItemTest),
         unittest.makeSuite(test_metadata.MetaDataTest),
