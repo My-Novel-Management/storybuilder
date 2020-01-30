@@ -63,7 +63,7 @@ class Converter(object):
     @classmethod
     def sceneSettingPronounReplaced(cls, src: Story) -> Story:
         tmp = []
-        camera, area, stage, day, time = None, None, None, None, None
+        camera, area, stage, day, time = None, Area.getDefault(), None, None, None
         for ch in src.data:
             tmpEpisodes = []
             for ep in ch.data:
