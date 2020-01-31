@@ -43,6 +43,7 @@ class Build(object):
     __HIST_DIR__ = "hist"
     __LAYER_DIR__ = "layer"
     __LIFENOTE_DIR__ = "life"
+    __LINE_DIR__ = "line"
     __LIST_DIR__ = "list"
     __EXTENTION__ = "md"
     def __init__(self, filename: str, mecabdir: str, extention: str=__EXTENTION__,
@@ -162,6 +163,7 @@ class Build(object):
         self.toInfoOfCustom(src, dictSorted(layers), is_debug)
         self.toInfoOfPersons(src, is_debug)
         ## line
+        self.toLineOfPersons(src, is_debug)
         self.toLineOfStages(src, basedate, basearea, is_debug)
         self.toLineOfEvents(src, is_debug)
         ## act analyzed
@@ -469,7 +471,24 @@ class Build(object):
                         elif m.data is MetaType.EVENT_POINT:
                             tmp.append((DataType.DATA_STR, f"point:{sc.title}:{m.name}:{m.note}"))
         return self.outputTo(Formatter.toLinescaleOfEvents("Event lines", tmp),
-                self.filename, "_evt", self.extention, self.builddir, is_debug)
+                self.filename, "_evt", self.extention,
+                os.path.join(self.builddir, self.__LINE_DIR__), is_debug)
+
+    def toLineOfPersons(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
+        tmp = []
+        idx, ep_i = 1, 1
+        chapters = Extractor.chaptersFrom(src)
+        for ch in chapters:
+            tmp.append((DataType.HEAD, f"## Ch-{idx}: {ch.title}"))
+            idx += 1
+            for ep in ch.data:
+                tmp.append((DataType.HEAD, f"### Ep-{ep_i}: {ep.title}"))
+                for sc in ep.data:
+                    persons = [v.name for v in Extractor.personAndSubjectsFrom(sc) if isinstance(v, Person)]
+                    tmp.append((DataType.DATA_DICT, {"scene":sc,"persons":persons}))
+        return self.outputTo(Formatter.toLinescaleOfPerson("Person lines", tmp),
+                self.filename, "_psn", self.extention,
+                os.path.join(self.builddir, self.__LINE_DIR__), is_debug)
 
     def toLineOfStages(self, src: Story, basedate: datetime.date, basearea: Area,
             is_debug: bool) -> bool: # pragma: no cover
@@ -491,7 +510,8 @@ class Build(object):
                     "week":v.day.data.weekday(),
                     "time":v.time}))
         return self.outputTo(Formatter.toLinescaleOfStage("Stage lines", tmp, areas, basedate),
-                self.filename, "_line", self.extention, self.builddir, is_debug)
+                self.filename, "_stage", self.extention,
+                os.path.join(self.builddir, self.__LINE_DIR__), is_debug)
 
     def toOutline(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         maintitle = f"Outline of {src.title}"

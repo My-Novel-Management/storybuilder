@@ -371,6 +371,34 @@ class Formatter(object):
         return [f"# {title}\n", "## Events\n", head] + tmp
 
     @classmethod
+    def toLinescaleOfPerson(cls, title: str, src: list) -> list:
+        tmp = []
+        persons = []
+        for data in src:
+            if DataType.DATA_DICT is data[0]:
+                psns = data[1]['persons']
+                for p in psns:
+                    if not p in persons:
+                        persons.append(p)
+        def _getList(psns):
+            _ = []
+            for p in persons:
+                if p in psns:
+                    _.append(p[0])
+                else:
+                    _.append("　")
+            return "|".join(_)
+        head = "|".join(persons)
+        for data in src:
+            if DataType.HEAD is data[0]:
+                tmp.append(f"\n{data[1]}\n")
+            elif DataType.DATA_DICT is data[0]:
+                sc = strEllipsis(hanToZen(data[1]['scene'].title), 10)
+                lst = _getList(data[1]['persons'])
+                tmp.append(f"{sc:\u3000<10}|{lst}")
+        return [f"# {title}\n", "## Persons\n", head] + tmp
+
+    @classmethod
     def toLinescaleOfStage(cls, title: str, src: list, areas: list, basedate: datetime.date) -> list:
         tmp = []
         stages = []
