@@ -2,6 +2,7 @@
 """Define tool for counting
 """
 ## public libs
+from collections import Counter as PyCounter
 from itertools import chain
 ## local libs
 from utils import assertion
@@ -60,6 +61,11 @@ class Counter(object):
     def actionsPerPerson(cls, src: StoryLike, person: Person) -> int:
         tmp = Extractor.actionsFrom(src)
         return len([v for v in tmp if person.equals(v.subject)])
+
+    @classmethod
+    def topActionsPerPerson(cls, src: StoryLike, person :Person) -> ActType:
+        tmp = [v.act_type for v in Extractor.actionsFrom(src) if v.subject.name == person.name]
+        return PyCounter(tmp).most_common()[0]
 
     ## methods (characters)
     @classmethod

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.5-7] - 2020-01-31
+### Changed
+- person line format
+
 ## [0.4.5-6] - 2020-01-31
 ### Added
 - person line output
@@ -439,7 +443,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-6...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-7...HEAD
+[0.4.5-7]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-7
 [0.4.5-6]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-6
 [0.4.5-5]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-5
 [0.4.5-4]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-4

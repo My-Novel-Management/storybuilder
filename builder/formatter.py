@@ -380,21 +380,27 @@ class Formatter(object):
                 for p in psns:
                     if not p in persons:
                         persons.append(p)
-        def _getList(psns):
+        def _getList(psns, tops):
             _ = []
             for p in persons:
                 if p in psns:
-                    _.append(p[0])
+                    for i in range(len(psns)):
+                        if p == psns[i]:
+                            _.append(tops[i][0].emoji())
+                            break
                 else:
                     _.append("　")
             return "|".join(_)
         head = "|".join(persons)
+        shorthead = "|".join([v[0] for v in persons])
         for data in src:
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
+                idt = "　"*10
+                tmp.append(f"{idt}|{shorthead}")
             elif DataType.DATA_DICT is data[0]:
                 sc = strEllipsis(hanToZen(data[1]['scene'].title), 10)
-                lst = _getList(data[1]['persons'])
+                lst = _getList(data[1]['persons'], data[1]['tops'])
                 tmp.append(f"{sc:\u3000<10}|{lst}")
         return [f"# {title}\n", "## Persons\n", head] + tmp
 
@@ -450,9 +456,12 @@ class Formatter(object):
             else:
                 return "⊥"
         heads = "|".join([f"{strEllipsis(v.name, 8, ''):\u3000<8}" for v in areas]) + "|その他"
+        shortheads = "".join([v.name[0] for v in areas])
         for data in src:
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
+                _ = "　"*13 + " "*10
+                tmp.append(f"{_}|{shortheads}")
             elif DataType.SCENE_SETTING is data[0]:
                 icon = _getIcon(data[1]['stage'], data[1]['area'])
                 num = _getArea(data[1]["stage"], data[1]['area'])

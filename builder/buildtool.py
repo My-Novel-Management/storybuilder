@@ -476,16 +476,18 @@ class Build(object):
 
     def toLineOfPersons(self, src: Story, is_debug: bool) -> bool: # pragma: no cover
         tmp = []
-        idx, ep_i = 1, 1
+        idx = 1
         chapters = Extractor.chaptersFrom(src)
         for ch in chapters:
             tmp.append((DataType.HEAD, f"## Ch-{idx}: {ch.title}"))
             idx += 1
             for ep in ch.data:
-                tmp.append((DataType.HEAD, f"### Ep-{ep_i}: {ep.title}"))
                 for sc in ep.data:
-                    persons = [v.name for v in Extractor.personAndSubjectsFrom(sc) if isinstance(v, Person)]
-                    tmp.append((DataType.DATA_DICT, {"scene":sc,"persons":persons}))
+                    persons = [v for v in Extractor.personAndSubjectsFrom(sc) if isinstance(v, Person)]
+                    _ = Converter.actionDividedFrom(sc)
+                    tops = [Counter.topActionsPerPerson(_, p) for p in persons]
+                    pnames = [v.name for v in persons]
+                    tmp.append((DataType.DATA_DICT, {"scene":sc,"persons":pnames,"tops":tops}))
         return self.outputTo(Formatter.toLinescaleOfPerson("Person lines", tmp),
                 self.filename, "_psn", self.extention,
                 os.path.join(self.builddir, self.__LINE_DIR__), is_debug)
