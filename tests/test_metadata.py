@@ -23,7 +23,7 @@ class MetaDataTest(unittest.TestCase):
         pass
 
     def test_attributes(self):
-        tmp = MetaData(info="test")
+        tmp = MetaData(title="test")
         self.assertIsInstance(tmp, MetaData)
-        self.assertEqual(tmp.note, "test")
+        self.assertEqual(tmp.name, "test")
 

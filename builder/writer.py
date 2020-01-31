@@ -101,12 +101,12 @@ class Writer(object):
     ## meta
     def hasThat(self, *args, isScene: bool=False) -> Action:
         info = "scene" if isScene else ""
-        return Action(MetaData(MetaType.TEST_HAS_THAT, info=info), *args,
+        return Action(MetaData(MetaType.TEST_HAS_THAT, note=info), *args,
                 subject=self.src, act_type=ActType.META)
 
     def existsThat(self, *args, isScene: bool=False) -> Action:
         info = "scene" if isScene else ""
-        return Action(MetaData(MetaType.TEST_EXISTS_THAT, info=info),
+        return Action(MetaData(MetaType.TEST_EXISTS_THAT, note=info),
                 *args, subject=self.src, act_type=ActType.META)
 
     ## methods (utility)

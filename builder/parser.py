@@ -62,15 +62,13 @@ class Parser(object):
                     return True
             else:
                 return False
-        def _hasMetaEvent(ac: Action, isEnd: bool):
+        def _hasMetaEvent(ac: Action):
             tmp = Extractor.metadataFrom(ac)
             for v in tmp:
-                if isEnd and v.data is MetaType.EVENT_END:
-                    return True
-                elif v.data is MetaType.EVENT_START:
-                    return True
+                if v.data in (MetaType.EVENT_END, MetaType.EVENT_POINT, MetaType.EVENT_START):
+                    return v.data
             else:
-                return False
+                return None
         if isinstance(src, Scene):
             tmp = []
             scene_sbjs = []
@@ -136,12 +134,16 @@ class Parser(object):
                     elif _hasMetaBlock(ac, True):
                         title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_END][0].note
                         tmp.append((DataType.META, f"blockend:{title}"))
-                    elif _hasMetaEvent(ac, False):
-                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.EVENT_START][0].note
-                        tmp.append((DataType.META, f"eventstart:{title}"))
-                    elif _hasMetaEvent(ac, True):
-                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.EVENT_END][0].note
-                        tmp.append((DataType.META, f"eventend:{title}"))
+                    elif _hasMetaEvent(ac):
+                        meta = _hasMetaEvent(ac)
+                        title = [v for v in Extractor.metadataFrom(ac) if v.data is meta][0].name
+                        note = [v for v in Extractor.metadataFrom(ac) if v.data is meta][0].note
+                        if MetaType.EVENT_END is meta:
+                            tmp.append((DataType.META, f"eventend:{title}:{note}"))
+                        elif MetaType.EVENT_START is meta:
+                            tmp.append((DataType.META, f"eventstart:{title}:{note}"))
+                        else:
+                            tmp.append((DataType.META, f"event:{title}:{note}"))
                     else:
                         continue
                 else:

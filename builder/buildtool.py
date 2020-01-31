@@ -458,15 +458,16 @@ class Build(object):
         for ch in chapters:
             tmp.append((DataType.HEAD, f"## Ch-{ch_idx}: {ch.title}"))
             ch_idx += 1
-            for ep in Extractor.episodesFrom(ch):
-                tmp.append((DataType.HEAD, f"### Ep-{ep_idx}: {ep.title}"))
-                ep_idx += 1
-                metas = Extractor.metadataFrom(ep)
-                for m in metas:
-                    if m.data is MetaType.EVENT_START:
-                        tmp.append((DataType.DATA_STR, f"start:{m.note}"))
-                    elif m.data is MetaType.EVENT_END:
-                        tmp.append((DataType.DATA_STR, f"end:{m.note}"))
+            for ep in ch.data:
+                for sc in ep.data:
+                    metas = Extractor.metadataFrom(sc)
+                    for m in metas:
+                        if m.data is MetaType.EVENT_START:
+                            tmp.append((DataType.DATA_STR, f"start:{sc.title}:{m.name}:{m.note}"))
+                        elif m.data is MetaType.EVENT_END:
+                            tmp.append((DataType.DATA_STR, f"end:{sc.title}:{m.name}:{m.note}"))
+                        elif m.data is MetaType.EVENT_POINT:
+                            tmp.append((DataType.DATA_STR, f"point:{sc.title}:{m.name}:{m.note}"))
         return self.outputTo(Formatter.toLinescaleOfEvents("Event lines", tmp),
                 self.filename, "_evt", self.extention, self.builddir, is_debug)
 

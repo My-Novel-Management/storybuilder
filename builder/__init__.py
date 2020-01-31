@@ -144,6 +144,7 @@ class MetaType(Enum):
     BLOCK_START = auto()
     BLOCK_END = auto()
     EVENT_START = auto()
+    EVENT_POINT = auto()
     EVENT_END = auto()
 
 class TagType(Enum):

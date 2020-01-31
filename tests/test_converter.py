@@ -62,7 +62,7 @@ class ConverterTest(unittest.TestCase):
                     (ac1, ac2)),
                 (False, Story("test", Chapter("c1", Episode("e1",
                     Scene("s1", bk2)))),
-                    (Action(MetaData(MetaType.BLOCK_START,info="B"),act_type=ActType.META), ac2, ac3, Action(MetaData(MetaType.BLOCK_END,info="B"),act_type=ActType.META))),
+                    (Action(MetaData(MetaType.BLOCK_START,title="B"),act_type=ActType.META), ac2, ac3, Action(MetaData(MetaType.BLOCK_END,title="B"),act_type=ActType.META))),
                 ]
         def _checkcode(v, expect):
             tmp = Extractor.actionsFrom(Converter.srcExpandBlocks(v))

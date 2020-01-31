@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.4.5-3] - 2020-01-30
+### Changed
+- event line format
 ### Fixed
 - stage and area cooperation
 
@@ -421,7 +425,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-2...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-3...HEAD
+[0.4.5-3]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-3
 [0.4.5-2]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-2
 [0.4.5-1]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-1
 [0.4.5]: https://github.com/nagisc007/storybuilder/releases/v0.4.5

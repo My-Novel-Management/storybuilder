@@ -14,11 +14,10 @@ class MetaData(BaseData):
     """The data class of meta data
 
     Attributes:
-        name (str): a item name
-        note (str): 0. a note
+        name (str): a name
+        note (str): a note
     """
-    __NAME__ = "__meta__"
-    def __init__(self, data_type: MetaType=MetaType.INFO, info: str=""):
-        super().__init__(MetaData.__NAME__,
-                assertion.isInstance(data_type, MetaType), note=info)
+    def __init__(self, data_type: MetaType=MetaType.INFO, title: str="", note: str=""):
+        super().__init__(title,
+                assertion.isInstance(data_type, MetaType), note=note)
 

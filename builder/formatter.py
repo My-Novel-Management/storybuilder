@@ -5,7 +5,7 @@
 import datetime
 ## local libs
 from utils import assertion
-from utils.util_str import strEllipsis
+from utils.util_str import strEllipsis ,hanToZen
 ## local files
 from builder import __WALK_STAGE__, __DRIVE_STAGE__
 from builder import DataType, ConteData
@@ -104,11 +104,14 @@ class Formatter(object):
                     _, title = v[1].split(":")
                     tmp.append(_conv("🔚", "ー"*20, "", "", "", f"[{title}](:終了)", "", "", 0, submaker))
                 elif "eventstart" in v[1]:
-                    _, title = v[1].split(":")
+                    _, title, note = v[1].split(":")
                     tmp.append(_conv("🎬", "※"*20, "", "", "", f"[{title}](:オープン)", "", "", 0, submaker))
                 elif "eventend" in v[1]:
-                    _, title = v[1].split(":")
+                    _, title, note = v[1].split(":")
                     tmp.append(_conv("🔝", "※"*20, "", "", "", f"[{title}](:クローズ)", "", "", 0, submaker))
+                elif "event" in v[1]:
+                    _, title, note = v[1].split(":")
+                    tmp.append(_conv("🔑", "※"*20, "", "", "", f"[{title}](:{note})", "", "", 0, submaker))
             ## object data
             elif DataType.DATA_LIST is v[0]:
                 tmp.append("".join([f"[^{n}]" for n in v[1]]))
@@ -320,17 +323,46 @@ class Formatter(object):
     @classmethod
     def toLinescaleOfEvents(cls, title: str, src: list) -> list:
         tmp = []
+        def _getTitle(v):
+            _, sc, title, note = v.split(":")
+            return title
+        titles = []
+        for v in src:
+            if v[0] is DataType.DATA_STR:
+                title = _getTitle(v[1])
+                if not title in titles:
+                    titles.append(title)
+        head = "|".join(titles)
+        def _getNum(title):
+            idx = 0
+            for v in titles:
+                if v == title:
+                    return idx
+                idx += 1
+            return idx
         for data in src:
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
             elif DataType.DATA_STR is data[0]:
                 if "start" in data[1]:
-                    _, title = data[1].split(":")
-                    tmp.append(f"[{title}](:start)")
+                    _, sc, title, note = data[1].split(":")
+                    num = _getNum(title)
+                    idt = "　" * num
+                    sc = hanToZen(sc)
+                    tmp.append(f"{sc:\u3000<10}|{idt}▽[^{title}]")
                 elif "end" in data[1]:
-                    _, title = data[1].split(":")
-                    tmp.append(f"[{title}](:end)")
-        return [f"# {title}\n"] + tmp
+                    _, sc, title, note = data[1].split(":")
+                    num = _getNum(title)
+                    idt = "　" * num
+                    sc = hanToZen(sc)
+                    tmp.append(f"{sc:\u3000<10}|{idt}▲")
+                elif "point" in data[1]:
+                    _, sc, title, note = data[1].split(":")
+                    num = _getNum(title)
+                    idt = "　" * num
+                    sc = hanToZen(sc)
+                    tmp.append(f"{sc:\u3000<10}|{idt}●:{note}")
+        return [f"# {title}\n", "## Events\n", head] + tmp
 
     @classmethod
     def toLinescaleOfStage(cls, title: str, src: list, areas: list, basedate: datetime.date) -> list:

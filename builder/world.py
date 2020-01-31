@@ -457,11 +457,14 @@ class World(UtilityDict):
     def eventStart(self, title: str) -> Action:
         return self.event(title, False)
 
+    def eventPoint(self, title: str, note: str) -> Action:
+        return Action(MetaData(MetaType.EVENT_POINT, title=title, note=note), act_type=ActType.META)
+
     def eventEnd(self, title: str) -> Action:
         return self.event(title, True)
 
     def event(self, title: str, isEnd: bool=False) -> Action:
-        return Action(MetaData(MetaType.EVENT_END if isEnd else MetaType.EVENT_START, info=title),
+        return Action(MetaData(MetaType.EVENT_END if isEnd else MetaType.EVENT_START, title=title),
                 act_type=ActType.META)
 
     ## utility

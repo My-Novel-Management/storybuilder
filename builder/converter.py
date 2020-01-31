@@ -156,7 +156,8 @@ class Converter(object):
     def directionReplacedTags(cls, dire:(str,  BaseData), tags: dict, prefix: str,
             camera: Person, subject: Person) -> (str, BaseData):
         if isinstance(dire, MetaData):
-            return MetaData(dire.data, info=cls.directionReplacedTags(dire.note, tags, prefix, camera, subject))
+            return MetaData(dire.data, title=cls.directionReplacedTags(dire.name, tags, prefix, camera, subject),
+                    note=cls.directionReplacedTags(dire.note, tags, prefix, camera, subject))
         if not isinstance(dire, str):
             return dire
         tmp = dire
@@ -179,7 +180,7 @@ class Converter(object):
     @classmethod
     def srcExpandBlocks(cls, src: StoryLike) -> StoryLike:
         def _blockPacked(block: Block):
-            return (Action(MetaData(MetaType.BLOCK_START, info=block.title),act_type=ActType.META),) + block.data + (Action(MetaData(MetaType.BLOCK_END, info=block.title),act_type=ActType.META),)
+            return (Action(MetaData(MetaType.BLOCK_START, title=block.title),act_type=ActType.META),) + block.data + (Action(MetaData(MetaType.BLOCK_END, title=block.title),act_type=ActType.META),)
         if isinstance(src, Scene):
             return src.inherited(
                     *list(chain.from_iterable(

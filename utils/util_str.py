@@ -54,6 +54,9 @@ def dictFromStrBySplitter(val: (str, dict), splitter: str) -> dict:
         AssertionError("cannot convert dict from str, mismatch type: {type(val)} of {val}")
         return {}
 
+def hanToZen(val: str) -> str:
+    return val.translate(str.maketrans({chr(0x0021 + i): chr(0xFF01 + i) for i in range(94)}))
+
 def isAlphabetsOnly(val: str) -> bool:
     return isinstance(val, str) and RegAlpha.match(val) is not None
 
