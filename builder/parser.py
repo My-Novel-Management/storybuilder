@@ -129,10 +129,10 @@ class Parser(object):
                         tmp.append(cls.tagOf(ac))
                 elif ActType.META is ac.act_type:
                     if _hasMetaBlock(ac, False):
-                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_START][0].note
+                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_START][0].name
                         tmp.append((DataType.META, f"blockstart:{title}"))
                     elif _hasMetaBlock(ac, True):
-                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_END][0].note
+                        title = [v for v in Extractor.metadataFrom(ac) if v.data is MetaType.BLOCK_END][0].name
                         tmp.append((DataType.META, f"blockend:{title}"))
                     elif _hasMetaEvent(ac):
                         meta = _hasMetaEvent(ac)

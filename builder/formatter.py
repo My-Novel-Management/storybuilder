@@ -67,6 +67,12 @@ class Formatter(object):
             cont = strEllipsis(content, 24)
             vol = Counter.infoVolumeOf(volume, analyzer) if volume else "-"
             return f"{atype}|{dial:\u3000<24}|{sub:\u3000<32}|{cont:\u3000<24}|{vol:>4}|{note}"
+        def _convEvent(act_type, dialogue, title, content):
+            atype = act_type.emoji() if isinstance(act_type, ActType) else act_type
+            dial = strEllipsis(dialogue, 36)
+            ttl = strEllipsis(title, 10)
+            cont = strEllipsis(f"(:{content})", 38)
+            return f"{atype}|{dial:\u3000<36}|[{ttl}]{cont:\u3000<48}|"
         def _objs(objects):
             return "".join([f"［{v.name}］" for v in objects])
         def _texture(data: dict):
@@ -99,19 +105,19 @@ class Formatter(object):
             elif DataType.META is v[0]:
                 if "blockstart" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("📼", "ー"*20, "", "", "", f"[{title}](:開始)", "", "", 0, submaker))
+                    tmp.append(_convEvent("📼", "ー"*36, title, "開始"))
                 elif "blockend" in v[1]:
                     _, title = v[1].split(":")
-                    tmp.append(_conv("🔚", "ー"*20, "", "", "", f"[{title}](:終了)", "", "", 0, submaker))
+                    tmp.append(_convEvent("🔚", "ー"*36, title, "終了"))
                 elif "eventstart" in v[1]:
                     _, title, note = v[1].split(":")
-                    tmp.append(_conv("🎬", "※"*20, "", "", "", f"[{title}](:オープン)", "", "", 0, submaker))
+                    tmp.append(_convEvent("🎬", "※"*36, title, "オープン"))
                 elif "eventend" in v[1]:
                     _, title, note = v[1].split(":")
-                    tmp.append(_conv("🔝", "※"*20, "", "", "", f"[{title}](:クローズ)", "", "", 0, submaker))
+                    tmp.append(_convEvent("🔝", "※"*36, title, "クローズ"))
                 elif "event" in v[1]:
                     _, title, note = v[1].split(":")
-                    tmp.append(_conv("🔑", "※"*20, "", "", "", f"[{title}](:{note})", "", "", 0, submaker))
+                    tmp.append(_convEvent("🔑", "※"*36, title, note))
             ## object data
             elif DataType.DATA_LIST is v[0]:
                 tmp.append("".join([f"[^{n}]" for n in v[1]]))
