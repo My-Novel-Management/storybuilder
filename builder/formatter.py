@@ -348,20 +348,20 @@ class Formatter(object):
                     _, sc, title, note = data[1].split(":")
                     num = _getNum(title)
                     idt = "　" * num
-                    sc = hanToZen(sc)
-                    tmp.append(f"{sc:\u3000<10}|{idt}▽[^{title}]")
+                    sc = strEllipsis(hanToZen(sc), 12)
+                    tmp.append(f"{sc:\u3000<12}|{idt}▽[^{title}]")
                 elif "end" in data[1]:
                     _, sc, title, note = data[1].split(":")
                     num = _getNum(title)
                     idt = "　" * num
-                    sc = hanToZen(sc)
-                    tmp.append(f"{sc:\u3000<10}|{idt}▲")
+                    sc = strEllipsis(hanToZen(sc), 12)
+                    tmp.append(f"{sc:\u3000<12}|{idt}▲")
                 elif "point" in data[1]:
                     _, sc, title, note = data[1].split(":")
                     num = _getNum(title)
                     idt = "　" * num
-                    sc = hanToZen(sc)
-                    tmp.append(f"{sc:\u3000<10}|{idt}●:{note}")
+                    sc = strEllipsis(hanToZen(sc), 12)
+                    tmp.append(f"{sc:\u3000<12}|{idt}●:{note}")
         return [f"# {title}\n", "## Events\n", head] + tmp
 
     @classmethod

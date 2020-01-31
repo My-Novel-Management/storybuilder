@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.5-4] - 2020-01-30
+### Fixed
+- event line scene title
+
 ## [0.4.5-3] - 2020-01-30
 ### Changed
 - event line format
@@ -425,7 +429,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-3...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.4.5-4...HEAD
+[0.4.5-4]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-4
 [0.4.5-3]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-3
 [0.4.5-2]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-2
 [0.4.5-1]: https://github.com/nagisc007/storybuilder/releases/v0.4.5-1
