@@ -82,6 +82,7 @@ class Build(object):
     ## methods
     def compile(self, title: str, priority: int,
             tags: dict, prefix: str,
+            areas: dict,
             outtype: str, start: int, end: int,
             outline: str,
             *args) -> Story: # pragma: no cover
@@ -102,7 +103,7 @@ class Build(object):
             elif "e" in outtype:
                 ## episode output
                 tmp = Converter.srcReducedByEpisode(tmp, start, end)
-        tmp = cnv.sceneSettingPronounReplaced(tmp)
+        tmp = cnv.sceneSettingPronounReplaced(tmp, areas)
         tmp = cnv.srcPronounsReplaced(tmp)
         tmp = cnv.srcReplacedTags(tmp, tags, prefix)
         return tmp

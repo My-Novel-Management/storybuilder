@@ -61,7 +61,7 @@ class Converter(object):
             return src.inherited(*[cls.srcPronounsReplaced(v) for v in src.data])
 
     @classmethod
-    def sceneSettingPronounReplaced(cls, src: Story) -> Story:
+    def sceneSettingPronounReplaced(cls, src: Story, areas: dict) -> Story:
         tmp = []
         camera, area, stage, day, time = None, Area.getDefault(), None, None, None
         for ch in src.data:
@@ -69,10 +69,14 @@ class Converter(object):
             for ep in ch.data:
                 tmpScenes = []
                 for sc in ep.data:
+                    _stage = stage if isinstance(sc.stage, Where) else sc.stage
+                    _area = area if isinstance(sc.area, Where) else sc.area
+                    if _stage.area and _stage.area in areas:
+                        _area = areas[_stage.area]
                     tmpS = sc.inherited(*sc.data,
                             camera=camera if isinstance(sc.camera, Who) else sc.camera,
-                            area=area if isinstance(sc.area, Where) else sc.area,
-                            stage=stage if isinstance(sc.stage, Where) else sc.stage,
+                            area=_area,
+                            stage=_stage,
                             day=day if isinstance(sc.day, When) else sc.day,
                             time=time if isinstance(sc.time, When) else sc.time)
                     camera, area, stage, day, time = tmpS.camera, tmpS.area, tmpS.stage, tmpS.day, tmpS.time

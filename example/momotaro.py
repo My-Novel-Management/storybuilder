@@ -130,6 +130,7 @@ def mo_ally(w: World):
             taro.talk("鬼を退治しに行くところなんだ"),
             dog.talk("それなら$meがお供しましょう", "鬼はこの牙が苦手と言います"),
             _.explain("こうして犬は$CSの家来となりました"),
+            area=w.Land,
             stage=w.on_street,
             day=w.in_voyage.nextDay(),
             time=w.at_afternoon,
@@ -162,6 +163,10 @@ def mo_ally(w: World):
             taro.explain("$Sは家来として犬、猿、雉とそれぞれ引き連れ、$on_islandを目指しました"),
             time=w.at_afternoon.elapsedHour(2),
             ),
+            w.scene("船で",
+                taro.explain("船で$on_islandを目指した"),
+                stage=w.on_ship,
+            ),
             )
 
 def sc_island(w: World):
@@ -179,7 +184,6 @@ def sc_island(w: World):
             daemon.talk("参りました。どうか、命だけは……"),
             taro.talk("もうこれ以上村の人に悪さをするんじゃないぞ？", "いいな？"),
             taro.explain("こうして鬼たちから宝物を巻き上げ、村に持ち帰りました"),
-            area=w.DaemonIsland,
             stage=w.on_island_int,
             )
 
@@ -276,7 +280,7 @@ def create_world():
             RUBIS, LAYERS)
     #   set base year
     w.setBaseDate(113)
-    w.setBaseArea("Tokyo")
+    w.setBaseArea("Zero")
     #   set textures
     set_persons(w)
     set_stages(w)

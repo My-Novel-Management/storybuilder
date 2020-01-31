@@ -7,6 +7,7 @@ import datetime
 from utils import assertion
 from utils.util_str import strEllipsis
 ## local files
+from builder import __WALK_STAGE__, __DRIVE_STAGE__
 from builder import DataType, ConteData
 from builder import ActType, TagType
 from builder.analyzer import Analyzer
@@ -333,7 +334,6 @@ class Formatter(object):
 
     @classmethod
     def toLinescaleOfStage(cls, title: str, src: list, areas: list, basedate: datetime.date) -> list:
-        # TODO: 距離順などに並べられるとより良い
         tmp = []
         stages = []
         oldarea = ""
@@ -344,20 +344,20 @@ class Formatter(object):
             if DataType.SCENE_SETTING is data[0]:
                 stages.append(data[1]["stage"])
         stagelist = sorted(list(set([v.name for v in stages])))
-        def _getArea(v):
+        def _getArea(stage, area):
             idx = 0
             for a in areas:
-                if a.tag == v.area:
+                if a.tag == stage.area or a.tag == area.tag:
                     return idx
                 idx += 1
             return idx
-        def _getNum(v):
-            idx = 0
-            for i in stagelist:
-                if v == i:
-                    return idx
-                idx += 1
-            return idx
+        def _getIcon(stage, area):
+            if stage.area in __DRIVE_STAGE__ or area.tag == "Drive":
+                return "🚗"
+            elif stage.name in __WALK_STAGE__:
+                return "🚶"
+            else:
+                return "🏠"
         def _chopped(v):
             if len(v) >= 4:
                 return v[0:4]
@@ -388,7 +388,8 @@ class Formatter(object):
             if DataType.HEAD is data[0]:
                 tmp.append(f"\n{data[1]}\n")
             elif DataType.SCENE_SETTING is data[0]:
-                num = _getArea(data[1]["stage"])
+                icon = _getIcon(data[1]['stage'], data[1]['area'])
+                num = _getArea(data[1]["stage"], data[1]['area'])
                 pattern = "　"
                 delta = _daydelta(data[1]['day'], before, data[1]['time'].data, past)
                 before = data[1]['day']
@@ -397,7 +398,7 @@ class Formatter(object):
                 stage = strEllipsis(data[1]['stage'].name, 8) if oldplace != data[1]['stage'].name else "　…"
                 oldplace = data[1]['stage'].name
                 timename = strEllipsis(data[1]['time'].name, 4, "※")
-                tmp.append(f"{stage:\u3000<8}{timename:\u3000<4}{data[1]['day']}|{idt}")
+                tmp.append(f"{icon}{stage:\u3000<8}{timename:\u3000<4}{data[1]['day']}|{idt}")
         return [f"# {title}\n", "## Areas\n", f"{heads}"] + tmp
 
     @classmethod

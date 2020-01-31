@@ -61,6 +61,7 @@ class World(UtilityDict):
         self._filename = assertion.isStr(filename)
         self._basedate = datetime.date(__DEF_YEAR__, __DEF_MON__, __DEF_DAY__)
         self._basearea = Area.getDefault()
+        self._areas = {}
         self._rubis = {}
         self._layers = {}
         self._stagelayers = {}
@@ -77,6 +78,10 @@ class World(UtilityDict):
         self._rows = __BASE_ROW__
 
     ## property
+    @property
+    def areas(self) -> dict:
+        return self._areas
+
     @property
     def basearea(self) -> Area:
         return self._basearea
@@ -214,6 +219,7 @@ class World(UtilityDict):
         ## compile
         src = builder.compile(self.title, priority,
                 self._tags, __TAG_PREFIX__,
+                self._areas,
                 outtype, int(partstart) - 1, int(partend) - 1,
                 outline,
                 *args)
@@ -287,6 +293,7 @@ class World(UtilityDict):
             tmp = Area(*v)
             self.__setitem__(v[0], tmp)
             self._tags[f"{v[0]}"] = tmp.name
+            self._areas[tmp.tag] = tmp
         return self
 
     def setStages(self, stages: list):
@@ -465,11 +472,15 @@ class World(UtilityDict):
                 - day time
                 - fashion
                 - food
+            1. area
+                - zero point
         '''
         self.setStageLayers(STAGE_LAYERS)
         self.setDayTimeLayers(DAYTIME_LAYERS)
         self.setFashionLayers(FASHION_LAYERS)
         self.setFoodLayers(FOOD_LAYERS)
+        def_area = Area.getDefault()
+        self.setAreas([[def_area.tag, def_area.name, def_area.x, def_area.y]])
         return self
 
 ## privates

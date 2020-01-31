@@ -29,7 +29,7 @@ class Area(BaseData):
     ## statics
     @classmethod
     def getDefault(cls) -> Area:
-        return Area("Default", "中心", 0,0)
+        return Area("Zero", "中心", 0,0)
 
     ## property
     @property

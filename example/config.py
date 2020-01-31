@@ -41,6 +41,7 @@ PERSONS = (
 AREAS = (
         # Tag / 名前 / x,y / 備考
         ("Vila", "桃太郎の村", 10,10),
+        ("Land", "道中", 10,20),
         ("DaemonIsland", "鬼ヶ島", 30,30),
         )
 
