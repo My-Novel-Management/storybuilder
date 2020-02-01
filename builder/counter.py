@@ -71,12 +71,17 @@ class Counter(object):
     @classmethod
     def descriptions(cls, src: StoryLike) -> int:
         tmp = []
+        delta = 0
         for ac in Extractor.actionsFrom(src):
-            if ActType.WEAR is ac.act_type:
+            if ac.act_type in (ActType.WEAR, ActType.META, ActType.TAG):
                 continue
+            if ac.act_type in (ActType.TALK, ActType.VOICE):
+                delta += 2
+            else:
+                delta += 1
             tmp.append(ac)
         chars = strDuplicatedChopped("。".join(Extractor.stringsFrom(Scene("_",*tmp))))
-        return len(tmp) * 2 + len(chars)
+        return len(chars) + delta
 
     @classmethod
     def kanjis(cls, src: StoryLike) -> int:

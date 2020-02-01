@@ -202,7 +202,8 @@ class Parser(object):
                         inPara = False
             if descs:
                 tmp.append(_conv(descs, desc_type, last_action, inPara))
-            return (cls.titleOf(src),) + tuple(tmp)
+            char_count = Counter.descriptions(src)
+            return ((DataType.SCENE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(tmp)
         else:
             return (cls.titleOf(src),) + tuple(chain.from_iterable(
                                 [cls.toDescriptions(v, is_comment) for v in src.data]))

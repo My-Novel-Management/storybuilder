@@ -82,7 +82,7 @@ class CounterTest(unittest.TestCase):
 
     def test_descriptions(self):
         data = [
-                (False, self.basedata, 7),
+                (False, self.basedata, 6),
                 ]
         validatedTestingWithFail(self, "descriptions", lambda v,expect: self.assertEqual(
             Counter.descriptions(v), expect), data)
