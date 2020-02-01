@@ -9,6 +9,7 @@ from utils import assertion
 from utils.util_str import dictCombined, strReplacedTagByDict, strDuplicatedChopped
 ## local files
 from builder import __PRIORITY_MAX__, __PRIORITY_MIN__, __PRIORITY_NORMAL__
+from builder import __CONTINUED__
 from builder import ActType, MetaType, TagType
 from builder.action import Action
 from builder.area import Area
@@ -59,6 +60,25 @@ class Converter(object):
             return src.inherited(*tmp)
         else:
             return src.inherited(*[cls.srcPronounsReplaced(v) for v in src.data])
+
+    @classmethod
+    def srcContinuedActionDeveloped(cls, src: StoryLike) -> StoryLike:
+        if isinstance(src, Scene):
+            tmp = []
+            acttype = ActType.ACT
+            tagtype = TagType.NONE
+            subject = Who()
+            for ac in src.data:
+                if ActType.META is ac.act_type and TagType.COMMAND is ac.tag_type and __CONTINUED__ == ac.note:
+                    tmp.append(Action(*ac.data, subject=subject, act_type=acttype, tag_type=tagtype))
+                else:
+                    acttype = ac.act_type
+                    tagtype = ac.tag_type
+                    subject = ac.subject
+                    tmp.append(ac)
+            return src.inherited(*tmp)
+        else:
+            return src.inherited(*[cls.srcContinuedActionDeveloped(v) for v in src.data])
 
     @classmethod
     def sceneSettingPronounReplaced(cls, src: Story, areas: dict) -> Story:

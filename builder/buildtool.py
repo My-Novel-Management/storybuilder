@@ -90,8 +90,11 @@ class Build(object):
         ''' compile source
             1. serialize (block to actions)
             2. filter by priority
-            3. replace pronouns
-            4. replace tags
+            3. reduced chapter/episode
+            4. scene setting replaced
+            5. continued act develop
+            6. replace pronouns
+            7. replace tags
         '''
         tmp = Story(title, *args, note=outline)
         cnv = Converter()
@@ -105,6 +108,7 @@ class Build(object):
                 ## episode output
                 tmp = Converter.srcReducedByEpisode(tmp, start, end)
         tmp = cnv.sceneSettingPronounReplaced(tmp, areas)
+        tmp = cnv.srcContinuedActionDeveloped(tmp)
         tmp = cnv.srcPronounsReplaced(tmp)
         tmp = cnv.srcReplacedTags(tmp, tags, prefix)
         return tmp

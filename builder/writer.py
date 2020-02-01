@@ -8,6 +8,7 @@ from typing import Any
 from utils import assertion
 from utils.util_str import isAlphabetsOnly
 ## local files
+from builder import __CONTINUED__
 from builder import ActType, TagType, MetaType
 from builder.action import Action
 from builder.day import Day
@@ -38,6 +39,10 @@ class Writer(object):
     @classmethod
     def getWho(cls) -> Writer:
         return Writer(Who())
+
+    @classmethod
+    def continuedAct(cls, *args, **kwargs) -> Action:
+        return Action(*args, act_type=ActType.META, tag_type=TagType.COMMAND, note=__CONTINUED__, **kwargs)
 
     ## method (basic)
     def do(self, *args, **kwargs) -> Action:

@@ -17,6 +17,7 @@ from config import AREAS, DAYS, ITEMS, LAYERS, PERSONS, RUBIS, STAGES, TIMES, WO
 
 W = Writer
 _ = Writer.getWho()
+d = Writer.continuedAct
 
 ################################################################
 #
@@ -56,7 +57,9 @@ def sc_get_peach(w: World):
             gma.wear("肌はシミが目立つ"),
             gma.come("洗濯物を籠に入れ、河原にやってきた$Sでしたが、", "&"),
             gma.do("川の上流からどんぶらこと大きな桃が流れてくるのを見つけました。それを見て思います"),
+            d("じっと立って桃を見つめて"),
             gma.talk("あれまあ、なんて大きな桃なんでしょう"),
+            d("おじいさんが好きそうだ"),
             gma.think("拾って帰って、おじいさんと一緒に食べようかしらね", "#桃をゲット"),
             gma.have(w.peach, "そう考え、何とか木の棒を使ってこちらに引き寄せ、ひと抱えもある桃を手に入れました"),
             gma.go("それを籠に入れ、家に帰りました"),

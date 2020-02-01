@@ -31,6 +31,8 @@ __BASE_ROW__ = 20
 
 __DEF_FILENAME__ = "story"
 
+__CONTINUED__ = "__continued__"
+
 __ASSET_ELEMENTS__ = (
         "PERSONS", "AREAS", "STAGES", "DAYS", "TIMES", "ITEMS", "WORDS", "RUBIS", "LAYERS",
         )
@@ -151,6 +153,7 @@ class TagType(Enum):
     NONE = auto()
     BR = auto() # break line
     COMMENT = auto() # comment
+    COMMAND = auto() # special command
     OUTLINE = auto() # outline
     HR = auto() # horizontal line
     SYMBOL = auto() # symbol mark
