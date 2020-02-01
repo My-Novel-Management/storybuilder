@@ -204,6 +204,11 @@ class Parser(object):
                 tmp.append(_conv(descs, desc_type, last_action, inPara))
             char_count = Counter.descriptions(src)
             return ((DataType.SCENE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(tmp)
+        elif isinstance(src, Episode):
+            char_count = Counter.descriptions(src)
+            return ((DataType.EPISODE_TITLE, f"{src.title} [{char_count}]c"),) + tuple(
+                    chain.from_iterable([cls.toDescriptions(v, is_comment) for v in src.data])
+                    )
         else:
             return (cls.titleOf(src),) + tuple(chain.from_iterable(
                                 [cls.toDescriptions(v, is_comment) for v in src.data]))
