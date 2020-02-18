@@ -16,6 +16,7 @@ class Rubi(BaseData):
         name (str): 0. a base word
         rubi (str): 1. a rubi word
         exclusions (tuple): 2. exclusion words
+        isAlways (bool): True or False
     """
     def __init__(self, name: str, rubi: str, exclusions: (str, list, tuple)="",
             isAlways: bool=False):
