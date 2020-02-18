@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.1-2] - 2020-02-18
+### Fixed
+- format invalid breakline
+
 ## [0.5.1-1] - 2020-02-01
 ### Added
 - episode char count in description
@@ -455,7 +459,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.1-1...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.1-2...HEAD
+[0.5.1-2]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-2
 [0.5.1-1]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-1
 [0.5.1]: https://github.com/nagisc007/storybuilder/releases/v0.5.1
 [0.5.0]: https://github.com/nagisc007/storybuilder/releases/v0.5.0

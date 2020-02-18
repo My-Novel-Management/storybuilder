@@ -196,6 +196,7 @@ class Formatter(object):
             if data[0] in TitleLike:
                 if not exceptTitle:
                     tmp.append(data[1])
+                    inDialogue = False
             elif DataType.TAG is data[0]:
                 tmp.append(data[1])
             elif data[0] in (DataType.DIALOGUE, DataType.VOICE):
@@ -208,6 +209,7 @@ class Formatter(object):
             else:
                 if inDialogue: # D-L
                     tmp.append(f"{dl_sp}　{data[1]}")
+                    inDialogue = False
                 else: # L-L
                     tmp.append(f"{ll_sp}　{data[1]}")
         return [f"# {title}\n",
