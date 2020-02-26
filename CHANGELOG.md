@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.1-4] - 2020-02-26
+### Fixed
+- rubi: kotatsu
+
 ## [0.5.1-3] - 2020-02-18
 ### Fixed
 - rubi
@@ -463,7 +467,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.1-3...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.1-4...HEAD
+[0.5.1-4]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-4
 [0.5.1-3]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-3
 [0.5.1-2]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-2
 [0.5.1-1]: https://github.com/nagisc007/storybuilder/releases/v0.5.1-1
