@@ -4,12 +4,12 @@ import sys
 sys.path.append('./builder')
 sys.path.append('./tests')
 
-from builder import __VERSION__
+from builder import __DESC__, __TITLE__, __VERSION__
 
 setup(
-        name = 'StoryBuilder',
+        name = __TITLE__,
         version = __VERSION__,
-        description = "This is a tool for construct a story",
+        description = __DESC__,
         packages = find_packages(),
-        test_suite = 'test_all.suite'
+        test_suite = 'all_tests.suite'
 )
