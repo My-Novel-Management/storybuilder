@@ -9,7 +9,7 @@ __all__ = (
         )
 
 
-from utils import assertion
+from builder.utils import assertion
 
 
 def name_set_from(basename: str, name: str) -> tuple:

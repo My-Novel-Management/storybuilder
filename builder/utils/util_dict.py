@@ -11,7 +11,7 @@ __all__ = (
 
 from itertools import chain
 from typing import Tuple
-from utils import assertion
+from builder.utils import assertion
 
 
 def calling_dict_from(calling: (str, dict), name: str) -> dict:

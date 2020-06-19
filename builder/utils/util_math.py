@@ -7,7 +7,7 @@ Mathematics Utility methods
 __all__ = ('int_ceil',)
 
 
-from utils import assertion
+from builder.utils import assertion
 
 
 def int_ceil(a: int, b: int) -> int:
