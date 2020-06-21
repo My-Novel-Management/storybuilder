@@ -38,13 +38,13 @@ class Converter(object):
         return re.sub(r'{}'.format(key), r'{}'.format(rubi), src, num)
 
     def to_description(self, src: (list, tuple)) -> str:
-        _ = "。".join(assertion.is_nearlylist(src)) 
+        _ = "。".join(assertion.is_listlike(src))
         return validate_string_duplicate_chopped(f'{_}。')
 
     def to_dialogue(self, src: (list, tuple), brackets: tuple=('「', '」')) -> str:
-        _ = "。".join(assertion.is_nearlylist(src))
+        _ = "。".join(assertion.is_listlike(src))
         return validate_string_duplicate_chopped(f'{brackets[0]}{_}{brackets[1]}')
 
     def script_relieved_symbols(self, src: (list, tuple)) -> list:
-        return list(val for val in assertion.is_nearlylist(src) if not ('&' == val or '#' in val))
+        return list(val for val in assertion.is_listlike(src) if not ('&' == val or '#' in val))
 

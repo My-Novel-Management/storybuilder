@@ -11,7 +11,7 @@ Usage:
 
 __all__ = ('is_between',
         'is_bool', 'is_dict', 'is_instance', 'is_int', 'is_int_or_str',
-        'is_list', 'is_nearlylist', 'is_str', 'is_subclass', 'is_tuple',
+        'is_list', 'is_listlike', 'is_str', 'is_subclass', 'is_tuple',
         'is_various_types')
 
 from typing import Any, Type, TypeVar
@@ -87,7 +87,7 @@ def is_list(val: list) -> list:
     assert isinstance(val, list), _ERR_INVALID_TYPE.format(_typename_of(val), 'list')
     return val
 
-def is_nearlylist(val: (list, tuple)) -> (list, tuple):
+def is_listlike(val: (list, tuple)) -> (list, tuple):
     ''' Validate a value whether is a type of list or tuple.
     '''
     assert isinstance(val, list) or isinstance(val, tuple), _ERR_INVALID_TYPE.format(_typename_of(val), 'list')

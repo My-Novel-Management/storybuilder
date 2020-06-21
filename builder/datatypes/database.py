@@ -23,6 +23,9 @@ from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
 
+# alias
+ListLike = (list, tuple)
+
 # logger
 LOG = MyLogger.get_logger(__name__)
 LOG.set_file_handler()
@@ -119,22 +122,23 @@ class Database(object):
             LOG.error(msg)
             return None
 
-    def build_db(self, persons: list, stages: list, days: list, times: list,
-            items: list, words: list, rubis: list) -> None:
+    def build_db(self, persons: ListLike, stages: ListLike, days: ListLike,
+            times: ListLike, items: ListLike, words: ListLike,
+            rubis: ListLike) -> None:
         # TODO: 間違ったものの設定時はエラー出す
-        if assertion.is_list(persons):
+        if assertion.is_listlike(persons):
             self.set_persons(persons)
-        if assertion.is_list(stages):
+        if assertion.is_listlike(stages):
             self.set_stages(stages)
-        if assertion.is_list(days):
+        if assertion.is_listlike(days):
             self.set_days(days)
-        if assertion.is_list(times):
+        if assertion.is_listlike(times):
             self.set_times(times)
-        if assertion.is_list(items):
+        if assertion.is_listlike(items):
             self.set_items(items)
-        if assertion.is_list(words):
+        if assertion.is_listlike(words):
             self.set_words(words)
-        if assertion.is_list(rubis):
+        if assertion.is_listlike(rubis):
             self.set_rubis(rubis)
 
     def set_from_asset(self, asset: dict) -> None:
@@ -158,25 +162,25 @@ class Database(object):
                     msg = f'Asset name mismatch!: {elm.upper()}'
                     LOG.error(msg)
 
-    def set_persons(self, persons: list) -> None:
+    def set_persons(self, persons: ListLike) -> None:
         self._set_objects(persons, self.append_person)
 
-    def set_stages(self, stages: list) -> None:
+    def set_stages(self, stages: ListLike) -> None:
         self._set_objects(stages, self.append_stage)
 
-    def set_days(self, days: list) -> None:
+    def set_days(self, days: ListLike) -> None:
         self._set_objects(days, self.append_day)
 
-    def set_times(self, times: list) -> None:
+    def set_times(self, times: ListLike) -> None:
         self._set_objects(times, self.append_time)
 
-    def set_items(self, items: list) -> None:
+    def set_items(self, items: ListLike) -> None:
         self._set_objects(items, self.append_item)
 
-    def set_words(self, words: list) -> None:
+    def set_words(self, words: ListLike) -> None:
         self._set_objects(words, self.append_word)
 
-    def set_rubis(self, rubis: list) -> None:
+    def set_rubis(self, rubis: ListLike) -> None:
         self._set_objects(rubis, self.append_rubi)
 
     def append_person(self, key: str, *args: Any) -> None:
@@ -245,6 +249,6 @@ class Database(object):
             msg = f'Unknown a story object for appending to DB: {obj}'
             LOG.error(msg)
 
-    def _set_objects(self, data: list, func: Callable) -> None:
-        for line in assertion.is_list(data):
+    def _set_objects(self, data: ListLike, func: Callable) -> None:
+        for line in assertion.is_listlike(data):
             func(line[0], *line[1:])

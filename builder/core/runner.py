@@ -257,7 +257,7 @@ class Runner(Executer):
         fmt_idx = 0
         outputter = Outputter()
 
-        for fmt_data in assertion.is_nearlylist(src):
+        for fmt_data in assertion.is_listlike(src):
             if fmt_data:
                 LOG.info(f'RUN: START: Outputter [{fmt_idx}]')
                 result = assertion.is_instance(

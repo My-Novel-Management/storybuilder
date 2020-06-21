@@ -32,7 +32,7 @@ class Checker(object):
     def has_rubi_exclusions(self, src: str, ex_words: (tuple, list)) -> bool:
         ''' Check whether the string has a exclusion rubi-words.
         '''
-        for word in assertion.is_nearlylist(ex_words):
+        for word in assertion.is_listlike(ex_words):
             if assertion.is_str(word) in assertion.is_str(src):
                 return True
         return False

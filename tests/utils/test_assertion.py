@@ -104,15 +104,15 @@ class MethodsTest(unittest.TestCase):
             lambda v,expect: self.assertEqual(assertion.is_list(v), expect),
                 data)
 
-    def test_is_nearlylist(self):
+    def test_is_listlike(self):
         data = [
                 # (val, expect)
                 (True, [1,2,3], [1,2,3]),
                 (True, (1,2), (1,2)),
                 (False, 1, 1),
                 ]
-        validate_with_fail(self, "is_nearlylist",
-            lambda v,expect: self.assertEqual(assertion.is_nearlylist(v), expect),
+        validate_with_fail(self, "is_listlike",
+            lambda v,expect: self.assertEqual(assertion.is_listlike(v), expect),
                 data)
 
     def test_is_str(self):
