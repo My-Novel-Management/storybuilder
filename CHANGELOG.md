@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.9-6] - 2020-06-21
+### Fixed
+- Compiler: with rubi
+
 ## [0.5.9-5] - 2020-06-21
 ### Changed
 - Logger: default level setting
@@ -491,7 +495,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-5...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-6...HEAD
+[0.5.9-6]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-6
 [0.5.9-5]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-5
 [0.5.9-4]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-4
 [0.5.9-3]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-3

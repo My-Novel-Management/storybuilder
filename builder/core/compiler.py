@@ -175,7 +175,8 @@ class Compiler(Executer):
         conv = Converter()
 
         for line in assertion.is_instance(src, RawData).data:
-            if checker.has_tag_top(assertion.is_str(line)) \
+            if isinstance(line, FormatTag) \
+                    or checker.has_tag_top(assertion.is_str(line)) \
                     or checker.is_breakline(line) \
                     or checker.has_tag_comment(line):
                 tmp.append(line)

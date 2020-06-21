@@ -54,6 +54,7 @@ WORDS = [
         ]
 RUBIS = [
         # (origin / rubi / exclusions / always)
+        ("桃太郎", "｜桃太郎《ももたろう》"),
         ]
 
 ## scenes
