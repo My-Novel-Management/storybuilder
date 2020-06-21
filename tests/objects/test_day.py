@@ -21,6 +21,8 @@ class DayTest(unittest.TestCase):
                 # (name, month, day, year, info, expect, exp_m, exp_d, exp_y, exp_date, exp_info)
                 (True, 'test', 1, 10, 1000, 'a note',
                     'test', 1, 10, 1000, datetime.date(1000,1,10), 'a note'),
+                (True, '', 1, 10, 1000, 'a note',
+                    '', 1, 10, 1000, datetime.date(1000,1,10), 'a note'),
                 ]
         def checker(name, mon, day, year, info, expect, exp_m, exp_d, exp_y, exp_date, exp_info):
             tmp = dy.Day(name, mon, day, year, info)

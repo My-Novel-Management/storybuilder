@@ -17,7 +17,9 @@ from builder.containers.episode import Episode
 from builder.containers.scene import Scene
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.database import Database
+from builder.objects.day import Day
 from builder.objects.sobject import SObject
+from builder.objects.time import Time
 from builder.objects.writer import Writer
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
@@ -83,11 +85,19 @@ class StoryCmd(object):
     def change_stage(self, key: str):
         return SCode(self._db.get(key), SCmd.CHANGE_STAGE, ())
 
-    def change_date(self, key: str):
-        return SCode(self._db.get(key), SCmd.CHANGE_DATE, ())
+    def change_date(self, *args: (int, str)):
+        if len(args) > 1 and isinstance(args[0], int):
+            tmp = Day('', *args)
+            return SCode(tmp, SCmd.CHANGE_DATE, ())
+        else:
+            return SCode(self._db.get(args[0]), SCmd.CHANGE_DATE, ())
 
-    def change_time(self, key: str):
-        return SCode(self._db.get(key), SCmd.CHANGE_TIME, ())
+    def change_time(self, *args: (int, str)):
+        if len(args) > 1 and isinstance(args[0], int):
+            tmp = Time('', *args)
+            return SCode(tmp, SCmd.CHANGE_TIME, ())
+        else:
+            return SCode(self._db.get(args[0]), SCmd.CHANGE_TIME, ())
 
     def elapse_day(self, month: int=0, day: int=0, year: int=0):
         return SCode(None, SCmd.ELAPSE_DAY, (month, day, year))

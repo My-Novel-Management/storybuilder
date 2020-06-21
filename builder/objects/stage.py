@@ -19,7 +19,7 @@ class Stage(SObject):
 
     def __init__(self,
             name: str,
-            parent: str,
+            parent: str='',
             geometry: tuple=None,
             info: str=''):
         super().__init__(name)

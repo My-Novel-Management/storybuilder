@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.9-4] - 2020-06-21
+### Changed
+- StoryCmd: change_date and change_time new args
+
 ## [0.5.9-3] - 2020-06-21
 ### Fixed
 - Typo: import file
@@ -483,7 +487,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-3...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-4...HEAD
+[0.5.9-4]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-4
 [0.5.9-3]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-3
 [0.5.9-2]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-2
 [0.5.9-1]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-1
