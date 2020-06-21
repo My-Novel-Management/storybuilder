@@ -30,6 +30,7 @@ __DESC__ = 'Story builder is a library for developing story contents.'
 # CONSTANTS
 #
 
+__DEFAULT_LOG_LEVEL__ = 'warning'
 __PRIORITY_DEFAULT__ = 5
 __PRIORITY_MAX__ = 10
 __PRIORITY_MIN__ = 0
@@ -47,4 +48,4 @@ from builder.utils.logger import MyLogger
 
 LOG = MyLogger.get_logger(__TITLE__)
 LOG.set_file_handler(f'{datetime.date.today()}')
-
+LOG.set_shared_level(__DEFAULT_LOG_LEVEL__)

@@ -9,7 +9,7 @@ from __future__ import annotations
 __all__ = ('World',)
 
 
-from builder import VERSION_MSG
+from builder import VERSION_MSG, __DEFAULT_LOG_LEVEL__
 from builder.commands.scode import SCode
 from builder.commands.storycmd import StoryCmd
 from builder.commands.tagcmd import TagCmd
@@ -36,7 +36,7 @@ class World(object):
     ''' Story World Object class.
     '''
 
-    def __init__(self, title: str, loglevel: str='debug'):
+    def __init__(self, title: str, loglevel: str=__DEFAULT_LOG_LEVEL__):
         # log
         LOG.set_level(loglevel)
         # start logging

@@ -21,6 +21,7 @@ class MyLogger(logging.Logger):
     '''
 
     _file_handler = None
+    _shared_log_level = logging.DEBUG
     _LOG_DIR = 'logs'
 
     def __init__(self, name: str, sh_format: str=None, fh_format: str=None):
@@ -37,24 +38,19 @@ class MyLogger(logging.Logger):
         logger._set_default()
         return logger
 
-    def set_level(self, level: str='debug') -> None:
+    def set_level(self, level: str='') -> None:
         ''' Set logger level.
         '''
-        _lvl = level.lower()
-        if _lvl in ('d', 'debug'):
-            self._log_level = logging.DEBUG
-        elif _lvl in ('i', 'info'):
-            self._log_level = logging.INFO
-        elif _lvl in ('w', 'warning', 'warn'):
-            self._log_level = logging.WARNING
-        elif _lvl in ('e', 'error'):
-            self._log_level = logging.ERROR
-        elif _lvl in ('c', 'critical'):
-            self._log_level = logging.CRITICAL
+        if level:
+            self._log_level = self._get_log_level(level)
+            self.setLevel(self._log_level)
         else:
-            # TODO: 設定ミスになる場合にデフォルトを当てるかエラー出すか
-            pass
-        self.setLevel(self._log_level)
+            self.setLevel(MyLogger._shared_log_level)
+
+    def set_shared_level(self, level: str) -> None:
+        ''' Set shared log level.
+        '''
+        MyLogger._shared_log_level = self._get_log_level(level)
 
     def set_stream_handler(self) -> None:
         ''' Set stream handler.
@@ -97,6 +93,21 @@ class MyLogger(logging.Logger):
     #
     # private
     #
+
+    def _get_log_level(self, level: str) -> int:
+        _lvl = level.lower()
+        if _lvl in ('d', 'debug'):
+            return logging.DEBUG
+        elif _lvl in ('i', 'info'):
+            return logging.INFO
+        elif _lvl in ('w', 'warning', 'warn'):
+            return logging.WARNING
+        elif _lvl in ('e', 'error'):
+            return logging.ERROR
+        elif _lvl in ('c', 'critical'):
+            return logging.CRITICAL
+        else:
+            return logging.DEBUG
 
     def _set_default(self):
         res = True
