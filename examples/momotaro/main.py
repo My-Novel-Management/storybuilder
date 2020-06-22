@@ -8,6 +8,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append('builder')
 from builder.world import World
+from assets import basic
 
 
 # DB
@@ -233,6 +234,7 @@ def ch_main(w: World):
 def main(): # pragma: no cover
     w = World.create_world('桃太郎')
     w.config.set_outline('桃から生まれた桃太郎が鬼退治をする')
+    w.db.set_from_asset(basic.ASSET)
     w.db.set_persons(PERSONS)
     w.db.set_stages(STAGES)
     w.db.set_days(DAYS)
