@@ -11,6 +11,7 @@ __all__ = ('Runner',)
 
 from builder.commands.optioncmd import OptionParser
 from builder.containers.story import Story
+from builder.core.commentconverter import CommentConverter
 from builder.core.compiler import Compiler, CompileMode
 from builder.core.executer import Executer
 from builder.core.filter import Filter
@@ -136,8 +137,16 @@ class Runner(Executer):
         return is_succeeded
 
     def _pre_compile(self, src: Story, config: StoryConfig, db: Database) -> ResultData:
+        LOG.info('RUN: START: Comment Converter')
+        result = assertion.is_instance(CommentConverter().execute(src), ResultData)
+        if not result.is_succeeded:
+            LOG.error('Failure in CommentConverter!!')
+            return result
+        tmp = assertion.is_instance(result.data, Story)
+        LOG.info('... SUCCESS: CommentConverter')
+
         LOG.info('RUN: START: Filter')
-        result = assertion.is_instance(Filter().execute(src, config.priority),
+        result = assertion.is_instance(Filter().execute(tmp, config.priority),
                 ResultData)
         if not result.is_succeeded:
             LOG.error('Failure in Filter!!')

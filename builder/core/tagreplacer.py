@@ -14,7 +14,9 @@ from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
 from builder.containers.scene import Scene
 from builder.containers.story import Story
-from builder.core.executer import Executer, ResultData
+from builder.core.executer import Executer
+from builder.datatypes.builderexception import BuilderError
+from builder.datatypes.resultdata import ResultData
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 from builder.utils.util_dict import dict_sorted

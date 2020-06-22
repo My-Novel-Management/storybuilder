@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.9-9] - 2020-06-22
+### Added
+- CommentConverter
+
 ## [0.5.9-8] - 2020-06-22
 ### Added
 - Asset: basic - times
@@ -503,7 +507,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-8...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-9...HEAD
+[0.5.9-9]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-9
 [0.5.9-8]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-8
 [0.5.9-7]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-7
 [0.5.9-6]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-6
