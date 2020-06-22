@@ -11,8 +11,9 @@ import sys
 
 
 MAJOR = 0
-MINOR = 6
-MICRO = 0
+MINOR = 5
+MICRO = 9
+FEATURE = 7
 
 #
 # Information
@@ -20,7 +21,7 @@ MICRO = 0
 
 __TITLE__ = 'StoryBuilder'
 __LICENSE__ = 'MIT'
-__VERSION__ = f"{MAJOR}.{MINOR}.{MICRO}"
+__VERSION__ = f"{MAJOR}.{MINOR}.{MICRO}-{FEATURE}"
 __AUTHOR__ = __maintainer__ = 'N.T.Works'
 __EMAIL__ = 'nagisc007@yahoo.co.jp'
 __DESC__ = 'Story builder is a library for developing story contents.'
@@ -49,3 +50,4 @@ from builder.utils.logger import MyLogger
 LOG = MyLogger.get_logger(__TITLE__)
 LOG.set_file_handler(f'{datetime.date.today()}')
 LOG.set_shared_level(__DEFAULT_LOG_LEVEL__)
+

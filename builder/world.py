@@ -9,7 +9,7 @@ from __future__ import annotations
 __all__ = ('World',)
 
 
-from builder import VERSION_MSG, __DEFAULT_LOG_LEVEL__
+from builder import VERSION_MSG, __DEFAULT_LOG_LEVEL__, __VERSION__, __TITLE__
 from builder.commands.scode import SCode
 from builder.commands.storycmd import StoryCmd
 from builder.commands.tagcmd import TagCmd
@@ -67,6 +67,8 @@ class World(object):
     def create_world(title: str) -> World:
         ''' Get world class instance.
         '''
+        # first print
+        print(f'>> Build by {__TITLE__}(v{__VERSION__})')
         return World(title)
 
     #
