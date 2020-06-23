@@ -37,7 +37,7 @@ __PRIORITY_MAX__ = 10
 __PRIORITY_MIN__ = 0
 
 VERSION_MSG = (
-        'StoryBuilder: version: {0}'.format(__VERSION__),
+        'StoryBuilder: version: v{0}'.format(__VERSION__),
         'Python: version: {0}'.format(' '.join(line.strip() for line in sys.version.splitlines())),
         )
 

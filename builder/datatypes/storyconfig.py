@@ -38,7 +38,7 @@ class StoryConfig(object):
         LOG.debug(f'-- title: {title}')
         # for story
         self._title = assertion.is_str(title)
-        self._outline = None
+        self._outline = assertion.is_str('__story_outline__')
         self._priority = assertion.is_int(__PRIORITY_DEFAULT__)
         self._start = assertion.is_int(0)
         self._end = assertion.is_int(-1)
