@@ -147,7 +147,7 @@ class Compiler(Executer):
                     tmp.append(ret)
             # info
             elif code.cmd in SCmd.get_informations():
-                header_info = self._get_headinfo(code)
+                head_info = self._get_headinfo(code)
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
@@ -232,7 +232,7 @@ class Compiler(Executer):
                     tmp.append(ret)
             # info
             elif code.cmd in SCmd.get_informations():
-                head_info = self._get_headinfo(code) + ' / ' + self._get_headinfo_total(code)
+                head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
@@ -307,4 +307,4 @@ class Compiler(Executer):
     def _get_headinfo_total(self, code: SCode) -> str:
         info = assertion.is_instance(
                 assertion.is_instance(code, SCode).script[0], HeaderInfo)
-        return f'[{info.total_chars}c]'
+        return f'[{info.total_chars}c / {info.total_papers:.2f}p ({info.total_lines:.2f}ls)]'

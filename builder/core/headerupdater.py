@@ -102,10 +102,13 @@ class HeaderUpdater(Executer):
     def _collect_header_info(self, src: (Story, Chapter, Episode, Scene),
             columns: int, rows: int) -> SCode:
         count = Counter()
+        total_lines = count.manupaper_rows_of(src, columns, True)
         lines = count.manupaper_rows_of(src, columns)
         return SCode(None, SCmd.INFO_DATA,
                 (HeaderInfo(
                     count.total_characters_of(src),
+                    total_lines,
+                    count.manupaper_numbers_of(total_lines, rows),
                     count.description_characters_of(src),
                     lines,
                     count.manupaper_numbers_of(lines, rows),

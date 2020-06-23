@@ -155,7 +155,7 @@ class Counter(object):
         return lines / rows if rows else 0
 
     def manupaper_rows_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple),
-            columns: int) -> int:
+            columns: int, is_contain_plot: bool=False) -> int:
         if isinstance(src, (Story, Chapter, Episode)):
             return sum(self.manupaper_rows_of(child, columns) for child in src.children)
         elif isinstance(src, Scene):
@@ -164,20 +164,24 @@ class Counter(object):
             tmp = 0
             for child in src.children:
                 if assertion.is_instance(child, SCode).cmd in SCmd.get_all_actions():
-                    if checker.is_empty_script(child):
+                    if checker.is_empty_script(child, is_contain_plot):
                         if tmp:
                             ret.append(int_ceil(tmp, columns))
                             tmp = 0
-                            continue
-                        else:
-                            continue
-                    tmp += self.description_characters_of(child)
+                        continue
+                    if is_contain_plot:
+                        tmp += self.total_characters_of(child)
+                    else:
+                        tmp += self.description_characters_of(child)
                 elif child.cmd in SCmd.get_end_of_containers():
                     continue
                 elif child.cmd in SCmd.get_informations():
                     continue
                 elif child.cmd in SCmd.get_scene_controls():
                     continue
+                elif child.cmd in SCmd.get_plot_infos():
+                    if is_contain_plot:
+                        tmp += self.total_characters_of(child)
                 elif child.cmd in SCmd.get_tags():
                     if child.cmd is SCmd.TAG_BR:
                         tmp = 1
@@ -194,13 +198,14 @@ class Counter(object):
         elif isinstance(src, SCode):
             # actions
             if assertion.is_instance(src, SCode).cmd in SCmd.get_all_actions():
-                return int_ceil(self.description_characters_of(src) + 2, columns)
+                chars = self.total_characters_of(src) if is_contain_plot else self.description_characters_of(src)
+                return int_ceil(chars + 2, columns)
             # then
             elif src.cmd is SCmd.THEN:
-                pass
+                return 0
             # container break
             elif src.cmd in SCmd.get_end_of_containers():
-                pass
+                return 0
             # tag
             elif src.cmd in SCmd.get_tags():
                 if src.cmd is SCmd.TAG_BR:
@@ -211,13 +216,13 @@ class Counter(object):
                     return 0
             # info
             elif src.cmd in SCmd.get_informations():
-                pass
+                return 0
             # scene control
             elif src.cmd in SCmd.get_scene_controls():
-                pass
+                return 0
             # plot control
             elif src.cmd in SCmd.get_plot_infos():
-                pass
+                return self.total_characters_of(src)
             else:
                 msg = f'Invalid SCmd: {code.cmd}'
                 LOG.critical(msg)

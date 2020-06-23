@@ -77,9 +77,9 @@ class Checker(object):
     def is_breakline(self, src: str) -> bool:
         return '\n' == src or '\n\n' == src
 
-    def is_empty_script(self, src: SCode) -> bool:
+    def is_empty_script(self, src: SCode, is_ex_comment: bool=False) -> bool:
         tmp_a = [val for val in assertion.is_instance(src, SCode).script if '&' == val]
-        tmp_b = [val for val in src.script if val.startswith('#')]
+        tmp_b = [val for val in src.script if val.startswith('#')] if not is_ex_comment else []
         if len(src.script) == 0:
             return True
         elif len(src.script) - len(tmp_a) - len(tmp_b) <= 0:

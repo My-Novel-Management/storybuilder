@@ -66,7 +66,7 @@ class World(object):
     #
 
     @staticmethod
-    def create_world(title: str) -> World:
+    def create_world(title: str) -> World: # pragma: no cover
         ''' Get world class instance.
         '''
         # first print
@@ -105,7 +105,7 @@ class World(object):
     # methods
     #
 
-    def run(self, *args: (Chapter, Episode, Scene, SCode)) -> int:
+    def run(self, *args: (Chapter, Episode, Scene, SCode)) -> int: # pragma: no cover
         ''' Run the story builder.
         '''
         LOG.info('WORLD: START: run')

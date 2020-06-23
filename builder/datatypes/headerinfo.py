@@ -15,10 +15,13 @@ from builder.utils import assertion
 class HeaderInfo(object):
     ''' Header Info Data class.
     '''
-    def __init__(self, total_chars: int, desc_chars: int,
-            lines: int, papers: (int, float),
+    def __init__(self,
+            total_chars: int, total_lines: int, total_papers: (int, float),
+            desc_chars: int, lines: int, papers: (int, float),
             chapters: int, episodes: int, scenes: int, scodes: int):
         self._total_chars = assertion.is_int(total_chars)
+        self._total_lines = assertion.is_int(total_lines)
+        self._total_papers = assertion.is_int_or_float(total_papers)
         self._desc_chars = assertion.is_int(desc_chars)
         self._lines = assertion.is_int(lines)
         self._papers = assertion.is_int_or_float(papers)
@@ -34,6 +37,14 @@ class HeaderInfo(object):
     @property
     def total_chars(self) -> int:
         return self._total_chars
+
+    @property
+    def total_lines(self) -> int:
+        return self._total_lines
+
+    @property
+    def total_papers(self) -> (int, float):
+        return self._total_papers
 
     @property
     def desc_chars(self) -> int:
@@ -62,8 +73,4 @@ class HeaderInfo(object):
     @property
     def scodes(self) -> int:
         return self._scodes
-
-    #
-    # methods
-    #
 
