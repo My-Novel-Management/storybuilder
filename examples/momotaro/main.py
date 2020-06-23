@@ -68,7 +68,6 @@ def sc_get_peach(w: World):
             w.cmd.change_camera('mam'),
             w.cmd.change_stage('on_river'),
             "これは桃太郎の物語だ",
-            w.plot_note("お婆さんが桃を拾うところから開始"),
             mam.be("あるところにおじいさんとおばあさんがいました", "&"),
             mam.explain("おじいさんは山へ芝刈りに、おばあさんは川へ洗濯に出かけました"),
             mam.wear("渋染の着物にほつれた草履", "ぼさぼさの白髪"),
@@ -209,6 +208,7 @@ def sc_island(w: World):
 # episodes
 def ep_birth_momotaro(w: World):
     return w.episode("$taro誕生",
+            w.plot_note("桃太郎が誕生するところ"),
             sc_get_peach(w),
             sc_birth_taro(w),
             outline="流れてきた大きな桃には赤子（$taro）が入っていた",
@@ -216,12 +216,16 @@ def ep_birth_momotaro(w: World):
 
 def ep_ally(w: World):
     return w.episode("味方",
+            w.plot_note("鬼退治の旅に出る桃太郎"),
+            w.plot_note("行く先々で仲間を手に入れ、いざ鬼ヶ島に向かう"),
             sc_voyage(w),
             sc_ally(w),
             outline='鬼退治の旅に出た$taroは道中で仲間を得る')
 
 def ep_buster_daemon(w: World):
     return w.episode("$oni退治",
+            w.plot_note("鬼退治を行う桃太郎"),
+            w.plot_note("奪われた宝物を村へと持ち帰る"),
             sc_island(w),
             outline="鬼ヶ島にやってきた$taroは鬼退治をし、村に宝物を持って帰った",
             )

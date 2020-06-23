@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Chapter and Episode contain scode error
 - Counter: Scmd get typo
+- Counter: manupaper count
 - StoryConfig: default outline set a string.
 
 ## [0.5.9-10] - 2020-06-23

@@ -222,7 +222,7 @@ class Counter(object):
                 return 0
             # plot control
             elif src.cmd in SCmd.get_plot_infos():
-                return self.total_characters_of(src)
+                return int_ceil(self.total_characters_of(src), columns)
             else:
                 msg = f'Invalid SCmd: {code.cmd}'
                 LOG.critical(msg)
