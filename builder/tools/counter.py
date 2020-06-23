@@ -199,10 +199,10 @@ class Counter(object):
             elif src.cmd is SCmd.THEN:
                 pass
             # container break
-            elif src.cmd in SCmd.end_of_containers():
+            elif src.cmd in SCmd.get_end_of_containers():
                 pass
             # tag
-            elif src.cmd in SCmd.tags():
+            elif src.cmd in SCmd.get_tags():
                 if src.cmd is SCmd.TAG_BR:
                     return 1
                 elif src.cmd is SCmd.TAG_SYMBOL:
@@ -210,10 +210,13 @@ class Counter(object):
                 else:
                     return 0
             # info
-            elif src.cmd in SCmd.informations():
+            elif src.cmd in SCmd.get_informations():
                 pass
             # scene control
-            elif src.cmd in SCmd.scene_controls():
+            elif src.cmd in SCmd.get_scene_controls():
+                pass
+            # plot control
+            elif src.cmd in SCmd.get_plot_infos():
                 pass
             else:
                 msg = f'Invalid SCmd: {code.cmd}'
