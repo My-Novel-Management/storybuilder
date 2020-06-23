@@ -10,6 +10,7 @@ __all__ = ('World',)
 
 
 from builder import VERSION_MSG, __DEFAULT_LOG_LEVEL__, __VERSION__, __TITLE__
+from builder.commands.optioncmd import OptionParser
 from builder.commands.scode import SCode
 from builder.commands.storycmd import StoryCmd
 from builder.commands.tagcmd import TagCmd
@@ -53,6 +54,7 @@ class World(object):
         self.chapter = self._cmd.chapter
         self.episode = self._cmd.episode
         self.scene = self._cmd.scene
+        self.plot_note = self._cmd.plot_note
         self.get = self._cmd.get
         self.br = self._tag.br
         self.comment = self._tag.comment
@@ -69,6 +71,14 @@ class World(object):
         '''
         # first print
         print(f'>> Build by {__TITLE__}(v{__VERSION__})')
+        # log level set
+        opts = OptionParser().get_commandline_arguments()
+        if opts.log or opts.debug:
+            opt_log = opts.log if opts.log else 'debug'
+            level = 'debug' if opts.debug else opt_log
+            LOG.set_shared_level(level)
+            LOG.reset_level()
+            LOG.debug(f'LOGGER: reset level: {LOG.level}')
         return World(title)
 
     #

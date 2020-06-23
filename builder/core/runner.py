@@ -112,26 +112,30 @@ class Runner(Executer):
 
         LOG.info('RUN: option settings')
         if opts.rubi:
-            LOG.debug('RUN: option rubi: {opts.rubi}')
+            LOG.debug(f'RUN: option rubi: {opts.rubi}')
             config.set_is_rubi(True)
 
-        if opts.debug:
-            LOG.debug('RUN: option debug: {opts.debug}')
-            config.set_output_mode(OutputMode.CONSOLE)
-
         if opts.comment:
-            LOG.debug('RUN: option comment: {opts.comment}')
+            LOG.debug(f'RUN: option comment: {opts.comment}')
             config.set_is_comment(True)
 
+        if opts.console:
+            LOG.debug(f'RUN: option console: {opts.console}')
+            config.set_output_mode(OutputMode.CONSOLE)
+
         if opts.forcemecab:
-            LOG.debug('<UNIMP>RUN: option forcemecab: {opts.forcemecab}')
+            LOG.debug(f'<UNIMP>RUN: option forcemecab: {opts.forcemecab}')
 
         if opts.format:
-            LOG.debug('<UNIMP>RUN: option format: {opts.format}')
+            LOG.debug(f'RUN: option format: {opts.format}')
             config.set_format_mode(FormatMode.conv_to_mode(opts.format))
 
+        if opts.plot:
+            LOG.debug(f'RUN:option plot: {opts.plot}')
+            config.set_is_plot(opts.plot)
+
         if opts.priority:
-            LOG.debug('RUN: option priority: {opts.priority}')
+            LOG.debug(f'RUN: option priority: {opts.priority}')
             config.set_priority(opts.priority)
 
         return is_succeeded
@@ -210,7 +214,7 @@ class Runner(Executer):
         cmp_scenario = []
         cmp_audiodrama = []
         cmp_data_list = [cmp_normal, cmp_plot, cmp_text, cmp_scenario, cmp_audiodrama]
-        cmp_flags = [True, config.is_plot, config.is_text,
+        cmp_flags = [not config.is_plot, config.is_plot, config.is_text,
                 config.is_scenario, config.is_audiodrama]
         cmp_modes = [CompileMode.NORMAL, CompileMode.PLOT, CompileMode.NOVEL_TEXT,
                 CompileMode.SCENARIO, CompileMode.AUDIODRAMA]
@@ -261,7 +265,7 @@ class Runner(Executer):
         assertion.is_instance(config, StoryConfig)
 
         result = ResultData(src, True, None)
-        prefixs = ['', 'p', '', 'sc', 'ad']
+        prefixs = ['', '_p', '', '_sc', '_ad']
         extentions = ['md', 'md', 'txt', 'md', 'md']
         fmt_idx = 0
         outputter = Outputter()
@@ -278,6 +282,7 @@ class Runner(Executer):
                     LOG.error(f'Failure in Outputter [{fmt_idx}]!!')
                     return result
                 LOG.info(f'... SUCCESS: Outputter [{fmt_idx}]')
+            fmt_idx += 1
 
         return result
 

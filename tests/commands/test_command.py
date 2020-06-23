@@ -27,6 +27,7 @@ class SCmdEnumTest(unittest.TestCase):
                     + cmd.SCmd.get_end_of_containers() \
                     + cmd.SCmd.get_informations() \
                     + cmd.SCmd.get_scene_controls() \
+                    + cmd.SCmd.get_plot_infos() \
                     + cmd.SCmd.get_tags() \
                     + [cmd.SCmd.THEN]
                     )

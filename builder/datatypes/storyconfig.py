@@ -185,7 +185,7 @@ class StoryConfig(object):
         self._format_mode = assertion.is_instance(mode, FormatMode)
 
     def set_output_mode(self, mode: OutputMode) -> None:
-        self._output_mode = assertion.is_instance(mode, FormatMode)
+        self._output_mode = assertion.is_instance(mode, OutputMode)
 
     def set_filename(self, filename: str) -> None:
         self._filename = assertion.is_str(filename)

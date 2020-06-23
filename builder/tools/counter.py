@@ -135,6 +135,16 @@ class Counter(object):
             LOG.error(f'Invalid source in description_characters_of: {type(src)}: {src}')
             return 0
 
+    def total_characters_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+        if isinstance(src, (Story, Chapter, Episode, Scene)):
+            return sum([self.total_characters_of(child) for child in src.children])
+        elif isinstance(src, SCode):
+            return len("。".join(Converter().script_relieved_strings(src.script)))
+        elif isinstance(src, (list, tuple)):
+            return sum([self.total_characters_of(child) for child in src])
+        else:
+            LOG.error(f'Invalid source in total_characters_of: {type(src)}: {src}')
+
     #
     # methods (manupapers)
     #

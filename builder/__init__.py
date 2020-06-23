@@ -13,7 +13,7 @@ import sys
 MAJOR = 0
 MINOR = 5
 MICRO = 9
-FEATURE = 8
+FEATURE = 10
 
 #
 # Information

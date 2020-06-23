@@ -56,6 +56,12 @@ class SCmd(Enum):
     TAG_TITLE = auto()
 
     #
+    # plot info
+    #
+
+    PLOT_NOTE = auto()
+
+    #
     # meta
     #
 
@@ -74,6 +80,7 @@ class SCmd(Enum):
                 cls.CHANGE_TIME,
                 cls.ELAPSE_DAY, cls.ELAPSE_TIME,
                 cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE,
+                cls.PLOT_NOTE,
                 cls.INFO_DATA,
                 cls.PUT_OBJECT,
                 cls.TAG_BR, cls.TAG_COMMENT, cls.TAG_HR, cls.TAG_SYMBOL,
@@ -105,6 +112,10 @@ class SCmd(Enum):
     @classmethod
     def get_end_of_containers(cls) -> list:
         return [cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE]
+
+    @classmethod
+    def get_plot_infos(cls) -> list:
+        return [cls.PLOT_NOTE]
 
     @classmethod
     def get_tags(cls) -> list:

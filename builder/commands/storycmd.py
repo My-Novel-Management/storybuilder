@@ -69,6 +69,13 @@ class StoryCmd(object):
         return Scene(*args, **kwargs)
 
     #
+    # method: for Plot
+    #
+
+    def plot_note(self, *args) -> SCode:
+        return SCode(None, SCmd.PLOT_NOTE, args, '')
+
+    #
     # method: for Story object
     #
 

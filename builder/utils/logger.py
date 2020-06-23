@@ -22,6 +22,7 @@ class MyLogger(logging.Logger):
 
     _file_handler = None
     _shared_log_level = logging.DEBUG
+    _shared_logger = []
     _LOG_DIR = 'logs'
 
     def __init__(self, name: str, sh_format: str=None, fh_format: str=None):
@@ -31,12 +32,22 @@ class MyLogger(logging.Logger):
         self._fh_formatter = logging.Formatter(fh_format if fh_format else '%(asctime)s - %(filename)s - %(name)s - %(lineno)d - %(levelname)s - %(message)s')
 
     @staticmethod
-    def get_logger(modname: str=__name__, sh_format: str=None, fh_format: str=None) -> MyLogger:
+    def get_logger(modname: str=__name__, sh_format: str=None, fh_format: str=None,
+            is_specific: bool=False) -> MyLogger:
         ''' Get MyLogger class same instance.
         '''
         logger = MyLogger(modname, sh_format, fh_format)
         logger._set_default()
+        if not is_specific:
+            MyLogger._shared_logger.append(logger)
         return logger
+
+    @classmethod
+    def reset_level(cls, level: str='') -> None:
+        ''' Reset shared log level
+        '''
+        for logger in cls._shared_logger:
+            logger.set_level(level)
 
     def set_level(self, level: str='') -> None:
         ''' Set logger level.

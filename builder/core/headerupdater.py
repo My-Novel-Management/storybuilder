@@ -105,6 +105,7 @@ class HeaderUpdater(Executer):
         lines = count.manupaper_rows_of(src, columns)
         return SCode(None, SCmd.INFO_DATA,
                 (HeaderInfo(
+                    count.total_characters_of(src),
                     count.description_characters_of(src),
                     lines,
                     count.manupaper_numbers_of(lines, rows),

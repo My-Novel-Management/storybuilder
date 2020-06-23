@@ -45,6 +45,8 @@ class Converter(object):
         _ = "。".join(assertion.is_listlike(src))
         return validate_string_duplicate_chopped(f'{brackets[0]}{_}{brackets[1]}')
 
+    def script_relieved_strings(self, src: (list, tuple)) -> list:
+        return list(val for val in assertion.is_listlike(src) if isinstance(val, (int, str)))
     def script_relieved_symbols(self, src: (list, tuple)) -> list:
         return list(val for val in assertion.is_listlike(src) if not ('&' == val or '#' in val))
 

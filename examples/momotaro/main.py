@@ -68,6 +68,7 @@ def sc_get_peach(w: World):
             w.cmd.change_camera('mam'),
             w.cmd.change_stage('on_river'),
             "これは桃太郎の物語だ",
+            w.plot_note("お婆さんが桃を拾うところから開始"),
             mam.be("あるところにおじいさんとおばあさんがいました", "&"),
             mam.explain("おじいさんは山へ芝刈りに、おばあさんは川へ洗濯に出かけました"),
             mam.wear("渋染の着物にほつれた草履", "ぼさぼさの白髪"),

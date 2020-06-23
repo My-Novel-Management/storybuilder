@@ -74,7 +74,7 @@ class Compiler(Executer):
                 tmp = assertion.is_instance(self._add_rubi_on_novel(tmp, rubis),
                         RawData)
         elif mode is CompileMode.PLOT:
-            tmp = src
+            tmp = assertion.is_instance(self._conv_to_plot(src), RawData)
         elif mode is CompileMode.NOVEL_TEXT:
             tmp = src
         elif mode is CompileMode.SCENARIO:
@@ -91,7 +91,7 @@ class Compiler(Executer):
                 error)
 
     #
-    # private methods
+    # private methods (novel)
     #
 
     def _conv_to_novel(self, src: CodeList, is_comment: bool) -> RawData:
@@ -117,7 +117,7 @@ class Compiler(Executer):
                         tmp.append(FormatTag.DESCRIPTION_HEAD)
                     tmp.append(f'{desc_head}{conv.to_description(conv.script_relieved_symbols(code.script))}')
                     is_added = True
-            elif code.cmd in (SCmd.TALK, SCmd.VOICE):
+            elif code.cmd in SCmd.get_dialogue_actions():
                 is_voice = code.cmd is SCmd.VOICE
                 script = conv.script_relieved_symbols(code.script)
                 if dial_stock:
@@ -147,11 +147,13 @@ class Compiler(Executer):
                     tmp.append(ret)
             # info
             elif code.cmd in SCmd.get_informations():
-                info = assertion.is_instance(code.script[0], HeaderInfo)
-                head_info = f'[{info.desc_chars}c / {info.papers:.2f}p ({info.lines:.2f}ls)]'
+                header_info = self._get_headinfo(code)
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
+                continue
+            # plot control
+            elif code.cmd in SCmd.get_plot_infos():
                 continue
             else:
                 msg = f'Unknown SCmd!: {code.cmd}'
@@ -193,6 +195,64 @@ class Compiler(Executer):
                 tmp.append(line)
         return RawData(*tmp)
 
+    #
+    # private methods (plot)
+    #
+
+    def _conv_to_plot(self, src: CodeList) -> RawData:
+        LOG.info('COMP: conv_to_plot start')
+
+        conv = Converter()
+        tmp = []
+        is_added = False
+        head_info = ''
+        ch_num = ep_num = sc_num = 1
+
+        for code in assertion.is_instance(src, CodeList).data:
+            assertion.is_instance(code, SCode)
+            # actions
+            if code.cmd in SCmd.get_normal_actions():
+                continue
+            elif code.cmd in SCmd.get_dialogue_actions():
+                continue
+            # then
+            elif code.cmd is SCmd.THEN:
+                continue
+            # container break
+            elif code.cmd in SCmd.get_end_of_containers():
+                continue
+            # tags
+            elif code.cmd in SCmd.get_tags():
+                ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
+                        (ch_num, ep_num, sc_num), True)
+                if ret:
+                    if code.cmd is SCmd.TAG_TITLE and not ret.startswith('#'):
+                        tmp.append('\n')
+                    tmp.append(FormatTag.SYMBOL_HEAD if code.cmd is SCmd.TAG_SYMBOL else FormatTag.TAG_HEAD)
+                    tmp.append(ret)
+            # info
+            elif code.cmd in SCmd.get_informations():
+                head_info = self._get_headinfo(code) + ' / ' + self._get_headinfo_total(code)
+                continue
+            # scene control
+            elif code.cmd in SCmd.get_scene_controls():
+                continue
+            # plot control
+            elif code.cmd in SCmd.get_plot_infos():
+                tmp.append(f'* {conv.to_description(code.script)}')
+                is_added = True
+            # others
+            else:
+                LOG.error(f'Unknown SCmd!: {code.cmd}')
+            if is_added:
+                is_added = False
+                tmp.append('\n')
+        return RawData(*tmp)
+
+    #
+    # privte methods (common)
+    #
+
     def _conv_from_end_container(self, src: SCode) -> str:
         if assertion.is_instance(src, SCode).cmd is SCmd.END_CHAPTER:
             return '\n--------\n'
@@ -231,7 +291,7 @@ class Compiler(Executer):
                 tmp = f'{head} Ep-{ep_num}: {title}{info_str}\n\n'
                 ep_num += 1
             elif src.option == 4:
-                tmp = f'*S-{sc_num} {title}* {info_str}\n'
+                tmp = f'_S-{sc_num} {title}_ {info_str}\n'
                 sc_num += 1
             else:
                 tmp = f'\n{head} {title}\n\n'
@@ -239,3 +299,12 @@ class Compiler(Executer):
             LOG.debug(f'Other tag: {src.cmd}')
         return (tmp, (ch_num, ep_num, sc_num))
 
+    def _get_headinfo(self, code: SCode) -> str:
+        info = assertion.is_instance(
+                assertion.is_instance(code, SCode).script[0], HeaderInfo)
+        return f'[{info.desc_chars}c / {info.papers:.2f}p ({info.lines:.2f}ls)]'
+
+    def _get_headinfo_total(self, code: SCode) -> str:
+        info = assertion.is_instance(
+                assertion.is_instance(code, SCode).script[0], HeaderInfo)
+        return f'[{info.total_chars}c]'
