@@ -196,24 +196,24 @@ class Counter(object):
             if assertion.is_instance(src, SCode).cmd in SCmd.get_all_actions():
                 return int_ceil(self.description_characters_of(src) + 2, columns)
             # then
-            elif code.cmd is SCmd.THEN:
+            elif src.cmd is SCmd.THEN:
                 pass
             # container break
-            elif code.cmd in SCmd.end_of_containers():
+            elif src.cmd in SCmd.end_of_containers():
                 pass
             # tag
-            elif code.cmd in SCmd.tags():
-                if code.cmd is SCmd.TAG_BR:
+            elif src.cmd in SCmd.tags():
+                if src.cmd is SCmd.TAG_BR:
                     return 1
-                elif code.cmd is SCmd.TAG_SYMBOL:
+                elif src.cmd is SCmd.TAG_SYMBOL:
                     return 2
                 else:
                     return 0
             # info
-            elif code.cmd in SCmd.informations():
+            elif src.cmd in SCmd.informations():
                 pass
             # scene control
-            elif code.cmd in SCmd.scene_controls():
+            elif src.cmd in SCmd.scene_controls():
                 pass
             else:
                 msg = f'Invalid SCmd: {code.cmd}'
