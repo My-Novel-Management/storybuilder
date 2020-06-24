@@ -272,7 +272,10 @@ class Compiler(Executer):
             tmp = '\n\n'
         elif src.cmd is SCmd.TAG_COMMENT:
             if is_comment:
-                tmp = f'<!--{"。".join(src.script)}-->\n'
+                if src.option == 'outline':
+                    tmp = f'<!--【{"。".join(src.script)}】-->\n\n'
+                else:
+                    tmp = f'<!--{"。".join(src.script)}-->\n'
         elif src.cmd is SCmd.TAG_HR:
             tmp = '--------'*9
         elif src.cmd is SCmd.TAG_SYMBOL:

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Counter: total count (lines and papers)
+### Changed
+- Compiler: outline comment as a special format
 ### Fixed
 - Chapter and Episode contain scode error
 - Counter: Scmd get typo

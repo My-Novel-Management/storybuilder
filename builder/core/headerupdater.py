@@ -134,7 +134,7 @@ class HeaderUpdater(Executer):
         return SCode(None, SCmd.TAG_TITLE, (src.title,), level)
 
     def _outline_of(self, src: (Story, Chapter, Episode, Scene)) -> SCode:
-        return SCode(None, SCmd.TAG_COMMENT, (src.outline,), "")
+        return SCode(None, SCmd.TAG_COMMENT, (src.outline,), "outline")
 
     def _end_of(self, src: (Chapter, Episode, Scene)) -> (SCode, None):
         if isinstance(src, Chapter):
