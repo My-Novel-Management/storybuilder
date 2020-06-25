@@ -273,7 +273,7 @@ class Compiler(Executer):
         elif src.cmd is SCmd.TAG_COMMENT:
             if is_comment:
                 if src.option == 'outline':
-                    tmp = f'<!--【{"。".join(src.script)}】-->\n\n'
+                    tmp = f'<!--\n【{"。".join(src.script)}】\n-->\n\n'
                 else:
                     tmp = f'<!--{"。".join(src.script)}-->\n'
         elif src.cmd is SCmd.TAG_HR:
@@ -281,23 +281,26 @@ class Compiler(Executer):
         elif src.cmd is SCmd.TAG_SYMBOL:
             tmp = f'\n{"".join(src.script)}\n\n'
         elif src.cmd is SCmd.TAG_TITLE:
-            head = '#' * src.option if isinstance(src.option, int) else '##'
-            info_str = f' {head_info}' if head_info else ''
-            title = ''.join(src.script)
-            head_info = ''
-            if src.option == 1:
-                tmp = f'{head} {title}{info_str}\n\n'
-            elif src.option == 2:
-                tmp = f'{head} Ch-{ch_num}: {title}{info_str}\n\n'
-                ch_num += 1
-            elif src.option == 3:
-                tmp = f'{head} Ep-{ep_num}: {title}{info_str}\n\n'
-                ep_num += 1
-            elif src.option == 4:
-                tmp = f'_S-{sc_num} {title}_ {info_str}\n'
-                sc_num += 1
+            if src.option == 'contents':
+                tmp = f'---\n# CONTENTS\n{src.script[0]}\n---\n'
             else:
-                tmp = f'\n{head} {title}\n\n'
+                head = '#' * src.option if isinstance(src.option, int) else '##'
+                info_str = f' {head_info}' if head_info else ''
+                title = ''.join(src.script)
+                head_info = ''
+                if src.option == 1:
+                    tmp = f'{head} {title}{info_str}\n\n'
+                elif src.option == 2:
+                    tmp = f'{head} Ch-{ch_num}: {title}{info_str}\n\n'
+                    ch_num += 1
+                elif src.option == 3:
+                    tmp = f'{head} Ep-{ep_num}: {title}{info_str}\n\n'
+                    ep_num += 1
+                elif src.option == 4:
+                    tmp = f'_S-{sc_num} {title}_ {info_str}\n'
+                    sc_num += 1
+                else:
+                    tmp = f'\n{head} {title}\n\n'
         else:
             LOG.debug(f'Other tag: {src.cmd}')
         return (tmp, (ch_num, ep_num, sc_num))
@@ -311,3 +314,4 @@ class Compiler(Executer):
         info = assertion.is_instance(
                 assertion.is_instance(code, SCode).script[0], HeaderInfo)
         return f'[{info.total_chars}c / {info.total_papers:.2f}p ({info.total_lines:.2f}ls)]'
+

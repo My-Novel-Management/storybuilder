@@ -19,6 +19,7 @@ from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.headerinfo import HeaderInfo
 from builder.datatypes.resultdata import ResultData
 from builder.tools.checker import Checker
+from builder.tools.collecter import Collecter
 from builder.tools.counter import Counter
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
@@ -65,6 +66,7 @@ class HeaderUpdater(Executer):
         tmp.append(self._title_of(src))
         if src.outline:
             tmp.append(self._outline_of(src))
+        tmp.append(self._get_contents(src))
         for child in src.children:
             if isinstance(child, (Chapter, Episode, Scene)):
                 tmp.append(self._update_container_info(child, columns, rows))
@@ -73,6 +75,28 @@ class HeaderUpdater(Executer):
             else:
                 LOG.error(f'Invalid a child value!: {type(child)}: {child}')
         return src.inherited(*tmp)
+
+    def _get_contents(self, src: Story) -> SCode:
+        collect = Collecter()
+        tmp = []
+        ch_n = ep_n = sc_n = 1
+        titles = collect.container_titles(src)
+        for title_set in titles:
+            level, title = title_set.split(':')
+            if level == '0':
+                continue
+            elif level == '1':
+                tmp.append(f'{ch_n}. {title}')
+                ch_n += 1
+            elif level == '2':
+                tmp.append(f'    {ep_n}. {title}')
+                ep_n += 1
+            elif level == '3':
+                tmp.append(f'        {sc_n}. {title}')
+                sc_n += 1
+            else:
+                continue
+        return SCode(None, SCmd.TAG_TITLE, ('\n'.join(tmp),), 'contents')
 
     def _update_container_info(self, src: (Chapter, Episode, Scene),
             columns: int, rows: int) -> (Chapter, Episode, Scene):
