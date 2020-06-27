@@ -48,5 +48,5 @@ class Container(SObject):
                 title if title else self.title,
                 *args,
                 outline=outline if outline else self.outline,
-                )
+                ).set_priority(self.priority)
 

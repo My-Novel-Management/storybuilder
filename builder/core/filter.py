@@ -49,19 +49,10 @@ class Filter(Executer):
 
     def execute(self, src: Story, priority: int) -> ResultData:
         LOG.info('FILTER: start exec')
-        is_succeeded = True
-        tmp = []
+        tmp, is_succeeded = self._exec_internal(src, priority)
         error = None
-        for child in assertion.is_instance(src, Story).children:
-            ret, is_succeeded = self._exec_internal(child, priority)
-            if is_succeeded and ret:
-                tmp.append(assertion.is_instance(ret,
-                    (Chapter, Episode, Scene, SCode)))
-            elif not is_succeeded:
-                error = FilterError('Invalid value in Filter!')
-                break
         return ResultData(
-                src.inherited(*tmp),
+                tmp,
                 is_succeeded,
                 error)
 
@@ -69,21 +60,23 @@ class Filter(Executer):
     # private methods
     #
 
-    def _exec_internal(self, src: (Chapter, Episode, Scene, SCode),
-            priority: int) -> Tuple[Union[Chapter, Episode ,Scene, SCode, None], bool]:
-        tmp = []
+    def _exec_internal(self, src: (Story, Chapter, Episode, Scene, SCode),
+            priority: int) -> Tuple[Union[Story, Chapter, Episode ,Scene, SCode, None], bool]:
+        ret = None
         is_succeeded = True
-        if isinstance(src, (Chapter, Episode, Scene)):
-            for child in src.children:
-                if child.priority >= priority:
-                    ret, is_succeeded = self._exec_internal(child, priority)
-                    if is_succeeded and ret:
-                        tmp.append(ret)
-            return src.inherited(*tmp), is_succeeded
+        if isinstance(src, (Story, Chapter, Episode, Scene)):
+            if src.priority >= priority:
+                tmp = []
+                for child in src.children:
+                    _, is_succeeded = self._exec_internal(child, priority)
+                    if is_succeeded and _:
+                        tmp.append(_)
+                ret = src.inherited(*tmp)
         elif isinstance(src, SCode):
-            return (src, is_succeeded) if src.priority >= priority else (None, is_succeeded)
+            if src.priority >= priority:
+                ret = src
         else:
             LOG.error(f'Invalid value: {src}')
             is_succeeded = False
-            return (None, is_succeeded)
+        return (ret, is_succeeded)
 
