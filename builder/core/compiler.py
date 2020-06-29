@@ -150,7 +150,10 @@ class Compiler(Executer):
                     tmp.append(ret)
             # info
             elif code.cmd in SCmd.get_informations():
-                head_info = self._get_headinfo(code)
+                if code.cmd is SCmd.INFO_DATA:
+                    head_info = self._get_headinfo(code)
+                elif code.cmd is SCmd.INFO_CONTENT:
+                    tmp.append(self._get_storyinfo(code))
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
@@ -255,7 +258,10 @@ class Compiler(Executer):
                     tmp.append(ret)
             # info
             elif code.cmd in SCmd.get_informations():
-                head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
+                if code.cmd is SCmd.INFO_DATA:
+                    head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
+                elif code.cmd is SCmd.INFO_CONTENT:
+                    tmp.append(self._get_storyinfo(code))
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
@@ -338,3 +344,6 @@ class Compiler(Executer):
                 assertion.is_instance(code, SCode).script[0], HeaderInfo)
         return f'[{info.total_chars}c / {info.total_papers:.2f}p ({info.total_lines:.2f}ls)]'
 
+    def _get_storyinfo(self, src: SCode) -> str:
+        info = "".join(assertion.is_instance(src, SCode).script)
+        return f"<!-- STORY INFO:\n{info}\n-->\n"

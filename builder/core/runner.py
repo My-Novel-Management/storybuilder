@@ -95,6 +95,8 @@ class Runner(Executer):
         result = assertion.is_instance(self._compile(tmp, config, db), ResultData)
         LOG.info('... SUCCESS: Finish: Compile and Output')
 
+        self._output_storyinfo(config)
+
         LOG.info('RUN: == ALL SUCCEEDED ==')
         return result
 
@@ -182,7 +184,7 @@ class Runner(Executer):
         LOG.info('... SUCCESS: Replacer')
 
         LOG.info('RUN: START: header updater')
-        result = assertion.is_instance(HeaderUpdater().execute(tmp),
+        result = assertion.is_instance(HeaderUpdater().execute(tmp, config),
                 ResultData)
         if not result.is_succeeded:
             LOG.error('Failure in HeaderUpdater!!')
@@ -291,3 +293,6 @@ class Runner(Executer):
 
         return result
 
+    def _output_storyinfo(self, config: StoryConfig) -> None:
+        version = config.version
+        print(f'>> version: {version}')

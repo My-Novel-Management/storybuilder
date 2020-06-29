@@ -18,6 +18,7 @@ from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.headerinfo import HeaderInfo
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.storyconfig import StoryConfig
 from builder.tools.checker import Checker
 from builder.tools.collecter import Collecter
 from builder.tools.counter import Counter
@@ -44,11 +45,11 @@ class HeaderUpdater(Executer):
     # methods
     #
 
-    def execute(self, src: Story, columns: int=20, rows: int=20) -> ResultData:
+    def execute(self, src: Story, config: StoryConfig) -> ResultData:
         LOG.info('HEAD_UPDATE: start exec')
         is_succeeded = True
         error = None
-        tmp = assertion.is_instance(self._exec_internal(src, columns, rows),
+        tmp = assertion.is_instance(self._exec_internal(src, config),
                 Story)
         return ResultData(
                 tmp,
@@ -59,8 +60,10 @@ class HeaderUpdater(Executer):
     # private methods
     #
 
-    def _exec_internal(self, src: Story, columns: int, rows: int) -> Story:
+    def _exec_internal(self, src: Story, config: StoryConfig) -> Story:
         tmp = []
+        columns = config.columns
+        rows = config.rows
         assertion.is_instance(src, Story)
         tmp.append(self._collect_header_info(src, columns, rows))
         tmp.append(self._title_of(src))
@@ -74,29 +77,8 @@ class HeaderUpdater(Executer):
                 tmp.append(child)
             else:
                 LOG.error(f'Invalid a child value!: {type(child)}: {child}')
+        tmp.append(self._get_story_info(src, config))
         return src.inherited(*tmp)
-
-    def _get_contents(self, src: Story) -> SCode:
-        collect = Collecter()
-        tmp = []
-        ch_n = ep_n = sc_n = 1
-        titles = collect.container_titles(src)
-        for title_set in titles:
-            level, title = title_set.split(':')
-            if level == '0':
-                continue
-            elif level == '1':
-                tmp.append(f'{ch_n}. {title}')
-                ch_n += 1
-            elif level == '2':
-                tmp.append(f'    {ep_n}. {title}')
-                ep_n += 1
-            elif level == '3':
-                tmp.append(f'        {sc_n}. {title}')
-                sc_n += 1
-            else:
-                continue
-        return SCode(None, SCmd.TAG_TITLE, ('\n'.join(tmp),), 'contents')
 
     def _update_container_info(self, src: (Chapter, Episode, Scene),
             columns: int, rows: int) -> (Chapter, Episode, Scene):
@@ -170,3 +152,29 @@ class HeaderUpdater(Executer):
         else:
             LOG.error(f'Invalid source!: {src}')
             return None
+
+    def _get_contents(self, src: Story) -> SCode:
+        collect = Collecter()
+        tmp = []
+        ch_n = ep_n = sc_n = 1
+        titles = collect.container_titles(src)
+        for title_set in titles:
+            level, title = title_set.split(':')
+            if level == '0':
+                continue
+            elif level == '1':
+                tmp.append(f'{ch_n}. {title}')
+                ch_n += 1
+            elif level == '2':
+                tmp.append(f'    {ep_n}. {title}')
+                ep_n += 1
+            elif level == '3':
+                tmp.append(f'        {sc_n}. {title}')
+                sc_n += 1
+            else:
+                continue
+        return SCode(None, SCmd.TAG_TITLE, ('\n'.join(tmp),), 'contents')
+
+    def _get_story_info(self, src: Story, config: StoryConfig) -> SCode:
+        version = config.version
+        return SCode(None, SCmd.INFO_CONTENT, (f'version: {version}',), '')

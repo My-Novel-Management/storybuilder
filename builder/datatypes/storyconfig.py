@@ -44,6 +44,9 @@ class StoryConfig(object):
         self._end = assertion.is_int(-1)
         self._base_date = datetime.date(2020,1,1)
         self._base_time = datetime.time(12,00)
+        self._version = assertion.is_tuple((1,0,0))
+        self._columns = assertion.is_int(20)
+        self._rows = assertion.is_int(20)
         # for compile
         self._is_plot = assertion.is_bool(False)
         self._is_text = assertion.is_bool(False)
@@ -69,6 +72,18 @@ class StoryConfig(object):
     @property
     def outline(self) -> str:
         return self._outline
+
+    @property
+    def version(self) -> tuple:
+        return self._version
+
+    @property
+    def columns(self) -> int:
+        return self._columns
+
+    @property
+    def rows(self) -> int:
+        return self._rows
 
     @property
     def priority(self) -> int:
@@ -139,6 +154,20 @@ class StoryConfig(object):
 
     def set_outline(self, outline: str) -> None:
         self._outline = assertion.is_str(outline)
+
+    def set_version(self, *args: (str, int, tuple)) -> None:
+        if isinstance(args[0], tuple):
+            self._version = args[0]
+        elif len(args) >= 3 and isinstance(args[0], int) and isinstance(args[1], int) and isinstance(args[2], int):
+            self._version = (args[0], args[1], args[2])
+        else:
+            self._version = (assertion.is_str(args[0]),)
+
+    def set_columns(self, col: int) -> None:
+        self._columns = assertion.is_int(col)
+
+    def set_rows(self, rows: int) -> None:
+        self._rows = assertion.is_int(rows)
 
     def set_priority(self, pri: int) -> None:
         self._priority = assertion.is_between(
