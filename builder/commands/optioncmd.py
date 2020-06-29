@@ -43,6 +43,7 @@ class OptionParser(object):
             --format: format type for output
             --log: set log level.
             --priority: set a priority filter.
+            --text: output as a text.
         Returns:
             :`ArgumentParser`: commandline options.
         '''
@@ -60,6 +61,7 @@ class OptionParser(object):
         parser.add_argument('--format', help='format type for output', type=str)
         parser.add_argument('--log', help='set a log level', type=str)
         parser.add_argument('--priority', help='set a priority filter', type=int)
+        parser.add_argument('--text', help='output as a text', action='store_true')
 
         LOG.info('OPT_PARSE: get option arguments from commandline')
         args = parser.parse_args(args=test_data) if is_testing else parser.parse_args()

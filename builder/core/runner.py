@@ -12,7 +12,7 @@ __all__ = ('Runner',)
 from builder.commands.optioncmd import OptionParser
 from builder.containers.story import Story
 from builder.core.commentconverter import CommentConverter
-from builder.core.compiler import Compiler, CompileMode
+from builder.core.compiler import Compiler
 from builder.core.executer import Executer
 from builder.core.filter import Filter
 from builder.core.formatter import Formatter
@@ -24,6 +24,7 @@ from builder.core.tagreplacer import TagReplacer
 from builder.core.validater import Validater
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.codelist import CodeList
+from builder.datatypes.compilemode import CompileMode
 from builder.datatypes.database import Database
 from builder.datatypes.formatmode import FormatMode
 from builder.datatypes.outputmode import OutputMode
@@ -137,6 +138,10 @@ class Runner(Executer):
         if opts.priority:
             LOG.debug(f'RUN: option priority: {opts.priority}')
             config.set_priority(opts.priority)
+
+        if opts.text:
+            LOG.debug(f'RUN: option text: {opts.text}')
+            config.set_is_text(opts.text)
 
         return is_succeeded
 

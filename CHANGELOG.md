@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.9-12] - 2020-06-29
+### Added
+- Travis: test plot-mode and text-mode
+- Compiler: text output
 ### Fixed
 - SObject: omit priority
 
@@ -529,7 +534,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-11...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-12...HEAD
+[0.5.9-12]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-12
 [0.5.9-11]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-11
 [0.5.9-10]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-10
 [0.5.9-9]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-9

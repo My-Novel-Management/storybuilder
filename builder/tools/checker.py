@@ -61,7 +61,7 @@ class Checker(object):
     def has_tag_top(self, src: str) -> bool:
         ''' Check whether the string has a tag top.
         '''
-        return src.startswith(('# ', '## ', '### ', '**'))
+        return src.startswith(('# ', '## ', '### ', '**', '_S'))
 
     def has_then(self, src: SCode) -> bool:
         ''' Check whether the scode script has then.

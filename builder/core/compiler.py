@@ -76,7 +76,10 @@ class Compiler(Executer):
         elif mode is CompileMode.PLOT:
             tmp = assertion.is_instance(self._conv_to_plot(src), RawData)
         elif mode is CompileMode.NOVEL_TEXT:
-            tmp = src
+            tmp = assertion.is_instance(self._conv_to_novel(src, is_comment), RawData)
+            tmp = assertion.is_instance(self._conv_to_text(tmp), RawData)
+            if is_rubi:
+                tmp = assertion.is_instance(self._add_rubi_on_novel(tmp), RawData)
         elif mode is CompileMode.SCENARIO:
             tmp = src
         elif mode is CompileMode.AUDIODRAMA:
@@ -168,7 +171,27 @@ class Compiler(Executer):
                     desc_head = ''
         return RawData(*tmp)
 
-    def _add_rubi_on_novel(self, src: RawData, rubis: dict) -> list:
+    def _conv_to_text(self, src: RawData) -> RawData:
+        LOG.info('COMP: conv_to_text start')
+        tmp = []
+        checker = Checker()
+        for line in assertion.is_instance(src, RawData).data:
+            if isinstance(line, FormatTag):
+                tmp.append(line)
+            elif checker.is_breakline(line):
+                tmp.append(line)
+            elif "# CONTENTS" in line:
+                continue
+            elif checker.has_tag_top(line):
+                if line.startswith('_'):
+                    continue
+                else:
+                    tmp.append(line)
+            else:
+                tmp.append(line)
+        return RawData(*tmp)
+
+    def _add_rubi_on_novel(self, src: RawData, rubis: dict) -> RawData:
         LOG.info('COMP: add_rubi_on_novel start')
 
         tmp = []
