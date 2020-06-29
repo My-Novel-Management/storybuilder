@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- HeaderInfo: story version
 ### Fixed
 - Compiler: text output with rubi-mode
+- output plot-mode
 
 ## [0.5.9-12] - 2020-06-29
 ### Added
