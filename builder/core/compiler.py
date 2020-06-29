@@ -79,7 +79,7 @@ class Compiler(Executer):
             tmp = assertion.is_instance(self._conv_to_novel(src, is_comment), RawData)
             tmp = assertion.is_instance(self._conv_to_text(tmp), RawData)
             if is_rubi:
-                tmp = assertion.is_instance(self._add_rubi_on_novel(tmp), RawData)
+                tmp = assertion.is_instance(self._add_rubi_on_novel(tmp, rubis), RawData)
         elif mode is CompileMode.SCENARIO:
             tmp = src
         elif mode is CompileMode.AUDIODRAMA:

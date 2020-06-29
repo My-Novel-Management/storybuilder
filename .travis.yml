@@ -12,8 +12,8 @@ install:
 
 script:
     - coverage run --parallel-mode --rcfile=.coveragerc setup.py test
-    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab
-    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --text --plot
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --rubi
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --text --plot --rubi
 
 after_success:
     - coverage combine
