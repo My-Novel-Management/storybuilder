@@ -231,10 +231,18 @@ def ep_buster_daemon(w: World):
             )
 
 # main
-def ch_main(w: World):
-    return w.chapter("main chapter",
+def ch_1st(w: World):
+    return w.chapter("前半",
             ep_birth_momotaro(w),
+            )
+
+def ch_2nd(w: World):
+    return w.chapter("後半",
             ep_ally(w),
+            )
+
+def ch_ending(w: World):
+    return w.chapter("エピローグ",
             ep_buster_daemon(w),
             )
 
@@ -252,7 +260,9 @@ def main(): # pragma: no cover
     w.config.set_base_date(4,10, 100)
     w.config.set_base_time(8,00)
     return w.run(
-            ch_main(w),
+            ch_1st(w),
+            ch_2nd(w),
+            ch_ending(w),
             )
 
 

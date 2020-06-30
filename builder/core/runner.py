@@ -133,8 +133,19 @@ class Runner(Executer):
             LOG.debug(f'RUN: option format: {opts.format}')
             config.set_format_mode(FormatMode.conv_to_mode(opts.format))
 
+        if opts.part:
+            LOG.debug(f'RUN: option part: {opts.part}')
+            start, end = 0, -1
+            if ':' in opts.part:
+                _ = opts.part.split(':')
+                start, end = int(_[0]), int(_[1])
+            else:
+                start = end = int(opts.part)
+            config.set_start(start)
+            config.set_end(end)
+
         if opts.plot:
-            LOG.debug(f'RUN:option plot: {opts.plot}')
+            LOG.debug(f'RUN: option plot: {opts.plot}')
             config.set_is_plot(opts.plot)
 
         if opts.priority:
@@ -166,7 +177,7 @@ class Runner(Executer):
         LOG.info('... SUCCESS: Filter')
 
         LOG.info('RUN: START: Reducer')
-        result = assertion.is_instance(Reducer().execute(tmp, config.start, config.end),
+        result = assertion.is_instance(Reducer().execute(tmp, config),
                 ResultData)
         if not result.is_succeeded:
             LOG.error('Failure in Reducer!!')

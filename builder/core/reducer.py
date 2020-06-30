@@ -17,6 +17,7 @@ from builder.containers.story import Story
 from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.storyconfig import StoryConfig
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -39,11 +40,11 @@ class Reducer(Executer):
     # methods
     #
 
-    def execute(self, src: Story, start: int, end: int) -> ResultData:
+    def execute(self, src: Story, config: StoryConfig) -> ResultData:
         LOG.info('REDUCER: start exec')
         is_succeeded = True
         error = None
-        tmp = assertion.is_instance(self._exec_internal(src, start, end),
+        tmp = assertion.is_instance(self._exec_internal(src, config.start, config.end),
                 Story)
         return ResultData(
                 tmp,

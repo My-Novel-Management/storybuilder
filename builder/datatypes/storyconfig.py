@@ -44,7 +44,7 @@ class StoryConfig(object):
         self._end = assertion.is_int(-1)
         self._base_date = datetime.date(2020,1,1)
         self._base_time = datetime.time(12,00)
-        self._version = assertion.is_tuple((1,0,0))
+        self._version = assertion.is_tuple((0,0,1))
         self._columns = assertion.is_int(20)
         self._rows = assertion.is_int(20)
         # for compile
