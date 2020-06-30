@@ -49,16 +49,20 @@ class ScriptConverter(object):
         tmp.append("sys.path.append('storybuilder')")
         tmp.append('from storybuilder.builder.world import World')
         tmp.append('')
+        tmp.append('')
+        tmp.append('## scenes')
         return tmp
 
     def _conv_scene(self, src: list) -> list:
         tmp = []
         in_scene = False
+        sc_num = 1
         for line in assertion.is_list(src):
             if line.startswith('#'):
                 if in_scene:
                     tmp.extend(self._get_scene_footer())
-                tmp.extend(self._get_scene_header(line))
+                tmp.extend(self._get_scene_header(line, sc_num))
+                sc_num += 1
                 in_scene = True
             elif line == '':
                 tmp.append(f'{self._get_tabspace(3)}w.br(),')
@@ -68,10 +72,9 @@ class ScriptConverter(object):
             tmp.extend(self._get_scene_footer())
         return tmp
 
-    def _get_scene_header(self, title: str) -> list:
+    def _get_scene_header(self, title: str, num: int) -> list:
         tmp = []
-        tmp.append('## scenes')
-        tmp.append('def sc_main(w: World):')
+        tmp.append(f'def sc_{num}(w: World):')
         tmp.append(f'{self._get_tabspace(1)}return w.scene("{title}",')
         return tmp
 
@@ -86,15 +89,22 @@ class ScriptConverter(object):
 
 
 def main():
+    import argparse
     if len(sys.argv) <= 1:
         LOG.critical(f'Not set a converting file')
         return 1
-    target = assertion.is_str(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('target', help='target file path', type=str)
+    parser.add_argument('--debug', help='set Debug mode', action='store_true')
+    args = parser.parse_args()
+    target = args.target
+    is_debug = True if args.debug else False
     if not (os.path.exists(f'./{target}') or os.path.exists(target)):
         LOG.critical(f'File not found: {target}')
         return 1
     conv = ScriptConverter()
-    conv.to_scenefile(target, True)
+    conv.to_scenefile(target, is_debug)
+    print('>> FINISHED!!')
     return 0
 
 
