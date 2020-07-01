@@ -7,6 +7,11 @@ Container class test
 import unittest
 from tests.testutils import print_testtitle, validate_with_fail
 from builder.containers import container as cnt
+from builder.containers.chapter import Chapter
+from builder.containers.episode import Episode
+from builder.containers.material import Material, MaterialType
+from builder.containers.scene import Scene
+from builder.containers.story import Story
 
 
 class ContainerTest(unittest.TestCase):
@@ -49,3 +54,31 @@ class ContainerTest(unittest.TestCase):
             self.assertEqual(tmp2.outline, exp_outline)
         validate_with_fail(self, 'inherited', checker, data)
 
+    #
+    # children classes
+    #
+
+    def test_children_classes(self):
+        data = [
+                # (type)
+                (True, Story),
+                (True, Chapter),
+                (True, Episode),
+                (True, Scene),
+                (False, Material),
+                ]
+        def checker(ctype):
+            tmp = ctype('test', 'a', 'b', 'c', outline='a note')
+            self.assertIsInstance(tmp, ctype)
+            self.assertEqual(tmp.title, 'test')
+            self.assertEqual(tmp.children, ('a', 'b', 'c'))
+            self.assertEqual(tmp.outline, 'a note')
+        validate_with_fail(self, 'children_classes', checker, data)
+
+    def test_material_class(self):
+        tmp = Material(MaterialType.DOCUMENT, 'test', 'a', 'b', 'c', outline='a note')
+        self.assertIsInstance(tmp, Material)
+        self.assertEqual(tmp.mate_type, MaterialType.DOCUMENT)
+        self.assertEqual(tmp.title, 'test')
+        self.assertEqual(tmp.children, ('a', 'b', 'c'))
+        self.assertEqual(tmp.outline, 'a note')

@@ -231,6 +231,12 @@ def ep_buster_daemon(w: World):
             )
 
 # main
+def writernote(w: World):
+    return w.writer_note('企画意図',
+            "これはサンプルとして「桃太郎」を使って説明するものである",
+            "作品についての企画意図や、企画の方向性、応募要項などをここにまとめておく",
+            )
+
 def ch_1st(w: World):
     return w.chapter("前半",
             ep_birth_momotaro(w),
@@ -244,6 +250,13 @@ def ch_2nd(w: World):
 def ch_ending(w: World):
     return w.chapter("エピローグ",
             ep_buster_daemon(w),
+            )
+
+def chara_momotaro(w: World):
+    return w.chara_note('$taroの履歴書',
+            "おばあさんの手により川を流れていた桃が拾われ、その中から生まれた異端児",
+            "通常の人間よりも早くに大きく育ち、怪力と誠実さ、正義感を備えていた",
+            "ある時、村の人から鬼が宝物を奪っていった話を聞き、鬼退治を決意するのだった",
             )
 
 def main(): # pragma: no cover
@@ -260,9 +273,11 @@ def main(): # pragma: no cover
     w.config.set_base_date(4,10, 100)
     w.config.set_base_time(8,00)
     return w.run(
+            writernote(w),
             ch_1st(w),
             ch_2nd(w),
             ch_ending(w),
+            chara_momotaro(w),
             )
 
 

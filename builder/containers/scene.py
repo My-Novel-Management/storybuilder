@@ -16,16 +16,5 @@ from builder.utils import assertion
 class Scene(Container):
     ''' Scene Container class.
     '''
-
-    #
-    # property
-    #
-
-    #
-    # methods
-    #
-
-    #
-    # private method
-    #
+    pass
 

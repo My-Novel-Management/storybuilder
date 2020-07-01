@@ -88,7 +88,7 @@ class Runner(Executer):
         result = self._pre_compile(src, config, db)
         if not result.is_succeeded:
             return result
-        tmp = assertion.is_instance(result.data, CodeList)
+        tmp = assertion.is_instance(result.data, Story)
         LOG.info('... SUCCESS: Finish: Pre-Compile')
 
         LOG.info('RUN: START-PHASE: Compile and Output')
@@ -203,27 +203,38 @@ class Runner(Executer):
         tmp = assertion.is_instance(result.data, Story)
         LOG.info('... SUCCESS: HeaderUpdater')
 
-        LOG.info('RUN: START: Serializer')
-        result = assertion.is_instance(Serializer().execute(tmp),
-                ResultData)
-        if not result.is_succeeded:
-            LOG.error('Failure in Serializer!!')
-            return result
-        tmp = assertion.is_instance(result.data, CodeList)
-        LOG.info('... SUCCESS: Serializer')
-
-        LOG.info('RUN: START: Validater')
-        result = assertion.is_instance(Validater().execute(tmp), ResultData)
-        if not result.is_succeeded:
-            LOG.error('Failure in Validater')
-            return result
-        LOG.info('... SUCCESS: Validater')
         return result
 
-    def _compile(self, src: CodeList, config: StoryConfig, db: Database) -> ResultData:
-        assertion.is_instance(src, CodeList)
+    def _compile(self, src: Story, config: StoryConfig, db: Database) -> ResultData:
+        assertion.is_instance(src, Story)
         assertion.is_instance(config, StoryConfig)
         assertion.is_instance(db, Database)
+
+        cmp_flags = [not config.is_plot, config.is_plot, config.is_text,
+                config.is_scenario, config.is_audiodrama]
+        cmp_modes = [CompileMode.NORMAL, CompileMode.PLOT, CompileMode.NOVEL_TEXT,
+                CompileMode.SCENARIO, CompileMode.AUDIODRAMA]
+        slz_idx = 0
+        cmp_src_list = [None, None, None, None, None]
+
+        for flag in cmp_flags:
+            if flag:
+                LOG.info(f'RUN: START: Serializer and Validater [{slz_idx}]')
+                result = assertion.is_instance(Serializer().execute(src, cmp_modes[slz_idx]),
+                            ResultData)
+                if not result.is_succeeded:
+                    LOG.error('Failure in Serializer!!')
+                    return result
+                tmp = assertion.is_instance(result.data, CodeList)
+                LOG.info(f'... SUCCESS: Serializer [{slz_idx}]')
+
+                result = assertion.is_instance(Validater().execute(tmp), ResultData)
+                if not result.is_succeeded:
+                    LOG.error('Failure in Validater')
+                    return result
+                LOG.info(f'... SUCCESS: Validater [{slz_idx}]')
+                cmp_src_list[slz_idx] = assertion.is_instance(result.data, CodeList)
+            slz_idx += 1
 
         cmp_idx = 0
         cmp_normal = []
@@ -232,17 +243,13 @@ class Runner(Executer):
         cmp_scenario = []
         cmp_audiodrama = []
         cmp_data_list = [cmp_normal, cmp_plot, cmp_text, cmp_scenario, cmp_audiodrama]
-        cmp_flags = [not config.is_plot, config.is_plot, config.is_text,
-                config.is_scenario, config.is_audiodrama]
-        cmp_modes = [CompileMode.NORMAL, CompileMode.PLOT, CompileMode.NOVEL_TEXT,
-                CompileMode.SCENARIO, CompileMode.AUDIODRAMA]
         compiler = Compiler()
 
         for flag in cmp_flags:
             if flag:
                 LOG.info(f'RUN: START: Compiler [{cmp_idx}]')
                 result = assertion.is_instance(
-                        compiler.execute(src, cmp_modes[cmp_idx],
+                        compiler.execute(cmp_src_list[cmp_idx], cmp_modes[cmp_idx],
                             db.rubis, config.is_rubi, config.is_comment),
                         ResultData)
                 if not result.is_succeeded:

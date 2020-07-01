@@ -16,12 +16,5 @@ from builder.utils import assertion
 class Episode(Container):
     ''' Episode Container class.
     '''
-
-    #
-    # property
-    #
-
-    #
-    # methods
-    #
+    pass
 

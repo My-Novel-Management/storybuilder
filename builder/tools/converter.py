@@ -11,11 +11,6 @@ __all__ = ('Converter',)
 
 import re
 from typing import Any
-from builder.commands.scode import SCode, SCmd
-from builder.containers.chapter import Chapter
-from builder.containers.episode import Episode
-from builder.containers.scene import Scene
-from builder.containers.story import Story
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 from builder.utils.util_str import validate_string_duplicate_chopped

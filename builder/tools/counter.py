@@ -13,6 +13,7 @@ from typing import Any
 from builder.commands.scode import SCode, SCmd
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
 from builder.tools.checker import Checker
@@ -21,6 +22,9 @@ from builder.utils import assertion
 from builder.utils.logger import MyLogger
 from builder.utils.util_math import int_ceil
 
+
+# alias
+ContainerLike = (Story, Chapter, Episode, Scene, SCode, Material, list, tuple)
 
 # logger
 LOG = MyLogger.get_logger(__name__)
@@ -35,12 +39,14 @@ class Counter(object):
     # methods (container numbers)
     #
 
-    def chapters_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def chapters_of(self, src: ContainerLike) -> int:
         if isinstance(src, Story):
             return len([child for child in src.children if isinstance(child, Chapter)])
         elif isinstance(src, Chapter):
             return 1
         elif isinstance(src, (Episode, Scene, SCode)):
+            return 0
+        elif isinstance(src, Material):
             return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.chapters_of(child) for child in src])
@@ -48,7 +54,7 @@ class Counter(object):
             LOG.error(f'Invalid source in chapters_of: {type(src)}: {src}')
             return 0
 
-    def episodes_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def episodes_of(self, src: ContainerLike) -> int:
         if isinstance(src, Story):
             return sum([self.episodes_of(child) for child in src.children])
         elif isinstance(src, Chapter):
@@ -57,13 +63,15 @@ class Counter(object):
             return 1
         elif isinstance(src, (Scene, SCode)):
             return 0
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.episodes_of(child) for child in src])
         else:
             LOG.error(f'Invalid source in episodes_of: {type(src)}: {src}')
             return 0
 
-    def scenes_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def scenes_of(self, src: ContainerLike) -> int:
         if isinstance(src, (Story, Chapter)):
             return sum([self.scenes_of(child) for child in src.children])
         elif isinstance(src, Episode):
@@ -72,26 +80,30 @@ class Counter(object):
             return 1
         elif isinstance(src, SCode):
             return 0
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.scenes_of(child) for child in src])
         else:
             LOG.error(f'Invalid source in scenes_of: {type(src)}: {src}')
             return 0
 
-    def scodes_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def scodes_of(self, src: ContainerLike) -> int:
         if isinstance(src, (Story, Chapter, Episode)):
             return sum([self.scodes_of(child) for child in src.children])
         elif isinstance(src, Scene):
             return len([child for child in src.children if isinstance(child, SCode)])
         elif isinstance(src, SCode):
             return 1
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.scodes_of(child) for child in src])
         else:
             LOG.error(f'Invalid source in scodes_of: {type(src)}: {src}')
             return 0
 
-    def scodes_of_without_info(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def scodes_of_without_info(self, src: ContainerLike) -> int:
         def _validate_scode(val: SCode):
             return not val.cmd in SCmd.get_informations()
         if isinstance(src, (Story, Chapter, Episode)):
@@ -100,6 +112,8 @@ class Counter(object):
             return len([child for child in src.children if isinstance(child, SCode) and _validate_scode(child)])
         elif isinstance(src, SCode):
             return 1 if _validate_scode(src) else 0
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.scodes_of_without_info(child) for child in src])
         else:
@@ -110,7 +124,7 @@ class Counter(object):
     # methods (character numbers)
     #
 
-    def description_characters_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def description_characters_of(self, src: ContainerLike) -> int:
         def _validate_scode(val: SCode):
             return val.cmd in SCmd.get_all_actions()
         def _correct(val: SCode):
@@ -129,17 +143,21 @@ class Counter(object):
                 return tmp + _correct(src) if tmp else tmp
             else:
                 return 0
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.description_characters_of(child) for child in src])
         else:
             LOG.error(f'Invalid source in description_characters_of: {type(src)}: {src}')
             return 0
 
-    def total_characters_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple)) -> int:
+    def total_characters_of(self, src: ContainerLike) -> int:
         if isinstance(src, (Story, Chapter, Episode, Scene)):
             return sum([self.total_characters_of(child) for child in src.children])
         elif isinstance(src, SCode):
             return len("。".join(Converter().script_relieved_strings(src.script)))
+        elif isinstance(src, Material):
+            return 0
         elif isinstance(src, (list, tuple)):
             return sum([self.total_characters_of(child) for child in src])
         else:
@@ -154,7 +172,7 @@ class Counter(object):
         '''
         return lines / rows if rows else 0
 
-    def manupaper_rows_of(self, src: (Story, Chapter, Episode, Scene, SCode, list, tuple),
+    def manupaper_rows_of(self, src: ContainerLike,
             columns: int, is_contain_plot: bool=False) -> int:
         if isinstance(src, (Story, Chapter, Episode)):
             return sum(self.manupaper_rows_of(child, columns) for child in src.children)
@@ -226,6 +244,8 @@ class Counter(object):
             else:
                 msg = f'Invalid SCmd: {code.cmd}'
                 LOG.critical(msg)
+            return 0
+        elif isinstance(src, Material):
             return 0
         elif isinstance(src, (list, tuple)):
             return sum(self.manupaper_rows_of(child, columns) for child in src)

@@ -10,11 +10,6 @@ __all__ = ('Reducer',)
 
 
 from enum import Enum, auto
-from builder.commands.scode import SCode
-from builder.containers.chapter import Chapter
-from builder.containers.episode import Episode
-from builder.containers.scene import Scene
-from builder.containers.story import Story
 from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.formatmode import FormatMode

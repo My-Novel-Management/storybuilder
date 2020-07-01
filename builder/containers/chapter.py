@@ -17,12 +17,5 @@ from builder.utils import assertion
 class Chapter(Container):
     ''' Chapter Container class.
     '''
-
-    #
-    # property
-    #
-
-    #
-    # methods
-    #
+    pass
 

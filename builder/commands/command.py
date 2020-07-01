@@ -70,6 +70,7 @@ class SCmd(Enum):
     END_CHAPTER = auto()
     END_EPISODE = auto()
     END_SCENE = auto()
+    END_MATERIAL = auto()
     THEN = auto()
 
     @classmethod
@@ -80,7 +81,7 @@ class SCmd(Enum):
                 cls.CHANGE_CAMEARA, cls.CHANGE_DATE, cls.CHANGE_STAGE,
                 cls.CHANGE_TIME,
                 cls.ELAPSE_DAY, cls.ELAPSE_TIME,
-                cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE,
+                cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE, cls.END_MATERIAL,
                 cls.PLOT_NOTE,
                 cls.INFO_DATA, cls.INFO_CONTENT,
                 cls.PUT_OBJECT,
@@ -112,7 +113,8 @@ class SCmd(Enum):
 
     @classmethod
     def get_end_of_containers(cls) -> list:
-        return [cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE]
+        return [cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE,
+                cls.END_MATERIAL]
 
     @classmethod
     def get_plot_infos(cls) -> list:

@@ -12,6 +12,7 @@ __all__ = ('HeaderUpdater',)
 from builder.commands.scode import SCode, SCmd
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
 from builder.core.executer import Executer
@@ -27,7 +28,8 @@ from builder.utils.logger import MyLogger
 
 
 # alias
-Containable = (Chapter, Episode ,Scene)
+StoryObjectLike = (Story, Chapter, Episode ,Scene, SCode, Material)
+
 
 # logger
 LOG = MyLogger.get_logger(__name__)
@@ -65,28 +67,34 @@ class HeaderUpdater(Executer):
         columns = config.columns
         rows = config.rows
         assertion.is_instance(src, Story)
+
         tmp.append(self._collect_header_info(src, columns, rows))
         tmp.append(self._title_of(src))
         if src.outline:
             tmp.append(self._outline_of(src))
         tmp.append(self._get_contents(src))
+
         for child in src.children:
             if isinstance(child, (Chapter, Episode, Scene)):
                 tmp.append(self._update_container_info(child, columns, rows))
             elif isinstance(child, SCode):
                 tmp.append(child)
+            elif isinstance(child, Material):
+                tmp.append(self._update_container_info(child, columns, rows))
             else:
                 LOG.error(f'Invalid a child value!: {type(child)}: {child}')
         tmp.append(self._get_story_info(src, config))
+
         return src.inherited(*tmp)
 
-    def _update_container_info(self, src: (Chapter, Episode, Scene),
-            columns: int, rows: int) -> (Chapter, Episode, Scene):
+
+    def _update_container_info(self, src: (Chapter, Episode, Scene, Material),
+            columns: int, rows: int) -> (Chapter, Episode, Scene, Material):
         LOG.info('HEAD_UPDATER: update_container_info')
         LOG.debug(f'-- src: {src}')
         LOG.debug(f'-- columns/rows: {columns}/{rows}')
 
-        assertion.is_instance(src, (Chapter, Episode, Scene))
+        assertion.is_instance(src, (Chapter, Episode, Scene, Material))
 
         tmp = []
         tmp.append(self._collect_header_info(src, columns, rows))
@@ -100,12 +108,14 @@ class HeaderUpdater(Executer):
                 if Checker().has_then(child):
                     tmp.append(SCode(None, SCmd.THEN, (), ''))
                 tmp.append(child)
+            elif isinstance(child, Material):
+                tmp.append(self._update_container_info(child, columsn, rows))
             else:
                 LOG.error(f'Invalid child value!: {type(child)} | {child}')
         tmp.append(self._end_of(src))
         return src.inherited(*tmp)
 
-    def _collect_header_info(self, src: (Story, Chapter, Episode, Scene),
+    def _collect_header_info(self, src: (Story, Chapter, Episode, Scene, Material),
             columns: int, rows: int) -> SCode:
         count = Counter()
         total_lines = count.manupaper_rows_of(src, columns, True)
@@ -125,7 +135,7 @@ class HeaderUpdater(Executer):
                     ),),
                 '')
 
-    def _title_of(self, src: (Story, Chapter, Episode, Scene)) -> SCode:
+    def _title_of(self, src: (Story, Chapter, Episode, Scene, Material)) -> SCode:
         level = 0
         if isinstance(src, Story):
             level = 1
@@ -135,20 +145,24 @@ class HeaderUpdater(Executer):
             level = 3
         elif isinstance(src, Scene):
             level = 4
+        elif isinstance(src, Material):
+            level = 2
         else:
             LOG.critical(f'Invalid source of a story object: {type(src)}: {src}')
         return SCode(None, SCmd.TAG_TITLE, (src.title,), level)
 
-    def _outline_of(self, src: (Story, Chapter, Episode, Scene)) -> SCode:
+    def _outline_of(self, src: (Story, Chapter, Episode, Scene, Material)) -> SCode:
         return SCode(None, SCmd.TAG_COMMENT, (src.outline,), "outline")
 
-    def _end_of(self, src: (Chapter, Episode, Scene)) -> (SCode, None):
+    def _end_of(self, src: (Chapter, Episode, Scene, Material)) -> (SCode, None):
         if isinstance(src, Chapter):
             return SCode(None, SCmd.END_CHAPTER, (), '')
         elif isinstance(src, Episode):
             return SCode(None, SCmd.END_EPISODE, (), '')
         elif isinstance(src, Scene):
             return SCode(None, SCmd.END_SCENE, (), '')
+        elif isinstance(src, Material):
+            return SCode(None, SCmd.END_MATERIAL, (), '')
         else:
             LOG.error(f'Invalid source!: {src}')
             return None

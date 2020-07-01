@@ -14,9 +14,11 @@ from builder.commands.command import SCmd
 from builder.commands.scode import SCode
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.database import Database
+from builder.datatypes.materialtype import MaterialType
 from builder.objects.day import Day
 from builder.objects.sobject import SObject
 from builder.objects.time import Time
@@ -67,6 +69,24 @@ class StoryCmd(object):
         ''' Create a scene container and set contents.
         '''
         return Scene(*args, **kwargs)
+
+    def document(self, *args, **kwargs) -> Material:
+        ''' Create a document container and contents.
+        '''
+        return Material(MaterialType.DOCUMENT,
+                *args, **kwargs)
+
+    def writer_note(self, *args, **kwargs) -> Material:
+        ''' Create a writer's note.
+        '''
+        return Material(MaterialType.WRITER_NOTE,
+                *args, **kwargs)
+
+    def character_note(self, *args, **kwargs) -> Material:
+        ''' Create a character's note.
+        '''
+        return Material(MaterialType.CHARACTER_NOTE,
+                *args, **kwargs)
 
     #
     # method: for Plot

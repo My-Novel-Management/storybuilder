@@ -12,6 +12,7 @@ __all__ = ('TagReplacer',)
 from builder.commands.scode import SCode
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
 from builder.core.executer import Executer
@@ -24,7 +25,8 @@ from builder.utils.util_str import string_replaced_by_tag
 
 
 # alias
-Containable = (Chapter, Episode ,Scene)
+ContainerLike = (Story, Chapter, Episode, Scene, SCode, Material)
+
 
 # logger
 LOG = MyLogger.get_logger(__name__)
@@ -60,7 +62,7 @@ class TagReplacer(Executer):
     def _exec_internal(self, src: Story, tags: dict) -> Story:
         tmp = []
         for child in assertion.is_instance(src, Story).children:
-            if isinstance(child, (Chapter, Episode, Scene)):
+            if isinstance(child, (Chapter, Episode, Scene, Material)):
                 tmp.append(self._replaced_in_container(child, tags))
             elif isinstance(child, SCode):
                 tmp.append(self._replaced_scode(child, tags))
@@ -71,12 +73,12 @@ class TagReplacer(Executer):
                 title=string_replaced_by_tag(src.title, tags),
                 outline=string_replaced_by_tag(src.outline, tags))
 
-    def _replaced_in_container(self, src: (Chapter, Episode, Scene),
+    def _replaced_in_container(self, src: (Chapter, Episode, Scene, Material),
             tags: dict) -> (Chapter, Episode, Scene):
         tmp = []
-        if isinstance(src, (Chapter, Episode, Scene)):
+        if isinstance(src, (Chapter, Episode, Scene, Material)):
             for child in src.children:
-                if isinstance(child, (Chapter, Episode, Scene)):
+                if isinstance(child, (Chapter, Episode, Scene, Material)):
                     tmp.append(self._replaced_in_container(child, tags))
                 elif isinstance(child, SCode):
                     tmp.append(self._replaced_scode(child, tags))

@@ -10,6 +10,7 @@ from builder.commands.scode import SCode, SCmd
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
 from builder.containers.scene import Scene
+from builder.datatypes.compilemode import CompileMode
 from builder.core import serializer as sl
 
 
@@ -23,7 +24,7 @@ class SerializerTest(unittest.TestCase):
         tmp = sl.Serializer()
         self.assertIsInstance(tmp, sl.Serializer)
 
-    def test_serialized(self):
+    def test_novel_serialized(self):
         scode0 = SCode(None, SCmd.BE, (), '')
         scode1 = SCode(None, SCmd.INFO_DATA, (), '')
         data = [
@@ -33,7 +34,7 @@ class SerializerTest(unittest.TestCase):
                 (True, Chapter('a', scode1, Episode('b', Scene('c', scode0))),
                     2),
                 ]
-        validate_with_fail(self, 'serialized',
+        validate_with_fail(self, 'novel_serialized',
                 lambda src, expect: self.assertEqual(
-                    len(sl.Serializer()._serialized(src)), expect),
+                    len(sl.Serializer()._novel_serialized(src)), expect),
                 data)

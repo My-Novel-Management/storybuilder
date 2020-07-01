@@ -17,12 +17,5 @@ from builder.utils import assertion
 class Story(Container):
     ''' Story Container class.
     '''
-
-    #
-    # property
-    #
-
-    #
-    # methods
-    #
+    pass
 

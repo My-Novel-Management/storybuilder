@@ -13,18 +13,21 @@ from itertools import chain
 from builder.commands.scode import SCode
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
 from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.codelist import CodeList
+from builder.datatypes.compilemode import CompileMode
 from builder.datatypes.resultdata import ResultData
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
 
 # alias
-Containable = (Chapter, Episode ,Scene)
+ContainerLike = (Story, Chapter, Episode, Scene, SCode, Material)
+
 
 # logger
 LOG = MyLogger.get_logger(__name__)
@@ -48,10 +51,10 @@ class Serializer(Executer):
     # methods
     #
 
-    def execute(self, src: Story) -> ResultData:
+    def execute(self, src: Story, mode: CompileMode) -> ResultData:
         LOG.info('SERIALIZER: start exec')
         is_succeeded = True
-        tmp = CodeList(*self._exec_internal(src))
+        tmp = CodeList(*self._exec_internal(src, mode))
         error = None
         return ResultData(
                 tmp,
@@ -62,26 +65,61 @@ class Serializer(Executer):
     # private methods
     #
 
-    def _exec_internal(self, src: Story) -> list:
-        tmp = []
-        for child in assertion.is_instance(src, Story).children:
-            if isinstance(child, (Chapter, Episode, Scene)):
-                tmp.append(self._serialized(child))
-            elif isinstance(child, SCode):
-                tmp.append([child])
-            else:
-                LOG.error(f'Invalid story object![1]: {type(child)}: {child}')
-        return list(chain.from_iterable(tmp))
+    def _exec_internal(self, src: Story, mode: CompileMode) -> list:
+        ret = []
+        assertion.is_instance(src, Story)
+        if assertion.is_instance(mode, CompileMode) in (CompileMode.NORMAL, CompileMode.NOVEL_TEXT):
+            ret = self._novel_serialized(src)
+        elif mode is CompileMode.PLOT:
+            ret = self._plot_serialized(src)
+        elif mode is CompileMode.SCENARIO:
+            ret = []
+        elif mode is CompileMode.AUDIODRAMA:
+            ret = []
+        else:
+            LOG.error(f'Invalid story object![1]: {type(child)}: {child}')
+        return ret
 
-    def _serialized(self, src: (Chapter, Episode, Scene)) -> list:
-        tmp = []
-        for child in assertion.is_various_types(src, (Chapter, Episode, Scene)).children:
-            if isinstance(child, (Chapter, Episode)):
-                tmp.append(self._serialized(child))
-            elif isinstance(child, Scene):
-                tmp.append(child.children)
-            elif isinstance(child, SCode):
-                tmp.append([child])
-            else:
-                LOG.error(f'Invalid story object![2]: {type(child)}: {child}')
-        return list(chain.from_iterable(tmp))
+    def _novel_serialized(self, src: ContainerLike) -> list:
+        if isinstance(src, (Story, Chapter, Episode, Scene)):
+            tmp = []
+            for child in assertion.is_various_types(src, (Story, Chapter, Episode, Scene, Material)).children:
+                if isinstance(child, (Story, Chapter, Episode)):
+                    tmp.append(self._novel_serialized(child))
+                elif isinstance(child, Scene):
+                    tmp.append(child.children)
+                elif isinstance(child, SCode):
+                    tmp.append([child])
+                elif isinstance(child, Material):
+                    continue
+                else:
+                    LOG.error(f'Invalid story object![3]: {type(child)}: {child}')
+            return list(chain.from_iterable(tmp))
+        elif isinstance(src, SCode):
+            return [src]
+        elif isinstance(src, Material):
+            return []
+        else:
+            LOG.error(f'Invalid story object![2]: {type(src)}: {src}')
+            return []
+
+    def _plot_serialized(self, src: ContainerLike) -> list:
+        if isinstance(src, (Story, Chapter, Episode, Scene, Material)):
+            tmp = []
+            for child in src.children:
+                if isinstance(child, (Story, Chapter, Episode)):
+                    tmp.append(self._plot_serialized(child))
+                elif isinstance(child, Scene):
+                    tmp.append(child.children)
+                elif isinstance(child, SCode):
+                    tmp.append([child])
+                elif isinstance(child, Material):
+                    tmp.append(child.children)
+                else:
+                    LOG.error(f'Invalid story object![4]: {type(child)}: {child}')
+            return list(chain.from_iterable(tmp))
+        elif isinstance(src, SCode):
+            return [src]
+        else:
+            LOG.error(f'Invalid story object![5]: {type(src)}: {src}')
+            return []

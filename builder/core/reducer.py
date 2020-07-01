@@ -12,6 +12,7 @@ __all__ = ('Reducer',)
 from builder.commands.scode import SCode
 from builder.containers.chapter import Chapter
 from builder.containers.episode import Episode
+from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
 from builder.core.executer import Executer
@@ -23,7 +24,8 @@ from builder.utils.logger import MyLogger
 
 
 # alias
-Containable = (Chapter, Episode ,Scene)
+ContainerLike = (Story, Chapter, Episode ,Scene, SCode, Material)
+
 
 # logger
 LOG = MyLogger.get_logger(__name__)

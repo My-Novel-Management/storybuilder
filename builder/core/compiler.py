@@ -12,10 +12,6 @@ __all__ = ('Compiler',)
 from enum import Enum, auto
 from typing import Tuple
 from builder.commands.scode import SCode, SCmd
-from builder.containers.chapter import Chapter
-from builder.containers.episode import Episode
-from builder.containers.scene import Scene
-from builder.containers.story import Story
 from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.codelist import CodeList
@@ -144,7 +140,7 @@ class Compiler(Executer):
             # tag
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                        (ch_num, ep_num, sc_num), is_comment)
+                        (ch_num, ep_num, sc_num), is_comment, False)
                 if ret:
                     tmp.append(FormatTag.SYMBOL_HEAD if code.cmd is SCmd.TAG_SYMBOL else FormatTag.TAG_HEAD)
                     tmp.append(ret)
@@ -246,11 +242,14 @@ class Compiler(Executer):
                 continue
             # container break
             elif code.cmd in SCmd.get_end_of_containers():
-                continue
+                if code.cmd in (SCmd.END_CHAPTER, SCmd.END_MATERIAL):
+                    tmp.append('\n')
+                else:
+                    continue
             # tags
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                        (ch_num, ep_num, sc_num), True)
+                        (ch_num, ep_num, sc_num), True, True)
                 if ret:
                     if code.cmd is SCmd.TAG_TITLE and not ret.startswith('#'):
                         tmp.append('\n')
@@ -293,7 +292,7 @@ class Compiler(Executer):
             return ''
 
     def _conv_from_tag(self, src: SCode, head_info: str, nums: tuple,
-            is_comment: bool) -> Tuple[str, tuple]:
+            is_comment: bool, is_plot: bool) -> Tuple[str, tuple]:
         assertion.is_str(head_info)
         tmp = ''
         ch_num, ep_num, sc_num = assertion.is_tuple(nums)
@@ -304,7 +303,10 @@ class Compiler(Executer):
                 if src.option == 'outline':
                     tmp = f'<!--\n【{"。".join(src.script)}】\n-->\n\n'
                 else:
-                    tmp = f'<!--{"。".join(src.script)}-->\n'
+                    if is_plot:
+                        tmp = f'{"。".join(src.script)}\n'
+                    else:
+                        tmp = f'<!--{"。".join(src.script)}-->\n'
         elif src.cmd is SCmd.TAG_HR:
             tmp = '--------'*9
         elif src.cmd is SCmd.TAG_SYMBOL:
