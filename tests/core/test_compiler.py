@@ -53,13 +53,13 @@ class CompilerTest(unittest.TestCase):
 
     def test_conv_from_tag(self):
         data = [
-                # (src, head, nums, is_cmt, is_plot, expect, exp_nums)
+                # (src, head, nums, is_cmt, is_plot, is_data, expect, exp_nums)
                 (True, SCode(None, SCmd.TAG_BR, (), ''), '#', (1,1,1),
-                    True, False,
+                    True, False, False,
                     '\n\n', (1,1,1)),
                 ]
-        def checker(src, head, nums, is_cmt, is_plot, expect, exp_nums):
-            tmp = cp.Compiler()._conv_from_tag(src, head, nums, is_cmt, is_plot)
+        def checker(src, head, nums, is_cmt, is_plot, is_data, expect, exp_nums):
+            tmp = cp.Compiler()._conv_from_tag(src, head, nums, is_cmt, is_plot, is_data)
             self.assertEqual(tmp[0], expect)
             self.assertEqual(tmp[1], exp_nums)
         validate_with_fail(self, 'conv_from_tag', checker, data)

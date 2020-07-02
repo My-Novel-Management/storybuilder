@@ -18,5 +18,5 @@ class CompileModeTest(unittest.TestCase):
     def test_instance(self):
         self.assertEqual(
                 len(cp.CompileMode.get_all()),
-                5)
+                6)
 

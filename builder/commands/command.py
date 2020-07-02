@@ -67,6 +67,7 @@ class SCmd(Enum):
 
     INFO_DATA = auto()
     INFO_CONTENT = auto()
+    INFO_STORY = auto()
     END_CHAPTER = auto()
     END_EPISODE = auto()
     END_SCENE = auto()
@@ -83,7 +84,7 @@ class SCmd(Enum):
                 cls.ELAPSE_DAY, cls.ELAPSE_TIME,
                 cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE, cls.END_MATERIAL,
                 cls.PLOT_NOTE,
-                cls.INFO_DATA, cls.INFO_CONTENT,
+                cls.INFO_DATA, cls.INFO_CONTENT, cls.INFO_STORY,
                 cls.PUT_OBJECT,
                 cls.TAG_BR, cls.TAG_COMMENT, cls.TAG_HR, cls.TAG_SYMBOL,
                 cls.TAG_TITLE,
@@ -109,7 +110,7 @@ class SCmd(Enum):
 
     @classmethod
     def get_informations(cls) -> list:
-        return [cls.INFO_DATA, cls.INFO_CONTENT]
+        return [cls.INFO_DATA, cls.INFO_CONTENT, cls.INFO_STORY]
 
     @classmethod
     def get_end_of_containers(cls) -> list:

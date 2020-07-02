@@ -17,6 +17,7 @@ class CompileMode(Enum):
     '''
     NORMAL = auto()
     NOVEL_TEXT = auto()
+    STORY_DATA = auto()
     PLOT = auto()
     SCENARIO = auto()
     AUDIODRAMA = auto()
@@ -24,5 +25,6 @@ class CompileMode(Enum):
     @classmethod
     def get_all(cls) -> list:
         return [cls.NORMAL, cls.NOVEL_TEXT,
+                cls.STORY_DATA,
                 cls.PLOT,
                 cls.SCENARIO, cls.AUDIODRAMA]

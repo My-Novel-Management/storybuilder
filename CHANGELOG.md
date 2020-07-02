@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.9-16] - 2020-07-02
+### Added
+- Story data output
+
 ## [0.5.9-15] - 2020-07-01
 ### Added
 - Material: writer's note and character's note
@@ -550,7 +554,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-15...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-16...HEAD
+[0.5.9-16]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-16
 [0.5.9-15]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-15
 [0.5.9-14]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-14
 [0.5.9-13]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-13

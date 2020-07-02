@@ -47,7 +47,12 @@ class StoryConfig(object):
         self._version = assertion.is_tuple((0,0,1))
         self._columns = assertion.is_int(20)
         self._rows = assertion.is_int(20)
+        self._contest_info = assertion.is_str('')
+        self._note = assertion.is_str('備考')
+        self._modified = datetime.date.today()
+        self._released = datetime.date(2020,1,1)
         # for compile
+        self._is_data = assertion.is_bool(False)
         self._is_plot = assertion.is_bool(False)
         self._is_text = assertion.is_bool(False)
         self._is_scenario = assertion.is_bool(False)
@@ -78,6 +83,22 @@ class StoryConfig(object):
         return self._version
 
     @property
+    def contest_info(self) -> str:
+        return self._contest_info
+
+    @property
+    def note(self) -> str:
+        return self._note
+
+    @property
+    def modified(self) -> datetime.date:
+        return self._modified
+
+    @property
+    def released(self) -> datetime.date:
+        return self._released
+
+    @property
     def columns(self) -> int:
         return self._columns
 
@@ -96,6 +117,10 @@ class StoryConfig(object):
     @property
     def end(self) -> int:
         return self._end
+
+    @property
+    def is_data(self) -> bool:
+        return self._is_data
 
     @property
     def is_plot(self) -> bool:
@@ -163,6 +188,18 @@ class StoryConfig(object):
         else:
             self._version = (assertion.is_str(args[0]),)
 
+    def set_contest_info(self, info: str) -> None:
+        self._contest_info = assertion.is_str(info)
+
+    def set_note(self, note: str) -> None:
+        self._note = assertion.is_str(note)
+
+    def set_modified(self, month: int, day: int, year: int) -> None:
+        self._modified = datetime.date(year, month, day)
+
+    def set_released(self, month: int, day: int, year: int) -> None:
+        self._released = datetime.date(year, month, day)
+
     def set_columns(self, col: int) -> None:
         self._columns = assertion.is_int(col)
 
@@ -188,6 +225,9 @@ class StoryConfig(object):
     #
     # methods (compile)
     #
+
+    def set_is_data(self, is_data: bool) -> None:
+        self._is_data = assertion.is_bool(is_data)
 
     def set_is_plot(self, is_plot: bool) -> None:
         self._is_plot = assertion.is_bool(is_plot)

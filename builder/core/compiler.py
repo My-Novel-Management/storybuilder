@@ -70,7 +70,9 @@ class Compiler(Executer):
                 tmp = assertion.is_instance(self._add_rubi_on_novel(tmp, rubis),
                         RawData)
         elif mode is CompileMode.PLOT:
-            tmp = assertion.is_instance(self._conv_to_plot(src), RawData)
+            tmp = assertion.is_instance(self._conv_to_plot(src, False), RawData)
+        elif mode is CompileMode.STORY_DATA:
+            tmp = assertion.is_instance(self._conv_to_plot(src, True), RawData)
         elif mode is CompileMode.NOVEL_TEXT:
             tmp = assertion.is_instance(self._conv_to_novel(src, is_comment), RawData)
             tmp = assertion.is_instance(self._conv_to_text(tmp), RawData)
@@ -140,7 +142,7 @@ class Compiler(Executer):
             # tag
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                        (ch_num, ep_num, sc_num), is_comment, False)
+                        (ch_num, ep_num, sc_num), is_comment, False, False)
                 if ret:
                     tmp.append(FormatTag.SYMBOL_HEAD if code.cmd is SCmd.TAG_SYMBOL else FormatTag.TAG_HEAD)
                     tmp.append(ret)
@@ -221,7 +223,7 @@ class Compiler(Executer):
     # private methods (plot)
     #
 
-    def _conv_to_plot(self, src: CodeList) -> RawData:
+    def _conv_to_plot(self, src: CodeList, is_data: bool) -> RawData:
         LOG.info('COMP: conv_to_plot start')
 
         conv = Converter()
@@ -249,7 +251,7 @@ class Compiler(Executer):
             # tags
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                        (ch_num, ep_num, sc_num), True, True)
+                    (ch_num, ep_num, sc_num), True, not is_data, is_data)
                 if ret:
                     if code.cmd is SCmd.TAG_TITLE and not ret.startswith('#'):
                         tmp.append('\n')
@@ -261,6 +263,9 @@ class Compiler(Executer):
                     head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
                 elif code.cmd is SCmd.INFO_CONTENT:
                     tmp.append(self._get_storyinfo(code))
+                elif code.cmd is SCmd.INFO_STORY and is_data:
+                    title = code.script[0]['title']
+                    tmp.append(self._get_storydata(code))
                 continue
             # scene control
             elif code.cmd in SCmd.get_scene_controls():
@@ -292,7 +297,7 @@ class Compiler(Executer):
             return ''
 
     def _conv_from_tag(self, src: SCode, head_info: str, nums: tuple,
-            is_comment: bool, is_plot: bool) -> Tuple[str, tuple]:
+            is_comment: bool, is_plot: bool, is_data: bool) -> Tuple[str, tuple]:
         assertion.is_str(head_info)
         tmp = ''
         ch_num, ep_num, sc_num = assertion.is_tuple(nums)
@@ -312,8 +317,13 @@ class Compiler(Executer):
         elif src.cmd is SCmd.TAG_SYMBOL:
             tmp = f'\n{"".join(src.script)}\n\n'
         elif src.cmd is SCmd.TAG_TITLE:
-            if src.option == 'contents':
-                tmp = f'---\n# CONTENTS\n{src.script[0]}\n---\n'
+            if isinstance(src.option, str) and 'contents' in src.option:
+                if not is_plot and not is_data and src.option == 'contents:1':
+                    tmp = f'---\n# CONTENTS\n{src.script[0]}\n---\n'
+                elif is_plot and src.option == 'contents:0':
+                    tmp = f'---\n# CONTENTS\n{src.script[0]}\n---\n'
+                elif is_data and src.option == 'contents:2':
+                    tmp = f'---\n# CONTENTS\n{src.script[0]}\n---\n'
             else:
                 head = '#' * src.option if isinstance(src.option, int) else '##'
                 info_str = f' {head_info}' if head_info else ''
@@ -349,3 +359,26 @@ class Compiler(Executer):
     def _get_storyinfo(self, src: SCode) -> str:
         info = "".join(assertion.is_instance(src, SCode).script)
         return f"<!-- STORY INFO:\n{info}\n-->\n"
+
+    def _get_storydata(self, src: SCode) -> str:
+        tmp = []
+        data = assertion.is_instance(src, SCode).script[0]
+        tmp.append('# Information')
+        tmp.append(f'【あらすじ】\n{data["outline"]}\n')
+        if data["contest_info"]:
+            tmp.append(f'【コンテスト】\n{data["contest_info"]}\n')
+        tmp.append(f'【備考】\n{data["note"]}\n')
+        digit = -3
+        chars = data["total_chars"]
+        if chars > 1000:
+            digit = -3
+        elif chars > 100:
+            digit = -2
+        else:
+            digit = 0
+        tmp.append(f'【情報】\n総文字数：{round(data["total_chars"], digit)}')
+        tmp.append(f'バージョン：v{data["version"]}')
+        tmp.append(f'更新日：{data["modified"].strftime("%Y.%M.%D")}')
+        tmp.append(f'公開日：{data["released"].strftime("%Y.%M.%D")}')
+        body = "\n".join(tmp)
+        return f'\n---\n{body}\n---\n'

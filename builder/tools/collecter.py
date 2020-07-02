@@ -38,12 +38,35 @@ class Collecter(object):
     # methods (containers)
     #
 
-    def container_titles(self, src: (Story, Chapter, Episode, Scene, Material)) -> list:
+    def container_titles(self, src: ContainerLike) -> list:
+        if not isinstance(src, ContainerLike):
+            return []
         tmp = []
         tmp.append(f"{self.get_container_level(src)}:{src.title}")
-        for child in assertion.is_instance(src, (Story, Chapter, Episode, Scene, Material)).children:
+        for child in src.children:
             if isinstance(child, (Chapter, Episode, Scene, Material)):
                 tmp.extend(self.container_titles(child))
+        return tmp
+
+    def container_titles_without_material(self, src: ContainerLike) -> list:
+        if not isinstance(src, ContainerLike):
+            return []
+        tmp = []
+        tmp.append(f'{self.get_container_level(src)}:{src.title}')
+        for child in src.children:
+            if isinstance(child, (Chapter, Episode, Scene)):
+                tmp.extend(self.container_titles_without_material(child))
+        return tmp
+
+    def container_titles_only_materials(self, src: ContainerLike) -> list:
+        if not isinstance(src, ContainerLike):
+            return []
+        tmp = []
+        if isinstance(src, (Story, Material)):
+            tmp.append(f'{self.get_container_level(src)}:{src.title}')
+        for child in src.children:
+            if isinstance(child, (Chapter, Episode, Scene, Material)):
+                tmp.extend(self.container_titles_only_materials(child))
         return tmp
 
     def get_container_level(self, src: (Story, Chapter, Episode, Scene, Material)) -> int:

@@ -144,6 +144,10 @@ class Runner(Executer):
             config.set_start(start)
             config.set_end(end)
 
+        if opts.data:
+            LOG.debug(f'RUN: option data: {opts.data}')
+            config.set_is_data(opts.data)
+
         if opts.plot:
             LOG.debug(f'RUN: option plot: {opts.plot}')
             config.set_is_plot(opts.plot)
@@ -210,12 +214,19 @@ class Runner(Executer):
         assertion.is_instance(config, StoryConfig)
         assertion.is_instance(db, Database)
 
-        cmp_flags = [not config.is_plot, config.is_plot, config.is_text,
-                config.is_scenario, config.is_audiodrama]
-        cmp_modes = [CompileMode.NORMAL, CompileMode.PLOT, CompileMode.NOVEL_TEXT,
-                CompileMode.SCENARIO, CompileMode.AUDIODRAMA]
+        cmp_flags = assertion.is_valid_length(
+                        [True, config.is_plot, config.is_text,
+                        config.is_data,
+                        config.is_scenario, config.is_audiodrama],
+                        len(CompileMode.get_all()))
+        cmp_modes = assertion.is_valid_length(
+                        [CompileMode.NORMAL, CompileMode.PLOT, CompileMode.NOVEL_TEXT,
+                        CompileMode.STORY_DATA,
+                        CompileMode.SCENARIO, CompileMode.AUDIODRAMA],
+                        len(CompileMode.get_all()))
+
         slz_idx = 0
-        cmp_src_list = [None, None, None, None, None]
+        cmp_src_list = [None] * len(CompileMode.get_all())
 
         for flag in cmp_flags:
             if flag:
@@ -237,12 +248,7 @@ class Runner(Executer):
             slz_idx += 1
 
         cmp_idx = 0
-        cmp_normal = []
-        cmp_plot = []
-        cmp_text = []
-        cmp_scenario = []
-        cmp_audiodrama = []
-        cmp_data_list = [cmp_normal, cmp_plot, cmp_text, cmp_scenario, cmp_audiodrama]
+        cmp_data_list = [None] * len(CompileMode.get_all())
         compiler = Compiler()
 
         for flag in cmp_flags:
@@ -262,12 +268,7 @@ class Runner(Executer):
         LOG.info('<UNIMP> RUN: START-PHASE: Format')
 
         fmt_idx = 0
-        fmt_normal = []
-        fmt_plot = []
-        fmt_text = []
-        fmt_scenario = []
-        fmt_audiodrama = []
-        fmt_data_list = [fmt_normal, fmt_plot, fmt_text, fmt_scenario, fmt_audiodrama]
+        fmt_data_list = [None] * len(CompileMode.get_all())
         formatter = Formatter()
 
         for cmp_data in cmp_data_list:
@@ -290,8 +291,10 @@ class Runner(Executer):
         assertion.is_instance(config, StoryConfig)
 
         result = ResultData(src, True, None)
-        prefixs = ['', '_p', '', '_sc', '_ad']
-        extentions = ['md', 'md', 'txt', 'md', 'md']
+        prefixs = assertion.is_valid_length(['', '_p', '', '_data', '_sc', '_ad'],
+                    len(CompileMode.get_all()))
+        extentions = assertion.is_valid_length(['md', 'md', 'txt', 'md', 'md', 'md'],
+                    len(CompileMode.get_all()))
         fmt_idx = 0
         outputter = Outputter()
 

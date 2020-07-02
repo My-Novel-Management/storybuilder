@@ -72,7 +72,10 @@ class HeaderUpdater(Executer):
         tmp.append(self._title_of(src))
         if src.outline:
             tmp.append(self._outline_of(src))
-        tmp.append(self._get_contents(src))
+        tmp.append(self._get_contents(src, 0))
+        tmp.append(self._get_contents(src, 1))
+        tmp.append(self._get_contents(src, 2))
+        tmp.append(self._get_storydata(src, config))
 
         for child in src.children:
             if isinstance(child, (Chapter, Episode, Scene)):
@@ -167,11 +170,20 @@ class HeaderUpdater(Executer):
             LOG.error(f'Invalid source!: {src}')
             return None
 
-    def _get_contents(self, src: Story) -> SCode:
+    def _get_contents(self, src: Story, info_level: int) -> SCode:
         collect = Collecter()
         tmp = []
         ch_n = ep_n = sc_n = 1
-        titles = collect.container_titles(src)
+        titles = []
+        if info_level == 1:
+            # for Story
+            titles = collect.container_titles_without_material(src)
+        elif info_level == 2:
+            # Materials
+            titles = collect.container_titles_only_materials(src)
+        else:
+            # All (for Plot)
+            titles = collect.container_titles(src)
         for title_set in titles:
             level, title = title_set.split(':')
             if level == '0':
@@ -187,8 +199,23 @@ class HeaderUpdater(Executer):
                 sc_n += 1
             else:
                 continue
-        return SCode(None, SCmd.TAG_TITLE, ('\n'.join(tmp),), 'contents')
+        return SCode(None, SCmd.TAG_TITLE, ('\n'.join(tmp),), f'contents:{info_level}')
 
     def _get_story_info(self, src: Story, config: StoryConfig) -> SCode:
         version = config.version
         return SCode(None, SCmd.INFO_CONTENT, (f'version: {version}',), '')
+
+    def _get_storydata(self, src: Story, config: StoryConfig) -> SCode:
+        return SCode(None, SCmd.INFO_STORY,
+                ({
+                    'title': config.title,
+                    'outline': config.outline,
+                    'contest_info': config.contest_info,
+                    'note': config.note,
+                    'total_chars': Counter().description_characters_of(src),
+                    'version': config.version,
+                    'modified': config.modified,
+                    'released': config.released,
+                    },
+                    ),
+                '')

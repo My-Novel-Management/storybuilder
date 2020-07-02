@@ -12,7 +12,9 @@ Usage:
 __all__ = ('is_between',
         'is_bool', 'is_dict', 'is_instance', 'is_int', 'is_int_or_str',
         'is_list', 'is_listlike', 'is_str', 'is_subclass', 'is_tuple',
-        'is_various_types')
+        'is_various_types',
+        'is_valid_length',
+        )
 
 from typing import Any, Type, TypeVar
 
@@ -25,9 +27,8 @@ T = TypeVar('T')
 _ERR_INVALID_TYPE = "{} must be {} type."
 
 
-
 #
-# utility methods
+# utility methods (is checker)
 #
 
 def is_between(val: int, maxnum: int, minnum: int) -> int:
@@ -118,6 +119,17 @@ def is_various_types(val: Any, types: tuple) -> Any:
     '''
     assert isinstance(val, types), _ERR_INVALID_TYPE.format(_typename_of(val), f'{types}')
     return val
+
+#
+# utility methods (validate)
+#
+
+def is_valid_length(val: (list, tuple), length: int) -> (list, tuple):
+    ''' Validate a value has the length.
+    '''
+    assert len(val) == length, f"Invalid the length of {val}: {len(val)}"
+    return val
+
 
 #
 # private methods

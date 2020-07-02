@@ -72,6 +72,8 @@ class Serializer(Executer):
             ret = self._novel_serialized(src)
         elif mode is CompileMode.PLOT:
             ret = self._plot_serialized(src)
+        elif mode is CompileMode.STORY_DATA:
+            ret = self._storydata_serialized(src)
         elif mode is CompileMode.SCENARIO:
             ret = []
         elif mode is CompileMode.AUDIODRAMA:
@@ -81,6 +83,8 @@ class Serializer(Executer):
         return ret
 
     def _novel_serialized(self, src: ContainerLike) -> list:
+        ''' NOTE: omit Material parts.
+        '''
         if isinstance(src, (Story, Chapter, Episode, Scene)):
             tmp = []
             for child in assertion.is_various_types(src, (Story, Chapter, Episode, Scene, Material)).children:
@@ -123,3 +127,23 @@ class Serializer(Executer):
         else:
             LOG.error(f'Invalid story object![5]: {type(src)}: {src}')
             return []
+
+    def _storydata_serialized(self, src: ContainerLike) -> list:
+        if isinstance(src, (Story, Chapter, Episode, Scene, Material)):
+            tmp = []
+            for child in src.children:
+                if isinstance(child, Material):
+                    tmp.append(child.children)
+                elif isinstance(child, (Story, Chapter, Episode, Scene)):
+                    continue
+                elif isinstance(child, SCode):
+                    tmp.append([child])
+                else:
+                    LOG.error(f'Invalid story object![6]: {type(child)}: {child}')
+            return list(chain.from_iterable(tmp))
+        elif isinstance(src, SCode):
+            return [src]
+        else:
+            LOG.error(f'Invalid story object![7]: {type(child)}: {child}')
+            return []
+
