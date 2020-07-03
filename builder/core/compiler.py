@@ -139,10 +139,13 @@ class Compiler(Executer):
             # container break
             elif code.cmd in SCmd.get_end_of_containers():
                 tmp.append(self._conv_from_end_container(code))
+            elif code.cmd in SCmd.get_head_of_containers():
+                # NOTE: materialで何かするならここでinto操作
+                continue
             # tag
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                        (ch_num, ep_num, sc_num), is_comment, False, False)
+                        (ch_num, ep_num, sc_num), is_comment, False, False, False)
                 if ret:
                     tmp.append(FormatTag.SYMBOL_HEAD if code.cmd is SCmd.TAG_SYMBOL else FormatTag.TAG_HEAD)
                     tmp.append(ret)
@@ -230,6 +233,7 @@ class Compiler(Executer):
         tmp = []
         is_added = False
         head_info = ''
+        in_material = False
         ch_num = ep_num = sc_num = 1
 
         for code in assertion.is_instance(src, CodeList).data:
@@ -244,14 +248,21 @@ class Compiler(Executer):
                 continue
             # container break
             elif code.cmd in SCmd.get_end_of_containers():
-                if code.cmd in (SCmd.END_CHAPTER, SCmd.END_MATERIAL):
+                if code.cmd is SCmd.END_CHAPTER:
                     tmp.append('\n')
+                elif code.cmd is SCmd.END_MATERIAL:
+                    tmp.append('\n')
+                    in_material = False
                 else:
                     continue
+            elif code.cmd in SCmd.get_head_of_containers():
+                if code.cmd is SCmd.HEAD_MATERIAL:
+                    in_material = True
+                continue
             # tags
             elif code.cmd in SCmd.get_tags():
                 ret, (ch_num, ep_num, sc_num) = self._conv_from_tag(code, head_info,
-                    (ch_num, ep_num, sc_num), True, not is_data, is_data)
+                    (ch_num, ep_num, sc_num), True, not is_data, is_data, in_material)
                 if ret:
                     if code.cmd is SCmd.TAG_TITLE and not ret.startswith('#'):
                         tmp.append('\n')
@@ -297,7 +308,7 @@ class Compiler(Executer):
             return ''
 
     def _conv_from_tag(self, src: SCode, head_info: str, nums: tuple,
-            is_comment: bool, is_plot: bool, is_data: bool) -> Tuple[str, tuple]:
+            is_comment: bool, is_plot: bool, is_data: bool, in_material: bool) -> Tuple[str, tuple]:
         assertion.is_str(head_info)
         tmp = ''
         ch_num, ep_num, sc_num = assertion.is_tuple(nums)
@@ -308,7 +319,7 @@ class Compiler(Executer):
                 if src.option == 'outline':
                     tmp = f'<!--\n【{"。".join(src.script)}】\n-->\n\n'
                 else:
-                    if is_plot:
+                    if in_material:
                         tmp = f'{"。".join(src.script)}\n'
                     else:
                         tmp = f'<!--{"。".join(src.script)}-->\n'

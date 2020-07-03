@@ -100,6 +100,7 @@ class HeaderUpdater(Executer):
         assertion.is_instance(src, (Chapter, Episode, Scene, Material))
 
         tmp = []
+        tmp.append(self._containerhead_of(src))
         tmp.append(self._collect_header_info(src, columns, rows))
         tmp.append(self._title_of(src))
         if src.outline:
@@ -157,18 +158,36 @@ class HeaderUpdater(Executer):
     def _outline_of(self, src: (Story, Chapter, Episode, Scene, Material)) -> SCode:
         return SCode(None, SCmd.TAG_COMMENT, (src.outline,), "outline")
 
+
     def _end_of(self, src: (Chapter, Episode, Scene, Material)) -> (SCode, None):
+        cmd = None
         if isinstance(src, Chapter):
-            return SCode(None, SCmd.END_CHAPTER, (), '')
+            cmd = SCmd.END_CHAPTER
         elif isinstance(src, Episode):
-            return SCode(None, SCmd.END_EPISODE, (), '')
+            cmd = SCmd.END_EPISODE
         elif isinstance(src, Scene):
-            return SCode(None, SCmd.END_SCENE, (), '')
+            cmd = SCmd.END_SCENE
         elif isinstance(src, Material):
-            return SCode(None, SCmd.END_MATERIAL, (), '')
+            cmd = SCmd.END_MATERIAL
         else:
             LOG.error(f'Invalid source!: {src}')
-            return None
+        return SCode(None, cmd, (), '') if cmd else None
+
+
+    def _containerhead_of(self, src: (Chapter, Episode, Scene, Material)) -> (SCode, None):
+        cmd = None
+        if isinstance(src, Chapter):
+            cmd = SCmd.HEAD_CHAPTER
+        elif isinstance(src, Episode):
+            cmd = SCmd.HEAD_EPISODE
+        elif isinstance(src, Scene):
+            cmd = SCmd.HEAD_SCENE
+        elif isinstance(src, Material):
+            cmd = SCmd.HEAD_MATERIAL
+        else:
+            LOG.error(f'Invalid source in containerhead_of: {src}')
+        return SCode(None, cmd, (), '') if cmd else None
+
 
     def _get_contents(self, src: Story, info_level: int) -> SCode:
         collect = Collecter()
