@@ -378,7 +378,7 @@ class Compiler(Executer):
             digit = 0
         tmp.append(f'【情報】\n総文字数：{round(data["total_chars"], digit)}')
         tmp.append(f'バージョン：v{data["version"]}')
-        tmp.append(f'更新日：{data["modified"].strftime("%Y.%M.%D")}')
-        tmp.append(f'公開日：{data["released"].strftime("%Y.%M.%D")}')
+        tmp.append(f'更新日：{data["modified"].strftime("%Y.%m.%d")}')
+        tmp.append(f'公開日：{data["released"].strftime("%Y.%m.%d")}')
         body = "\n".join(tmp)
         return f'\n---\n{body}\n---\n'

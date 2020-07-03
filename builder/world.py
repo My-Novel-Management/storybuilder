@@ -25,6 +25,8 @@ from builder.datatypes.resultdata import ResultData
 from builder.datatypes.storyconfig import StoryConfig
 from builder.objects.writer import Writer
 from builder.utils import assertion
+from builder.utils.util_date import get_date_lastmodified
+from builder.utils.util_file import get_module_filename
 from builder.utils.logger import MyLogger
 
 
@@ -82,7 +84,10 @@ class World(object):
             LOG.set_shared_level(level)
             LOG.reset_level()
             LOG.debug(f'LOGGER: reset level: {LOG.level}')
-        return World(title)
+        tmp = World(title)
+        # default settings
+        tmp.config.set_modified(get_date_lastmodified(get_module_filename(2)))
+        return tmp
 
     #
     # property

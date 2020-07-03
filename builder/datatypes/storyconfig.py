@@ -194,11 +194,19 @@ class StoryConfig(object):
     def set_note(self, note: str) -> None:
         self._note = assertion.is_str(note)
 
-    def set_modified(self, month: int, day: int, year: int) -> None:
-        self._modified = datetime.date(year, month, day)
+    def set_modified(self, *args: (datetime.date, int)) -> None:
+        if isinstance(args[0], datetime.date):
+            self._modified = args[0]
+        else:
+            y, m, d = assertion.is_int(args[2]), assertion.is_int(args[0]), assertion.is_int(args[1])
+            self._modified = datetime.date(y, m, d)
 
-    def set_released(self, month: int, day: int, year: int) -> None:
-        self._released = datetime.date(year, month, day)
+    def set_released(self, *args: (datetime.date, int)) -> None:
+        if isinstance(args[0], datetime.date):
+            self._released = args[0]
+        else:
+            y, m, d = assertion.is_int(args[2]), assertion.is_int(args[0]), assertion.is_int(args[1])
+            self._released = datetime.date(y, m, d)
 
     def set_columns(self, col: int) -> None:
         self._columns = assertion.is_int(col)
