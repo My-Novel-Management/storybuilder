@@ -19,7 +19,12 @@ from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.headerinfo import HeaderInfo
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.sceneinfo import SceneInfo
 from builder.datatypes.storyconfig import StoryConfig
+from builder.objects.day import Day
+from builder.objects.person import Person
+from builder.objects.stage import Stage
+from builder.objects.time import Time
 from builder.tools.checker import Checker
 from builder.tools.collecter import Collecter
 from builder.tools.counter import Counter
@@ -103,6 +108,8 @@ class HeaderUpdater(Executer):
         tmp.append(self._containerhead_of(src))
         tmp.append(self._collect_header_info(src, columns, rows))
         tmp.append(self._title_of(src))
+        if isinstance(src, Scene):
+            tmp.append(self._collect_scene_info(src))
         if src.outline:
             tmp.append(self._outline_of(src))
         for child in src.children:
@@ -136,6 +143,22 @@ class HeaderUpdater(Executer):
                     count.episodes_of(src),
                     count.scenes_of(src),
                     count.scodes_of_without_info(src),
+                    ),),
+                '')
+
+    def _collect_scene_info(self, src: Scene) -> SCode:
+        collect = Collecter()
+        cameras = collect.cameras_in_scene(src)
+        stages = collect.stages_in_scene(src)
+        days = collect.days_in_scene(src)
+        times = collect.times_in_scene(src)
+        return SCode(None, SCmd.INFO_DATA,
+                (SceneInfo(
+                    cameras[0] if cameras else None,
+                    stages[0] if stages else None,
+                    days[0] if days else None,
+                    times[0] if times else None,
+                    None,
                     ),),
                 '')
 

@@ -20,6 +20,7 @@ from builder.datatypes.formattag import FormatTag
 from builder.datatypes.headerinfo import HeaderInfo
 from builder.datatypes.rawdata import RawData
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.sceneinfo import SceneInfo
 from builder.objects.rubi import Rubi
 from builder.tools.checker import Checker
 from builder.tools.converter import Converter
@@ -152,7 +153,12 @@ class Compiler(Executer):
             # info
             elif code.cmd in SCmd.get_informations():
                 if code.cmd is SCmd.INFO_DATA:
-                    head_info = self._get_headinfo(code)
+                    if isinstance(code.script[0], HeaderInfo):
+                        head_info = self._get_headinfo(code)
+                    elif isinstance(code.script[0], SceneInfo):
+                        tmp.append(self._get_sceneinfo(code))
+                    else:
+                        tmp.append("".join(code.script))
                 elif code.cmd is SCmd.INFO_CONTENT:
                     tmp.append(self._get_storyinfo(code))
                 continue
@@ -185,6 +191,8 @@ class Compiler(Executer):
             elif checker.is_breakline(line):
                 tmp.append(line)
             elif "# CONTENTS" in line:
+                continue
+            elif line.startswith("○"):
                 continue
             elif checker.has_tag_top(line):
                 if line.startswith('_'):
@@ -271,7 +279,12 @@ class Compiler(Executer):
             # info
             elif code.cmd in SCmd.get_informations():
                 if code.cmd is SCmd.INFO_DATA:
-                    head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
+                    if isinstance(code.script[0], HeaderInfo):
+                        head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
+                    elif isinstance(code.script[0], SceneInfo):
+                        tmp.append(self._get_sceneinfo(code))
+                    else:
+                        tmp.append("".join(code.script))
                 elif code.cmd is SCmd.INFO_CONTENT:
                     tmp.append(self._get_storyinfo(code))
                 elif code.cmd is SCmd.INFO_STORY and is_data:
@@ -366,6 +379,14 @@ class Compiler(Executer):
         info = assertion.is_instance(
                 assertion.is_instance(code, SCode).script[0], HeaderInfo)
         return f'[{info.total_chars}c / {info.total_papers:.2f}p ({info.total_lines:.2f}ls)]'
+
+    def _get_sceneinfo(self, code: SCode) -> str:
+        data = assertion.is_instance(assertion.is_instance(code, SCode).script[0], SceneInfo)
+        camera = data.camera.name if data.camera else "第三者"
+        stage = data.stage.name if data.stage else "どこか"
+        day = data.day.daystring if data.day else "某月某日／某年"
+        time = data.time.name if data.time else "不詳"
+        return f"○{stage}（{time}） - {day}【{camera}】\n"
 
     def _get_storyinfo(self, src: SCode) -> str:
         info = "".join(assertion.is_instance(src, SCode).script)

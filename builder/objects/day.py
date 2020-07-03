@@ -35,6 +35,10 @@ class Day(SObject):
         return self._date
 
     @property
+    def daystring(self) -> str:
+        return f'{self.month}月{self.day}日／{self.year}年'
+
+    @property
     def month(self) -> int:
         return self._date.month
 

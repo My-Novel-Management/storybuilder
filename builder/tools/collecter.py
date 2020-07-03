@@ -17,6 +17,10 @@ from builder.containers.episode import Episode
 from builder.containers.material import Material
 from builder.containers.scene import Scene
 from builder.containers.story import Story
+from builder.objects.day import Day
+from builder.objects.person import Person
+from builder.objects.stage import Stage
+from builder.objects.time import Time
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -83,3 +87,40 @@ class Collecter(object):
         else:
             LOG.error(f'Invalid source (story container): {src}')
             return 9
+
+    #
+    # scene info
+    #
+
+    def cameras_in_scene(self, src: Scene) -> list:
+        tmp = []
+        for child in assertion.is_instance(src, Scene).children:
+            if isinstance(child, SCode):
+                if child.cmd is SCmd.CHANGE_CAMEARA:
+                    tmp.append(assertion.is_instance(child.src, Person))
+        return tmp
+
+    def stages_in_scene(self, src: Scene) -> list:
+        tmp = []
+        for child in assertion.is_instance(src, Scene).children:
+            if isinstance(child, SCode):
+                if child.cmd is SCmd.CHANGE_STAGE:
+                    tmp.append(assertion.is_instance(child.src, Stage))
+        return tmp
+
+    def days_in_scene(self, src: Scene) -> list:
+        tmp = []
+        for child in assertion.is_instance(src, Scene).children:
+            if isinstance(child, SCode):
+                if child.cmd is SCmd.CHANGE_DATE:
+                    tmp.append(assertion.is_instance(child.src, Day))
+        return tmp
+
+    def times_in_scene(self, src: Scene) -> list:
+        tmp = []
+        for child in assertion.is_instance(src, Scene).children:
+            if isinstance(child, SCode):
+                if child.cmd is SCmd.CHANGE_TIME:
+                    tmp.append(assertion.is_instance(child.src, Time))
+        return tmp
+
