@@ -66,8 +66,14 @@ class ScriptConverter(object):
                 in_scene = True
             elif line == '':
                 tmp.append(f'{self._get_tabspace(3)}w.br(),')
+            elif line.endswith("。"):
+                tmp.append(f'{self._get_tabspace(3)}who.do("{line[:-1]}")')
+            elif line.startswith("「"):
+                tmp.append(f'{self._get_tabspace(3)}who.talk("{line[1:-1]}")')
+            elif line.startswith("『"):
+                tmp.append(f'{self._get_tabspace(3)}who.voice("{line[1:-1]}")')
             else:
-                tmp.append(f'{self._get_tabspace(3)}"{line}",')
+                tmp.append(f'{self._get_tabspace(3)}who.do("{line}"),')
         if in_scene:
             tmp.extend(self._get_scene_footer())
         return tmp
@@ -75,6 +81,7 @@ class ScriptConverter(object):
     def _get_scene_header(self, title: str, num: int) -> list:
         tmp = []
         tmp.append(f'def sc_{num}(w: World):')
+        tmp.append(f'{self._get_tabspace(1)}who = w.get("who")')
         tmp.append(f'{self._get_tabspace(1)}return w.scene("{title}",')
         return tmp
 

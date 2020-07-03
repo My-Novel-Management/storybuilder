@@ -53,6 +53,8 @@ class Database(object):
         self._words = {}
         self._rubis = {}
         self._tags = {}
+        # default settings
+        self.append_person('who', 'ある人', '', 30,(1,1), 'male', '会社員')
 
     #
     # property

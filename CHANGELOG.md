@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.9-17] - 2020-07-02
+### Added
+- DB: default person (who)
 ### Changed
-- last modified: automatically update from main.yp
+- ScriptConverter: scode from comment
+- last modified: automatically update from main.py
 
 ## [0.5.9-16] - 2020-07-02
 ### Added
@@ -556,7 +561,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-16...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-17...HEAD
+[0.5.9-17]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-17
 [0.5.9-16]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-16
 [0.5.9-15]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-15
 [0.5.9-14]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-14
