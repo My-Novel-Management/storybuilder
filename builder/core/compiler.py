@@ -408,9 +408,12 @@ class Compiler(Executer):
             digit = -2
         else:
             digit = 0
-        tmp.append(f'【情報】\n総文字数：{round(data["total_chars"], digit)}')
-        tmp.append(f'バージョン：v{data["version"]}')
+        tmp.append(f'【情報】\n総文字数：約{round(data["total_chars"], digit)}文字')
+        tmp.append(f'バージョン：{self._conv_version_string(data["version"])}')
         tmp.append(f'更新日：{data["modified"].strftime("%Y.%m.%d")}')
         tmp.append(f'公開日：{data["released"].strftime("%Y.%m.%d")}')
         body = "\n".join(tmp)
         return f'\n---\n{body}\n---\n'
+
+    def _conv_version_string(self, ver: tuple) -> str:
+        return f'v{ver[0]}.{ver[1]}.{ver[2]}'

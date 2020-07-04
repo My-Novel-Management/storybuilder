@@ -67,11 +67,13 @@ class ScriptConverter(object):
             elif line == '':
                 tmp.append(f'{self._get_tabspace(3)}w.br(),')
             elif line.endswith("。"):
-                tmp.append(f'{self._get_tabspace(3)}who.do("{line[:-1]}")')
+                tmp.append(f'{self._get_tabspace(3)}who.do("{line[:-1]}"),')
             elif line.startswith("「"):
-                tmp.append(f'{self._get_tabspace(3)}who.talk("{line[1:-1]}")')
+                tmp.append(f'{self._get_tabspace(3)}who.talk("{line[1:-1]}"),')
             elif line.startswith("『"):
-                tmp.append(f'{self._get_tabspace(3)}who.voice("{line[1:-1]}")')
+                tmp.append(f'{self._get_tabspace(3)}who.voice("{line[1:-1]}"),')
+            elif line in ('◆', '※', '　　　　◆', '　　　　※'):
+                tmp.append(f'{self._get_tabspace(3)}w.symbol("{line}"),')
             else:
                 tmp.append(f'{self._get_tabspace(3)}who.do("{line}"),')
         if in_scene:
