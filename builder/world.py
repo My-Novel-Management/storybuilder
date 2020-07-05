@@ -77,13 +77,7 @@ class World(object):
         # first print
         print(f'>> Build by {__TITLE__}(v{__VERSION__})')
         # log level set
-        opts = OptionParser().get_commandline_arguments()
-        if opts.log or opts.debug:
-            opt_log = opts.log if opts.log else 'debug'
-            level = 'debug' if opts.debug else opt_log
-            LOG.set_shared_level(level)
-            LOG.reset_level()
-            LOG.debug(f'LOGGER: reset level: {LOG.level}')
+        LOG.reset_logger(OptionParser().get_commandline_arguments())
         tmp = World(title)
         # default settings
         tmp.config.set_modified(get_date_lastmodified(get_module_filename(2)))

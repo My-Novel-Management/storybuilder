@@ -9,12 +9,14 @@ install:
     - pip install coveralls
     - pip install python-dateutil
     - pip install mecab-python3
+    - pip install unidic-lite
 
 script:
     - coverage run --parallel-mode --rcfile=.coveragerc setup.py test
-    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --rubi
-    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --part="0:1"
-    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --forcemecab --text --plot --data --rubi
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --rubi
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --part="0:1"
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --text --plot --data --rubi
+    - coverage run --parallel-mode --rcfile=.coveragerc examples/momotaro/main.py --analyze
 
 after_success:
     - coverage combine

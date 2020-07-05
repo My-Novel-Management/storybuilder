@@ -8,6 +8,7 @@ from __future__ import annotations
 
 __all__ = ('MyLogger',)
 
+import argparse
 import logging
 
 
@@ -41,6 +42,14 @@ class MyLogger(logging.Logger):
         if not is_specific:
             MyLogger._shared_logger.append(logger)
         return logger
+
+    def reset_logger(self, options: argparse.Namespace) -> None:
+        if options.log or options.debug:
+            opt_log = options.log if options.log else 'debug'
+            level = 'debug' if options.debug else opt_log
+            self.set_shared_level(level)
+            MyLogger.reset_level()
+            self.debug(f'LOGGER: reset level: {self.level}')
 
     @classmethod
     def reset_level(cls, level: str='') -> None:

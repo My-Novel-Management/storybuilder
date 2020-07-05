@@ -23,6 +23,15 @@ class OptionParser(object):
     '''
     def __init__(self):
         LOG.info('OPT_PARSER: initialize')
+        self._parser = argparse.ArgumentParser()
+
+    #
+    # property
+    #
+
+    @property
+    def parser(self) -> argparse.ArgumentParser:
+        return self._parser
 
     #
     # methods
@@ -39,9 +48,9 @@ class OptionParser(object):
             -p, --plot: output a plot.
             -r, --rubi: output with rubi.
             -t, --text: output as a text.
+            -z, --analyze: output an analyzed result.
             --console: output to a console.
             --debug: set DEBUG on log leve.
-            --forcemecab: specific using travic-ci
             --format: format type for output
             --log: set log level.
             --part: select story parts.
@@ -50,7 +59,7 @@ class OptionParser(object):
             :`ArgumentParser`: commandline options.
         '''
         LOG.info('OPT_PARSE: get commandline arguments: start')
-        parser = argparse.ArgumentParser()
+        parser = self._parser
         test_data = test_data if test_data else []
 
         LOG.info('OPT_PARSE: set option arguments')
@@ -59,9 +68,9 @@ class OptionParser(object):
         parser.add_argument('-p', '--plot', help='output a plot', action='store_true')
         parser.add_argument('-r', '--rubi', help='output with rubi', action='store_true')
         parser.add_argument('-t', '--text', help='output as a text', action='store_true')
+        parser.add_argument('-z', '--analyze', help='output an analyzed result', action='store_true')
         parser.add_argument('--console', help='output to the console (for debug)', action='store_true')
         parser.add_argument('--debug', help='set DEBUG on log level', action='store_true')
-        parser.add_argument('--forcemecab', help='force no use mecab dir', action='store_true')
         parser.add_argument('--format', help='format type for output', type=str)
         parser.add_argument('--log', help='set a log level', type=str)
         parser.add_argument('--part', help='select story parts', type=str)

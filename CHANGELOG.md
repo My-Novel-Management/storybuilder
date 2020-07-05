@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.9-19] - 2020-07-05
+### Added
+- Analyzer: word analyze
+### Changed
+- MyLogger: general reset level method
 ### Fixed
 - ScriptConverter: scode end point using comma
 - version string
@@ -570,7 +576,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-18...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-19...HEAD
+[0.5.9-19]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-19
 [0.5.9-18]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-18
 [0.5.9-17]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-17
 [0.5.9-16]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-16

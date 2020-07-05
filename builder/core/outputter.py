@@ -15,6 +15,7 @@ from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.outputmode import OutputMode
 from builder.datatypes.resultdata import ResultData
 from builder.datatypes.rawdata import RawData
+from builder.datatypes.textlist import TextList
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -41,7 +42,7 @@ class Outputter(Executer):
     # methods
     #
 
-    def execute(self, src: RawData, mode: OutputMode,
+    def execute(self, src: TextList, mode: OutputMode,
             filename: str, suffix: str, extention: str,
             builddir: str) -> ResultData:
         LOG.info('OUTPUT: start exec')
@@ -66,15 +67,15 @@ class Outputter(Executer):
     # private methods
     #
 
-    def _out_to_console(self, src: RawData) -> bool:
+    def _out_to_console(self, src: TextList) -> bool:
         LOG.info('OUTPUT: out to console')
 
         is_succeeded = True
-        for line in assertion.is_instance(src, RawData).data:
+        for line in assertion.is_instance(src, TextList).data:
             print(line, end='')
         return is_succeeded
 
-    def _out_to_file(self, src: RawData,
+    def _out_to_file(self, src: TextList,
             filename: str, suffix: str, extention: str,
             builddir: str) -> bool:
         LOG.info('OUTPUT: out to file')
@@ -87,7 +88,7 @@ class Outputter(Executer):
             assertion.is_str(extention)
             ))
         with open(fullpath, 'w') as f:
-            for line in assertion.is_instance(src, RawData).data:
+            for line in assertion.is_instance(src, TextList).data:
                 f.write(f"{line}")
         return is_succeeded
 

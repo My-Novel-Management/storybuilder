@@ -199,6 +199,8 @@ class Compiler(Executer):
                     continue
                 else:
                     tmp.append(line)
+            elif line.startswith('<!--'):
+                continue
             else:
                 tmp.append(line)
         return RawData(*tmp)

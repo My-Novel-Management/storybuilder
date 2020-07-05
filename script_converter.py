@@ -10,9 +10,11 @@ __all__ = ('ScriptConverter',)
 
 import os
 import sys
+from builder.commands.optioncmd import OptionParser
 from builder.core.outputter import Outputter
 from builder.datatypes.outputmode import OutputMode
 from builder.datatypes.rawdata import RawData
+from builder.datatypes.textlist import TextList
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -36,7 +38,7 @@ class ScriptConverter(object):
             tmp = [line.strip() for line in f.readlines()]
         head = self._get_file_header()
         body = self._conv_scene(tmp)
-        data = RawData(*[f'{line}\n' for line in head + body])
+        data = TextList(*[f'{line}\n' for line in head + body])
         Outputter().execute(data, mode, fname, suffix, extention, builddir)
 
     def _get_file_header(self) -> list:
@@ -98,16 +100,12 @@ class ScriptConverter(object):
 
 
 def main():
-    import argparse
-    if len(sys.argv) <= 1:
-        LOG.critical(f'Not set a converting file')
-        return 1
-    parser = argparse.ArgumentParser()
-    parser.add_argument('target', help='target file path', type=str)
-    parser.add_argument('--debug', help='set Debug mode', action='store_true')
-    args = parser.parse_args()
-    target = args.target
-    is_debug = True if args.debug else False
+    opt = OptionParser()
+    opt.parser.add_argument('target', help='target file path', type=str)
+    opt_args = opt.get_commandline_arguments()
+    LOG.reset_logger(opt_args)
+    target = opt_args.target
+    is_debug = opt_args.debug
     if not (os.path.exists(f'./{target}') or os.path.exists(target)):
         LOG.critical(f'File not found: {target}')
         return 1

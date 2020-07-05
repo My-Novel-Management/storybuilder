@@ -16,6 +16,7 @@ from builder.datatypes.formatmode import FormatMode
 from builder.datatypes.formattag import FormatTag
 from builder.datatypes.rawdata import RawData
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.textlist import TextList
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -51,11 +52,11 @@ class Formatter(Executer):
         error = None
 
         if mode is FormatMode.DEFAULT:
-            tmp = assertion.is_instance(self._to_default(src), RawData)
+            tmp = assertion.is_instance(self._to_default(src), TextList)
         elif mode is FormatMode.PLAIN:
             tmp = src
         elif mode is FormatMode.WEB:
-            tmp = assertion.is_instance(self._to_web(src), RawData)
+            tmp = assertion.is_instance(self._to_web(src), TextList)
         elif mode is FormatMode.SMARTPHONE:
             tmp = src
         else:
@@ -72,7 +73,7 @@ class Formatter(Executer):
     # private methods
     #
 
-    def _to_default(self, src: RawData) -> list:
+    def _to_default(self, src: RawData) -> TextList:
         LOG.info('FORMAT: to_default')
         tmp = []
         for line in assertion.is_instance(src, RawData).data:
@@ -80,9 +81,9 @@ class Formatter(Executer):
                 continue
             else:
                 tmp.append(line)
-        return RawData(*tmp)
+        return TextList(*tmp)
 
-    def _to_web(self, src: RawData) -> list:
+    def _to_web(self, src: RawData) -> TextList:
         LOG.info('FORMAT: to_web')
 
         tmp = []
@@ -107,4 +108,4 @@ class Formatter(Executer):
             else:
                 assertion.is_str(line)
                 tmp.append(line)
-        return RawData(*tmp)
+        return TextList(*tmp)

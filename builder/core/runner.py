@@ -9,6 +9,7 @@ from __future__ import annotations
 __all__ = ('Runner',)
 
 
+from analyzer.analyzer import Analyzer
 from builder.commands.optioncmd import OptionParser
 from builder.containers.story import Story
 from builder.core.commentconverter import CommentConverter
@@ -31,6 +32,7 @@ from builder.datatypes.outputmode import OutputMode
 from builder.datatypes.rawdata import RawData
 from builder.datatypes.resultdata import ResultData
 from builder.datatypes.storyconfig import StoryConfig
+from builder.datatypes.textlist import TextList
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -52,6 +54,8 @@ class Runner(Executer):
     def __init__(self):
         super().__init__()
         LOG.info('RUNNER: initialize')
+        self._is_analyzed = assertion.is_bool(False)
+        self._is_debug = assertion.is_bool(False)
 
     #
     # methods
@@ -97,6 +101,11 @@ class Runner(Executer):
 
         self._output_storyinfo(config)
 
+        LOG.info('RUN: analyzer check')
+        if self._is_analyzed:
+            result = assertion.is_instance(self._analyze_and_output(tmp, self._is_debug),
+                    ResultData)
+
         LOG.info('RUN: == ALL SUCCEEDED ==')
         return result
 
@@ -125,9 +134,6 @@ class Runner(Executer):
         if opts.console:
             LOG.debug(f'RUN: option console: {opts.console}')
             config.set_output_mode(OutputMode.CONSOLE)
-
-        if opts.forcemecab:
-            LOG.debug(f'<UNIMP>RUN: option forcemecab: {opts.forcemecab}')
 
         if opts.format:
             LOG.debug(f'RUN: option format: {opts.format}')
@@ -159,6 +165,14 @@ class Runner(Executer):
         if opts.text:
             LOG.debug(f'RUN: option text: {opts.text}')
             config.set_is_text(opts.text)
+
+        if opts.analyze:
+            LOG.debug(f'RUN: option analyze: {opts.analyze}')
+            self._is_analyzed = True
+
+        if opts.debug:
+            LOG.debug(f'RUN: option debug: {opts.debug}')
+            self._is_debug = True
 
         return is_succeeded
 
@@ -261,7 +275,7 @@ class Runner(Executer):
                 if not result.is_succeeded:
                     LOG.error(f'Failure in Compiler [{cmp_idx}]!!')
                     return result
-                cmp_data_list[cmp_idx] = result.data
+                cmp_data_list[cmp_idx] = assertion.is_instance(result.data, RawData)
                 LOG.info(f'... SUCCESS Compiler [{cmp_idx}]')
             cmp_idx += 1
 
@@ -280,7 +294,7 @@ class Runner(Executer):
                 if not result.is_succeeded:
                     LOG.error(f'Failure in Formatter [{fmt_idx}]!!')
                     return result
-                fmt_data_list[fmt_idx] = result.data
+                fmt_data_list[fmt_idx] = assertion.is_instance(result.data, TextList)
                 LOG.info(f'... SUCCESS Formatter [{fmt_idx}]')
             fmt_idx += 1
 
@@ -317,3 +331,34 @@ class Runner(Executer):
     def _output_storyinfo(self, config: StoryConfig) -> None:
         version = config.version
         print(f'>> version: {version}')
+
+    def _analyze_and_output(self, src: Story, is_debug: bool) -> ResultData:
+        # serialize and compile as text
+        mode = CompileMode.NOVEL_TEXT
+        fmode = FormatMode.DEFAULT
+        LOG.info('Serialize for Analyzer')
+        result = assertion.is_instance(Serializer().execute(src, mode), ResultData)
+        if not result.is_succeeded:
+            return result
+        tmp = assertion.is_instance(result.data, CodeList)
+        LOG.info('Validate for Analyzer')
+        result = assertion.is_instance(Validater().execute(tmp), ResultData)
+        if not result.is_succeeded:
+            return result
+        tmp = assertion.is_instance(result.data, CodeList)
+        LOG.info('Compile for Analyzer')
+        result = assertion.is_instance(Compiler().execute(tmp, mode, {}, False, False),
+                ResultData)
+        if not result.is_succeeded:
+            return result
+        tmp = assertion.is_instance(result.data, RawData)
+        LOG.info('Format for Analyzer')
+        result = assertion.is_instance(Formatter().execute(tmp, fmode), ResultData)
+        if not result.is_succeeded:
+            return result
+        tmp = assertion.is_instance(result.data, TextList)
+
+        LOG.info('RUN: call Analyzer')
+        result = Analyzer().execute(tmp, is_debug)
+        return ResultData([], True, None)
+
