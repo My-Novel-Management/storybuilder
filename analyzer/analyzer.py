@@ -9,6 +9,7 @@ from __future__ import annotations
 __all__ = ('Analyzer',)
 
 import os
+from analyzer.core.percent_analyzer import PercentAnalyzer
 from analyzer.core.tokenizer import Tokenizer
 from analyzer.core.word_analyzer import WordAnalyzer
 from analyzer.datatypes.analyzerexception import AnalyzerError
@@ -68,15 +69,22 @@ class Analyzer(Executer):
         result = assertion.is_instance(WordAnalyzer().execute(tokens), ResultData)
         if not result.is_succeeded:
             return result
-        tmp = result.data
+        word_data = assertion.is_listlike(result.data)
+
+        LOG.info('PERCENT_ANALYZER: call')
+        result = assertion.is_instance(PercentAnalyzer().execute(tmp), ResultData)
+        if not result.is_succeeded:
+            return result
+        percent_data = assertion.is_listlike(result.data)
 
         LOG.info('Analyzer result output')
+        result_data = word_data + ['\n---\n'] + percent_data
         fname = 'result'
         suffix = ''
         extention = 'md'
         builddir = 'build/results'
         mode = OutputMode.CONSOLE if is_debug else OutputMode.FILE
-        data = TextList(*[f'{line}\n' for line in tmp])
+        data = TextList(*[f'{line}\n' for line in result_data])
         Outputter().execute(data, mode, fname, suffix, extention, builddir)
         return result
 

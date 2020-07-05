@@ -6,7 +6,7 @@ Word Analyzer Object
 
 from __future__ import annotations
 
-__all__ = ('Tokenizer',)
+__all__ = ('WordAnalyzer',)
 
 
 from analyzer.datatypes.analyzerexception import AnalyzerError
@@ -59,7 +59,12 @@ class WordAnalyzer(Executer):
     def _exec_internal(self, src: TokenList) -> list:
         LOG.debug(f'-- src: {src}')
         tmp = []
+        tmp.extend(self._wordclass_counts(src))
+        return tmp
+
+    def _wordclass_counts(self, src: TokenList) -> list:
         assertion.is_instance(src, TokenList)
+        tmp = []
         counter = WordCounter()
         # 品詞数
         total = len(src.data)

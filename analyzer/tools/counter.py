@@ -12,7 +12,9 @@ __all__ = ('Counter',)
 from analyzer.datatypes.mecabdata import MecabData
 from analyzer.datatypes.wordclass import WordClass
 from analyzer.datatypes.tokenlist import TokenList
+from builder.datatypes.textlist import TextList
 from builder.utils import assertion
+from builder.utils.util_str import kanji_list_from
 from builder.utils.logger import MyLogger
 
 
@@ -37,3 +39,18 @@ class WordCounter(object):
                 tmp.append(token)
         return len(tmp)
 
+    #
+    # methods (kanji)
+    #
+
+    def kanjis_of(self, src: (TextList, list, tuple, str)) -> int:
+        tmp = []
+        if isinstance(src, TextList):
+            tmp = [kanji_list_from(line) for line in src.data]
+        elif isinstance(src, (list, tuple)):
+            tmp = [kanji_list_from(line) for line in src]
+        elif isinstance(src, str):
+            tmp = kanji_list_from(src)
+        else:
+            return 0
+        return len(tmp)

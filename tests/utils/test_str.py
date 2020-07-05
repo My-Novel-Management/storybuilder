@@ -25,6 +25,15 @@ class MethodsTest(unittest.TestCase):
                     ustr.dict_from_string(v,splt), expect),
                 data)
 
+    def test_kanji_list_from(self):
+        data = [
+                # (val, expect)
+                (True, 'あいう漢お', ['漢',]),
+                ]
+        validate_with_fail(self, 'kanji_list_from',
+                lambda v, expect: self.assertEqual(
+                    ustr.kanji_list_from(v), expect), data)
+
     def test_string_replaced_by_tag(self):
         data = [
                 # (val, tags, prefix, expect)

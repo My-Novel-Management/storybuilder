@@ -32,6 +32,12 @@ def dict_from_string(src: str, splitter: str) -> dict:
         raise ValueError(f'Invalid string, cannot convert a dictionary: {src}')
 
 
+def kanji_list_from(target: str) -> list:
+    ''' Get a kanji list.
+    '''
+    return REG_KANJI.findall(assertion.is_str(target))
+
+
 def string_replaced_by_tag(src: str, tags: dict, prefix: str='$') -> str:
     ''' Replace the target word in a string by tags.
     '''
