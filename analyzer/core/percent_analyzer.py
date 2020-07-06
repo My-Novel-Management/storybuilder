@@ -70,7 +70,7 @@ class PercentAnalyzer(Executer):
     def _kanji_percents(self, src: TextList) -> list:
         assertion.is_instance(src, TextList)
         tmp = []
-        totals = sum([len(line) for line in src.data])
+        totals = sum([len(self._rid_topspace(line)) for line in src.data])
         kanjis = 0
         katakanas = 0
         hiraganas = 0
@@ -96,9 +96,9 @@ class PercentAnalyzer(Executer):
         def _is_dialogue(val):
             return val.startswith(('「', '『'))
         totals = len([line for line in src.data])
-        total_chars = sum([len(line) for line in src.data])
+        total_chars = sum([len(self._rid_topspace(line)) for line in src.data])
         descriptions = len([line for line in src.data if _is_desc(line)])
-        desc_chars = sum([len(line) for line in src.data if _is_desc(line)])
+        desc_chars = sum([len(self._rid_topspace(line)) for line in src.data if _is_desc(line)])
         dialogues = len([line for line in src.data if _is_dialogue(line)])
         dial_chars = sum([len(line) for line in src.data if _is_dialogue(line)])
         desc_per = desc_chars / total_chars * 100
@@ -109,3 +109,11 @@ class PercentAnalyzer(Executer):
         tmp.append(f'- Dialogue   : {dial_per:.2f}% [{dial_chars}c / {dialogues}line]')
         return tmp
 
+    def _rid_topspace(self, src: str):
+        if assertion.is_str(src).startswith('　'):
+            if src.startswith('　　　　'):
+                return src[4:]
+            else:
+                return src[1:]
+        else:
+            return src

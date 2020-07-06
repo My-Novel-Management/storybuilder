@@ -141,6 +141,8 @@ class Counter(object):
             if _validate_scode(src):
                 tmp = len("。".join(conv.script_relieved_symbols(src.script)))
                 return tmp + _correct(src) if tmp else tmp
+            elif src.cmd is SCmd.TAG_SYMBOL:
+                return 1
             else:
                 return 0
         elif isinstance(src, Material):

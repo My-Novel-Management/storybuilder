@@ -97,9 +97,11 @@ class Analyzer(Executer):
         tmp = []
         for line in assertion.is_instance(src, TextList).data:
             assertion.is_str(line)
-            if line.startswith('#'):
+            if line.startswith('#') or line.startswith('\n#'):
                 continue
-            elif line.startswith('---'):
+            elif line.startswith('---') or line.startswith('\n---'):
+                continue
+            elif line in ('\n', '\n\n'):
                 continue
             else:
                 tmp.append(line)
