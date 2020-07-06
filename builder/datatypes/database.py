@@ -124,6 +124,16 @@ class Database(object):
             LOG.error(msg)
             return None
 
+    def get_person_names(self) -> list:
+        tmp = []
+        for val in self._persons.values():
+            tmp.append(val.name)
+            tmp.append(val.firstname)
+            tmp.append(val.lastname)
+            tmp.append(val.fullname)
+            tmp.append(val.exfullname)
+        return list(set(tmp))
+
     def build_db(self, persons: ListLike, stages: ListLike, days: ListLike,
             times: ListLike, items: ListLike, words: ListLike,
             rubis: ListLike) -> None:

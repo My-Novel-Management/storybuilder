@@ -25,9 +25,10 @@ def main():
     opt_args = opt.get_commandline_arguments()
     LOG.reset_logger(opt_args)
     target = opt_args.target
+    person_names = []
     is_debug = opt_args.debug
     analyzer = Analyzer()
-    analyzer.execute(target, is_debug)
+    analyzer.execute(target, person_names, is_debug)
     print('>> FINISHED!!')
     return 0
 

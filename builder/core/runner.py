@@ -103,7 +103,8 @@ class Runner(Executer):
 
         LOG.info('RUN: analyzer check')
         if self._is_analyzed:
-            result = assertion.is_instance(self._analyze_and_output(tmp, self._is_debug),
+            result = assertion.is_instance(self._analyze_and_output(tmp, db.get_person_names(),
+                self._is_debug),
                     ResultData)
 
         LOG.info('RUN: == ALL SUCCEEDED ==')
@@ -332,7 +333,7 @@ class Runner(Executer):
         version = config.version
         print(f'>> version: {version}')
 
-    def _analyze_and_output(self, src: Story, is_debug: bool) -> ResultData:
+    def _analyze_and_output(self, src: Story, person_names: list, is_debug: bool) -> ResultData:
         # serialize and compile as text
         mode = CompileMode.NOVEL_TEXT
         fmode = FormatMode.DEFAULT
@@ -359,6 +360,6 @@ class Runner(Executer):
         tmp = assertion.is_instance(result.data, TextList)
 
         LOG.info('RUN: call Analyzer')
-        result = Analyzer().execute(tmp, is_debug)
+        result = Analyzer().execute(tmp, person_names, is_debug)
         return ResultData([], True, None)
 

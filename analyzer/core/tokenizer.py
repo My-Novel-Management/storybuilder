@@ -51,7 +51,8 @@ class Tokenizer(Executer):
     # methods
     #
 
-    def execute(self, src: (TextList, list, tuple), mecab_dir: str=None) -> ResultData:
+    def execute(self, src: (TextList, list, tuple), person_names: list,
+            mecab_dir: str=None) -> ResultData:
         LOG.info('TOKENIZER: start exec')
         is_succeeded = True
         error = None
@@ -60,7 +61,7 @@ class Tokenizer(Executer):
             mdir = f'-d {mdir}' if mdir else ''
             self._tagger = MeCab.Tagger(mdir)
             self._tagger.parse('') # 初期化処理
-        tmp = assertion.is_instance(self._exec_internal(src), TokenList)
+        tmp = assertion.is_instance(self._exec_internal(src, person_names), TokenList)
         return ResultData(
                 tmp,
                 is_succeeded,
@@ -70,11 +71,16 @@ class Tokenizer(Executer):
     # private methods
     #
 
-    def _exec_internal(self, src: (TextList, list, tuple)) -> TokenList:
+    def _exec_internal(self, src: (TextList, list, tuple), person_names: list) -> TokenList:
         LOG.debug(f'-- src: {src}')
         tmp = []
         def _excepted(target: str):
             return target in ('EOS', '', 't', 'ー')
+        def _is_exists_name(target: str):
+            for name in person_names:
+                if name == target:
+                    return True
+            return False
         _src = src.data if isinstance(src, TextList) else src
         parsed = self._tagger.parse('\n'.join(assertion.is_listlike(_src))).split('\n')
         tokens = self._packed_from_parsed(parsed)
@@ -83,6 +89,9 @@ class Tokenizer(Executer):
                 continue
             elif len(token) == 1:
                 continue
+            if token[1] == WordClass.NOUN.conv_str():
+                if _is_exists_name(token[0]):
+                    token[3] = '人名'
             tmp.append(MecabData.conv(*token))
         return TokenList(*tmp)
 

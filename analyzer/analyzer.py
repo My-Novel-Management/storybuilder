@@ -9,6 +9,7 @@ from __future__ import annotations
 __all__ = ('Analyzer',)
 
 import os
+from analyzer.core.frequency_analyzer import FrequencyAnalyzer
 from analyzer.core.percent_analyzer import PercentAnalyzer
 from analyzer.core.tokenizer import Tokenizer
 from analyzer.core.word_analyzer import WordAnalyzer
@@ -38,13 +39,13 @@ class Analyzer(Executer):
         LOG.info('ANALYZER: initialize')
 
     def execute(self, src: (str, list, TextList),
+            person_names: list,
             is_debug: bool=False) -> ResultData: # pragma: no cover
         LOG.info('ANALYZER: start exec')
         is_succeeded = True
         error = None
         basesrc = None
         result = ResultData([], is_succeeded, error)
-        tokenizer = Tokenizer()
 
         if isinstance(src, str):
             basesrc = TextList(*get_content_from_text_file(src))
@@ -60,7 +61,7 @@ class Analyzer(Executer):
         tmp = self._rid_tag(basesrc)
 
         LOG.info('TOKENIZER: call')
-        result = assertion.is_instance(tokenizer.execute(tmp), ResultData)
+        result = assertion.is_instance(Tokenizer().execute(tmp, person_names), ResultData)
         if not result.is_succeeded:
             return result
         tokens = assertion.is_instance(result.data, TokenList)
@@ -77,8 +78,16 @@ class Analyzer(Executer):
             return result
         percent_data = assertion.is_listlike(result.data)
 
+        LOG.info('FREQUENCY_ANALYZER: call')
+        result = assertion.is_instance(FrequencyAnalyzer().execute(tokens), ResultData)
+        if not result.is_succeeded:
+            return result
+        freq_data = assertion.is_listlike(result.data)
+
         LOG.info('Analyzer result output')
-        result_data = word_data + ['\n---\n'] + percent_data
+        result_data = percent_data + ['\n---\n'] \
+                + word_data + ['\n---\n'] \
+                + freq_data
         fname = 'result'
         suffix = ''
         extention = 'md'
