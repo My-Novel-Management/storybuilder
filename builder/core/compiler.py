@@ -398,6 +398,7 @@ class Compiler(Executer):
         tmp = []
         data = assertion.is_instance(src, SCode).script[0]
         tmp.append('# Information')
+        tmp.append(f'【ひとこと】\n{data["oneline"]}\n')
         tmp.append(f'【あらすじ】\n{data["outline"]}\n')
         if data["contest_info"]:
             tmp.append(f'【コンテスト】\n{data["contest_info"]}\n')
