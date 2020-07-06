@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Analyzer: percent analyze
+- Analyzer: katakana and hiragana percent
 
 ## [0.5.9-19] - 2020-07-05
 ### Added

@@ -17,7 +17,7 @@ from builder.core.executer import Executer
 from builder.datatypes.resultdata import ResultData
 from builder.datatypes.textlist import TextList
 from builder.utils import assertion
-from builder.utils.util_str import kanji_list_from
+from builder.utils.util_str import kanji_list_from, katakana_list_from, hiragana_list_from
 from builder.utils.logger import MyLogger
 
 
@@ -72,12 +72,20 @@ class PercentAnalyzer(Executer):
         tmp = []
         totals = sum([len(line) for line in src.data])
         kanjis = 0
+        katakanas = 0
+        hiraganas = 0
         for line in src.data:
             kanjis += sum(len(v) for v in kanji_list_from(line))
+            katakanas += sum(len(v) for v in katakana_list_from(line))
+            hiraganas += sum(len(v) for v in hiragana_list_from(line))
         kanji_per = kanjis / totals * 100
+        katakana_per = katakanas / totals * 100
+        hiragana_per = hiraganas / totals * 100
         tmp.append('## カナ・漢字\n')
-        tmp.append(f"- Total: {totals}")
-        tmp.append(f'- Kanji: {kanji_per:.2f}% [{kanjis}]')
+        tmp.append(f"- Total: {totals}c")
+        tmp.append(f'- Kanji: {kanji_per:.2f}% [{kanjis}c]')
+        tmp.append(f'- Katakana: {katakana_per:.2f}% [{katakanas}c]')
+        tmp.append(f'- Hiragana: {hiragana_per:.2f}% [{hiraganas}c]')
         return tmp
 
     def _dialogue_percents(self, src: TextList) -> list:

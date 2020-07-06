@@ -99,6 +99,8 @@ class Analyzer(Executer):
             assertion.is_str(line)
             if line.startswith('#'):
                 continue
+            elif line.startswith('---'):
+                continue
             else:
                 tmp.append(line)
         return TextList(*tmp)

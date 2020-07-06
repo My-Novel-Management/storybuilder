@@ -19,7 +19,9 @@ from builder.utils import assertion
 
 ## define re
 REG_ALPHA = re.compile(r'^[a-zA-Z]+$')
-REG_KANJI = re.compile("[一-龥]")
+REG_KANJI = re.compile(r'[一-龥]')
+REG_HIRAGANA = re.compile(r'[あ-ん]')
+REG_KATAKANA = re.compile(r'[\u30A1-\u30FF]')
 
 
 def dict_from_string(src: str, splitter: str) -> dict:
@@ -32,10 +34,22 @@ def dict_from_string(src: str, splitter: str) -> dict:
         raise ValueError(f'Invalid string, cannot convert a dictionary: {src}')
 
 
-def kanji_list_from(target: str) -> list:
+def hiragana_list_from(src: str) -> list:
+    ''' Get a hiragana list.
+    '''
+    return REG_HIRAGANA.findall(assertion.is_str(src))
+
+
+def kanji_list_from(src: str) -> list:
     ''' Get a kanji list.
     '''
-    return REG_KANJI.findall(assertion.is_str(target))
+    return REG_KANJI.findall(assertion.is_str(src))
+
+
+def katakana_list_from(src: str) -> list:
+    ''' Get a katakana list.
+    '''
+    return REG_KATAKANA.findall(assertion.is_str(src))
 
 
 def string_replaced_by_tag(src: str, tags: dict, prefix: str='$') -> str:

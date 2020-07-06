@@ -25,6 +25,17 @@ class MethodsTest(unittest.TestCase):
                     ustr.dict_from_string(v,splt), expect),
                 data)
 
+
+    def test_hiragana_list_from(self):
+        data = [
+                # (val, expect)
+                (True, 'あい１２３', ['あ', 'い']),
+                ]
+        validate_with_fail(self, 'hiragana_list_from',
+                lambda v, expect: self.assertEqual(
+                    ustr.hiragana_list_from(v), expect), data)
+
+
     def test_kanji_list_from(self):
         data = [
                 # (val, expect)
@@ -33,6 +44,17 @@ class MethodsTest(unittest.TestCase):
         validate_with_fail(self, 'kanji_list_from',
                 lambda v, expect: self.assertEqual(
                     ustr.kanji_list_from(v), expect), data)
+
+
+    def test_katakana_list_from(self):
+        data = [
+                # (val, expect)
+                (True, 'あいうエお', ['エ']),
+                ]
+        validate_with_fail(self, 'katakana_list_from',
+                lambda v, expect: self.assertEqual(
+                    ustr.katakana_list_from(v), expect), data)
+
 
     def test_string_replaced_by_tag(self):
         data = [
