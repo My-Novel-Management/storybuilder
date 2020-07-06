@@ -26,3 +26,12 @@ class MethodsTest(unittest.TestCase):
                     umath.int_ceil(v0, v1), expect),
                 data)
 
+    def test_safe_divided(self):
+        data = [
+                # (valA, valB, expect)
+                (True, 4, 2, 2),
+                (True, 5, 0, 0),
+                ]
+        validate_with_fail(self, 'safe_divided',
+                lambda v0, v1, expect: self.assertEqual(
+                    umath.safe_divided(v0, v1), expect), data)

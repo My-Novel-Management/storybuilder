@@ -17,6 +17,7 @@ from builder.core.executer import Executer
 from builder.datatypes.resultdata import ResultData
 from builder.datatypes.textlist import TextList
 from builder.utils import assertion
+from builder.utils.util_math import safe_divided
 from builder.utils.util_str import kanji_list_from, katakana_list_from, hiragana_list_from
 from builder.utils.logger import MyLogger
 
@@ -78,9 +79,9 @@ class PercentAnalyzer(Executer):
             kanjis += sum(len(v) for v in kanji_list_from(line))
             katakanas += sum(len(v) for v in katakana_list_from(line))
             hiraganas += sum(len(v) for v in hiragana_list_from(line))
-        kanji_per = kanjis / totals * 100
-        katakana_per = katakanas / totals * 100
-        hiragana_per = hiraganas / totals * 100
+        kanji_per = safe_divided(kanjis, totals) * 100
+        katakana_per = safe_divided(katakanas, totals) * 100
+        hiragana_per = safe_divided(hiraganas, totals) * 100
         tmp.append('## カナ・漢字\n')
         tmp.append(f"- Total: {totals}c")
         tmp.append(f'- Kanji: {kanji_per:.2f}% [{kanjis}c]')
@@ -101,8 +102,8 @@ class PercentAnalyzer(Executer):
         desc_chars = sum([len(self._rid_topspace(line)) for line in src.data if _is_desc(line)])
         dialogues = len([line for line in src.data if _is_dialogue(line)])
         dial_chars = sum([len(line) for line in src.data if _is_dialogue(line)])
-        desc_per = desc_chars / total_chars * 100
-        dial_per = dial_chars / total_chars * 100
+        desc_per = safe_divided(desc_chars, total_chars) * 100
+        dial_per = safe_divided(dial_chars, total_chars) * 100
         tmp.append('## 台詞\n')
         tmp.append(f'- Total      : {total_chars}c / {totals}line')
         tmp.append(f'- Description: {desc_per:.2f}% [{desc_chars}c / {descriptions}line]')
