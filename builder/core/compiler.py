@@ -401,7 +401,16 @@ class Compiler(Executer):
         tmp.append(f'【あらすじ】\n{data["outline"]}\n')
         if data["contest_info"]:
             tmp.append(f'【コンテスト】\n{data["contest_info"]}\n')
-        tmp.append(f'【備考】\n{data["note"]}\n')
+        if data["caution"]:
+            tmp.append(f'【注意事項】\n{data["caution"]}\n')
+        if data["sites"]:
+            if len(data["sites"]) == 1:
+                tmp.append(f'【掲載サイト】\n本作は(data["sites"][0])のみに掲載しています\n')
+            else:
+                sites = ",".join(data["sites"])
+                tmp.append(f'【掲載サイト】\n本作は（{sites}）の各サイトに掲載しています\n')
+        if data["note"]:
+            tmp.append(f'【備考】\n{data["note"]}\n')
         digit = -3
         chars = data["total_chars"]
         if chars > 1000:

@@ -251,9 +251,12 @@ class HeaderUpdater(Executer):
         return SCode(None, SCmd.INFO_STORY,
                 ({
                     'title': config.title,
+                    'oneline': config.oneline,
                     'outline': config.outline,
                     'contest_info': config.contest_info,
+                    'caution': config.caution,
                     'note': config.note,
+                    'sites': config.sites,
                     'total_chars': Counter().description_characters_of(src),
                     'version': config.version,
                     'modified': config.modified,

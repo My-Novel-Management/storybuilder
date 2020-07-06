@@ -38,6 +38,7 @@ class StoryConfig(object):
         LOG.debug(f'-- title: {title}')
         # for story
         self._title = assertion.is_str(title)
+        self._oneline = assertion.is_str('__one_line__')
         self._outline = assertion.is_str('__story_outline__')
         self._priority = assertion.is_int(__PRIORITY_DEFAULT__)
         self._start = assertion.is_int(0)
@@ -48,7 +49,9 @@ class StoryConfig(object):
         self._columns = assertion.is_int(20)
         self._rows = assertion.is_int(20)
         self._contest_info = assertion.is_str('')
-        self._note = assertion.is_str('備考')
+        self._caution = assertion.is_str('')
+        self._note = assertion.is_str('')
+        self._sites = assertion.is_listlike([])
         self._modified = datetime.date.today()
         self._released = datetime.date(2020,1,1)
         # for compile
@@ -75,6 +78,10 @@ class StoryConfig(object):
         return self._title
 
     @property
+    def oneline(self) -> str:
+        return self._oneline
+
+    @property
     def outline(self) -> str:
         return self._outline
 
@@ -87,8 +94,16 @@ class StoryConfig(object):
         return self._contest_info
 
     @property
+    def caution(self) -> str:
+        return self._caution
+
+    @property
     def note(self) -> str:
         return self._note
+
+    @property
+    def sites(self) -> (list, tuple):
+        return self._sites
 
     @property
     def modified(self) -> datetime.date:
@@ -177,6 +192,9 @@ class StoryConfig(object):
     def set_title(self, title: str) -> None:
         self._title = assertion.is_str(title)
 
+    def set_oneline(self, oneline: str) -> None:
+        self._oneline = assertion.is_str(oneline)
+
     def set_outline(self, outline: str) -> None:
         self._outline = assertion.is_str(outline)
 
@@ -191,8 +209,14 @@ class StoryConfig(object):
     def set_contest_info(self, info: str) -> None:
         self._contest_info = assertion.is_str(info)
 
+    def set_caution(self, info: str) -> None:
+        self._caution = assertion.is_str(info)
+
     def set_note(self, note: str) -> None:
         self._note = assertion.is_str(note)
+
+    def set_sites(self, *args: str) -> None:
+        self._sites = [assertion.is_str(val) for val in args]
 
     def set_modified(self, *args: (datetime.date, int)) -> None:
         if isinstance(args[0], datetime.date):
