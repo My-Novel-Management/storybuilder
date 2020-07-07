@@ -60,6 +60,9 @@ class SCmd(Enum):
     #
 
     PLOT_NOTE = auto()
+    PLOT_MOTIF = auto()
+    PLOT_FORESHADOW = auto()
+    PLOT_PAYOFF = auto()
 
     #
     # meta
@@ -88,7 +91,8 @@ class SCmd(Enum):
                 cls.ELAPSE_DAY, cls.ELAPSE_TIME,
                 cls.END_CHAPTER, cls.END_EPISODE, cls.END_SCENE, cls.END_MATERIAL,
                 cls.HEAD_CHAPTER, cls.HEAD_EPISODE, cls.HEAD_SCENE, cls.HEAD_MATERIAL,
-                cls.PLOT_NOTE,
+                cls.PLOT_NOTE, cls.PLOT_MOTIF,
+                cls.PLOT_FORESHADOW, cls.PLOT_PAYOFF,
                 cls.INFO_DATA, cls.INFO_CONTENT, cls.INFO_STORY,
                 cls.PUT_OBJECT,
                 cls.TAG_BR, cls.TAG_COMMENT, cls.TAG_HR, cls.TAG_SYMBOL,
@@ -128,7 +132,8 @@ class SCmd(Enum):
 
     @classmethod
     def get_plot_infos(cls) -> list:
-        return [cls.PLOT_NOTE]
+        return [cls.PLOT_NOTE, cls.PLOT_MOTIF,
+                cls.PLOT_FORESHADOW, cls.PLOT_PAYOFF]
 
     @classmethod
     def get_tags(cls) -> list:

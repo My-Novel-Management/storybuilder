@@ -298,7 +298,16 @@ class Compiler(Executer):
                 continue
             # plot control
             elif code.cmd in SCmd.get_plot_infos():
-                tmp.append(f'* {conv.to_description(code.script)}')
+                if code.cmd is SCmd.PLOT_NOTE:
+                    tmp.append(f'* {conv.to_description(code.script)}')
+                elif code.cmd is SCmd.PLOT_MOTIF:
+                    tmp.append(f'[{"。".join(code.script)}][{code.option}]')
+                elif code.cmd is SCmd.PLOT_FORESHADOW:
+                    tmp.append(f'\t@{code.option} <-- |{"".join(code.script)}')
+                elif code.cmd is SCmd.PLOT_PAYOFF:
+                    tmp.append(f'\t\t@{code.option} --> |{"".join(code.script)}')
+                else:
+                    continue
                 is_added = True
             # others
             else:

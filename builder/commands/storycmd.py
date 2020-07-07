@@ -95,6 +95,15 @@ class StoryCmd(object):
     def plot_note(self, *args) -> SCode:
         return SCode(None, SCmd.PLOT_NOTE, args, '')
 
+    def foreshadow(self, *args, flagname: str='') -> SCode:
+        return SCode(None, SCmd.PLOT_FORESHADOW, args, flagname)
+
+    def payoff(self, *args, flagname: str='') -> SCode:
+        return SCode(None, SCmd.PLOT_PAYOFF, args, flagname)
+
+    def motif(self, motif: str, *args) -> SCode:
+        return SCode(None, SCmd.PLOT_MOTIF, args, motif)
+
     #
     # method: for Story object
     #

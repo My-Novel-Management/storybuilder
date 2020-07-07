@@ -57,6 +57,9 @@ class World(object):
         self.episode = self._cmd.episode
         self.scene = self._cmd.scene
         self.plot_note = self._cmd.plot_note
+        self.foreshadow = self._cmd.foreshadow
+        self.payoff = self._cmd.payoff
+        self.motif = self._cmd.motif
         self.writer_note = self._cmd.writer_note
         self.chara_note = self._cmd.character_note
         self.document = self._cmd.document
