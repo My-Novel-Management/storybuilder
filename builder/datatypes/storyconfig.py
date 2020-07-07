@@ -36,10 +36,16 @@ class StoryConfig(object):
     def __init__(self, title: str):
         LOG.info('CONFIG: initialize')
         LOG.debug(f'-- title: {title}')
-        # for story
+        # for specific
         self._title = assertion.is_str(title)
+        self._copy = assertion.is_str('__catch_copy__')
         self._oneline = assertion.is_str('__one_line__')
         self._outline = assertion.is_str('__story_outline__')
+        self._theme = assertion.is_str('__theme__')
+        self._genre = assertion.is_str('__genre__')
+        self._target = assertion.is_str('__target_age__')
+        self._size = assertion.is_str('__size__')
+        # for story
         self._priority = assertion.is_int(__PRIORITY_DEFAULT__)
         self._start = assertion.is_int(0)
         self._end = assertion.is_int(-1)
@@ -70,12 +76,16 @@ class StoryConfig(object):
         self._log_level = assertion.is_str('warn')
 
     #
-    # property
+    # property (specific)
     #
 
     @property
     def title(self) -> str:
         return self._title
+
+    @property
+    def copy(self) -> str:
+        return self._copy
 
     @property
     def oneline(self) -> str:
@@ -84,6 +94,26 @@ class StoryConfig(object):
     @property
     def outline(self) -> str:
         return self._outline
+
+    @property
+    def theme(self) -> str:
+        return self._theme
+
+    @property
+    def genre(self) -> str:
+        return self._genre
+
+    @property
+    def target(self) -> str:
+        return self._target
+
+    @property
+    def size(self) -> str:
+        return self._size
+
+    #
+    # property (story)
+    #
 
     @property
     def version(self) -> tuple:
@@ -186,17 +216,36 @@ class StoryConfig(object):
         return self._log_level
 
     #
-    # methods (story)
+    # methods (specific)
     #
 
     def set_title(self, title: str) -> None:
         self._title = assertion.is_str(title)
+
+    def set_theme(self, theme: str) -> None:
+        self._theme = assertion.is_str(theme)
+
+    def set_copy(self, copy: str) -> None:
+        self._copy = assertion.is_str(copy)
 
     def set_oneline(self, oneline: str) -> None:
         self._oneline = assertion.is_str(oneline)
 
     def set_outline(self, outline: str) -> None:
         self._outline = assertion.is_str(outline)
+
+    def set_genre(self, genre: str) -> None:
+        self._genre = assertion.is_str(genre)
+
+    def set_target(self, target: str) -> None:
+        self._target = assertion.is_str(target)
+
+    def set_size(self, size: str) -> None:
+        self._size = assertion.is_str(size)
+
+    #
+    # methods (story)
+    #
 
     def set_version(self, *args: (str, int, tuple)) -> None:
         if isinstance(args[0], tuple):
