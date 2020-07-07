@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - StoryConfig: caution, sites info
 - StoryCommand: motif, foreshadow, payoff
+### Changed
+- Compiler: conv to plot (re-format)
 ### Fixed
 - PercentAnalyzer: zero divided
 

@@ -284,7 +284,8 @@ class Compiler(Executer):
                     if isinstance(code.script[0], HeaderInfo):
                         head_info = self._get_headinfo(code) + ' | T:' + self._get_headinfo_total(code)
                     elif isinstance(code.script[0], SceneInfo):
-                        tmp.append(self._get_sceneinfo(code))
+                        # NOTE: 場所情報はカット
+                        continue
                     else:
                         tmp.append("".join(code.script))
                 elif code.cmd is SCmd.INFO_CONTENT:
@@ -298,17 +299,10 @@ class Compiler(Executer):
                 continue
             # plot control
             elif code.cmd in SCmd.get_plot_infos():
-                if code.cmd is SCmd.PLOT_NOTE:
-                    tmp.append(f'* {conv.to_description(code.script)}')
-                elif code.cmd is SCmd.PLOT_MOTIF:
-                    tmp.append(f'[{"。".join(code.script)}][{code.option}]')
-                elif code.cmd is SCmd.PLOT_FORESHADOW:
-                    tmp.append(f'\t@{code.option} <-- |{"".join(code.script)}')
-                elif code.cmd is SCmd.PLOT_PAYOFF:
-                    tmp.append(f'\t\t@{code.option} --> |{"".join(code.script)}')
-                else:
-                    continue
-                is_added = True
+                ret = self._conv_from_plotinfo(code)
+                if ret:
+                    tmp.append(ret)
+                    is_added = True
             # others
             else:
                 LOG.error(f'Unknown SCmd!: {code.cmd}')
@@ -380,6 +374,18 @@ class Compiler(Executer):
         else:
             LOG.debug(f'Other tag: {src.cmd}')
         return (tmp, (ch_num, ep_num, sc_num))
+
+    def _conv_from_plotinfo(self, code: SCode) -> str:
+        tmp = ''
+        if code.cmd is SCmd.PLOT_NOTE:
+            tmp = f'    * {Converter().to_description(code.script)}'
+        elif code.cmd is SCmd.PLOT_MOTIF:
+            tmp = f'[{"。".join(code.script)}][{code.option}]'
+        elif code.cmd is SCmd.PLOT_FORESHADOW:
+            tmp = f'\t@{code.option} <-- |{"".join(code.script)}'
+        elif code.cmd is SCmd.PLOT_PAYOFF:
+            tmp = f'\t\t@{code.option} --> |{"".join(code.script)}'
+        return tmp
 
     def _get_headinfo(self, code: SCode) -> str:
         info = assertion.is_instance(
