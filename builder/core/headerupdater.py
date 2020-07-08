@@ -120,7 +120,7 @@ class HeaderUpdater(Executer):
                     tmp.append(SCode(None, SCmd.THEN, (), ''))
                 tmp.append(child)
             elif isinstance(child, Material):
-                tmp.append(self._update_container_info(child, columsn, rows))
+                tmp.append(self._update_container_info(child, columns, rows))
             else:
                 LOG.error(f'Invalid child value!: {type(child)} | {child}')
         tmp.append(self._end_of(src))
