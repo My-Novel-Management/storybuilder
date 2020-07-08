@@ -75,7 +75,7 @@ class ScriptConverter(object):
             elif line.startswith("『"):
                 tmp.append(f'{self._get_tabspace(3)}who.voice("{line[1:-1]}"),')
             elif line in ('◆', '※', '　　　　◆', '　　　　※'):
-                tmp.append(f'{self._get_tabspace(3)}w.symbol("{line}"),')
+                tmp.append(f'{self._get_tabspace(3)}w.symbol("　　　　{line.strip()}"),')
             else:
                 tmp.append(f'{self._get_tabspace(3)}who.do("{line}"),')
         if in_scene:
