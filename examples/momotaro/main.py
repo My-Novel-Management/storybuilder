@@ -115,6 +115,7 @@ def sc_voyage(w: World):
     dango = w.get('dango')
     return w.scene("旅立ち",
             w.symbol("　　　　◆"),
+            w.cmd.change_camera('taro'),
             w.cmd.change_date('start_voyage'),
             w.cmd.change_time('morning'),
             taro.be(),

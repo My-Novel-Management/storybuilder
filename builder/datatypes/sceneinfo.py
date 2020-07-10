@@ -25,13 +25,11 @@ class SceneInfo(object):
             stage: Stage,
             day: Day,
             time: Time,
-            persons: (list, tuple),
             ):
         self._camera = assertion.is_instance(camera, Person) if camera else None
         self._stage = assertion.is_instance(stage, Stage) if stage else None
         self._day = assertion.is_instance(day, Day) if day else None
         self._time = assertion.is_instance(time, Time) if time else None
-        self._persons = assertion.is_listlike(persons) if persons else ()
 
     #
     # property
@@ -53,7 +51,18 @@ class SceneInfo(object):
     def time(self) -> (Time, None):
         return self._time
 
-    @property
-    def persons(self) -> (list, tuple):
-        return self._persons
+    #
+    # methods
+    #
 
+    def inherited(self,
+            camera: Person=None,
+            stage: Stage=None,
+            day: Day=None,
+            time: Time=None) -> SceneInfo:
+        return SceneInfo(
+                camera if camera else self.camera,
+                stage if stage else self.stage,
+                day if day else self.day,
+                time if time else self.time,
+                )

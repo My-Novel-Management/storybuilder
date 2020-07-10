@@ -158,7 +158,6 @@ class HeaderUpdater(Executer):
                     stages[0] if stages else None,
                     days[0] if days else None,
                     times[0] if times else None,
-                    None,
                     ),),
                 '')
 

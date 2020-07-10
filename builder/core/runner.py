@@ -20,6 +20,7 @@ from builder.core.formatter import Formatter
 from builder.core.headerupdater import HeaderUpdater
 from builder.core.outputter import Outputter
 from builder.core.reducer import Reducer
+from builder.core.sceneupdater import SceneUpdater
 from builder.core.serializer import Serializer
 from builder.core.tagreplacer import TagReplacer
 from builder.core.validater import Validater
@@ -221,6 +222,14 @@ class Runner(Executer):
             return result
         tmp = assertion.is_instance(result.data, Story)
         LOG.info('... SUCCESS: HeaderUpdater')
+
+        LOG.info('RUN: START: scene updater')
+        result = assertion.is_instance(SceneUpdater().execute(tmp), ResultData)
+        if not result.is_succeeded:
+            LOG.error('Failure in SceneUpdater!!')
+            return result
+        tmp = assertion.is_instance(result.data, Story)
+        LOG.info('... SUCCESS: SceneUpdater')
 
         return result
 
