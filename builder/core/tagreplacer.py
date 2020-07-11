@@ -20,7 +20,7 @@ from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.resultdata import ResultData
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
-from builder.utils.util_dict import dict_sorted
+from builder.utils.util_dict import dict_sorted, combine_dict
 from builder.utils.util_str import string_replaced_by_tag
 
 
@@ -61,6 +61,7 @@ class TagReplacer(Executer):
 
     def _exec_internal(self, src: Story, tags: dict) -> Story:
         tmp = []
+        LOG.debug(f'--(reverse)-- {tags}'),
         for child in assertion.is_instance(src, Story).children:
             if isinstance(child, (Chapter, Episode, Scene, Material)):
                 tmp.append(self._replaced_in_container(child, tags))
@@ -95,14 +96,15 @@ class TagReplacer(Executer):
 
     def _replaced_scode(self, src: SCode, tags: dict) -> Scode:
         script = assertion.is_instance(src, SCode).script
+        _tags = tags
         def _conv(val, tags):
             if isinstance(val, str):
                 return string_replaced_by_tag(val, tags)
             else:
                 return val
         if hasattr(src.src, 'calling'):
-            script = tuple(_conv(v, dict_sorted(src.src.calling, True)) for v in script)
-        script = tuple(_conv(v, tags) for v in script)
+            _tags = dict_sorted(combine_dict(tags, src.src.calling), True)
+        script = tuple(_conv(v, _tags) for v in script)
         return src.inherited(
                 script=script,
                 )

@@ -52,6 +52,8 @@ ITEMS = [
         ]
 WORDS = [
         # (tag / name / info)
+        ("dogrun", "犬走り"),
+        ("memo", "手帳"),
         ]
 RUBIS = [
         # (origin / rubi / exclusions / always)
@@ -82,6 +84,7 @@ def sc_get_peach(w: World):
             mam.think("拾って帰って、おじいさんと一緒に食べようかしらね", "#桃をゲット"),
             w.foreshadow("桃を拾う"),
             mam.do("そう考え、何とか木の棒を使ってこちらに引き寄せ、ひと抱えもある桃を手に入れました"),
+            mam.do("$memoを手にして、それを忘れないように書き込んでおいた"),
             mam.go("それを籠に入れ、家に帰りました"),
             )
 
@@ -161,6 +164,7 @@ def sc_ally(w: World):
             taro.talk("鬼を退治しに行くところなんだ"),
             dog.talk("それなら$meがお供しましょう", "鬼はこの牙が苦手と言います"),
             taro.explain("こうして犬は$Sの家来となりました"),
+            taro.do("犬が$dogrunを走り回っているのを見ていた"),
             w.br(),
             w.tag.title('家来その２'),
             taro.hear("誰かの話しかける声"),
