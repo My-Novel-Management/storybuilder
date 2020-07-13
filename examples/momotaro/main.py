@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append('builder')
 from builder.world import World
 from assets import basic
+from assets import common_rubi
 
 
 # DB
@@ -278,6 +279,7 @@ def main(): # pragma: no cover
     w.db.set_items(ITEMS)
     w.db.set_words(WORDS)
     w.db.set_rubis(RUBIS)
+    w.db.set_from_asset(common_rubi.ASSET)
     w.config.set_base_date(4,10, 100)
     w.config.set_base_time(8,00)
     w.config.set_sites("エブリスタ", "小説家になろう")
