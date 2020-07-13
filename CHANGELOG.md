@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - TagReplacer: tags order
+- Compiler: then bug (description head nothing)
 
 ## [0.5.9-21] - 2020-07-10
 ### Added

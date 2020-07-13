@@ -115,11 +115,13 @@ class Compiler(Executer):
             # actions
             if code.cmd in SCmd.get_normal_actions():
                 if not checker.is_empty_script(code):
-                    if not is_then:
+                    if not is_then or in_dialogue:
                         tmp.append(FormatTag.DESCRIPTION_HEAD)
+                    in_dialogue = False
                     tmp.append(f'{desc_head}{conv.to_description(conv.script_relieved_symbols(code.script))}')
                     is_added = True
             elif code.cmd in SCmd.get_dialogue_actions():
+                in_dialogue = True
                 is_voice = code.cmd is SCmd.VOICE
                 script = conv.script_relieved_symbols(code.script)
                 if dial_stock:
