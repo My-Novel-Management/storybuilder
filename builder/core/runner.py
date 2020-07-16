@@ -206,7 +206,7 @@ class Runner(Executer):
         LOG.info('... SUCCESS: Reducer')
 
         LOG.info('RUN: START: Replacer')
-        result = assertion.is_instance(TagReplacer().execute(tmp, db.tags),
+        result = assertion.is_instance(TagReplacer().execute(tmp, config, db.tags),
                 ResultData)
         if not result.is_succeeded:
             LOG.error('Failure in TagReplacer!!')

@@ -18,6 +18,7 @@ from builder.containers.story import Story
 from builder.core.executer import Executer
 from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.storyconfig import StoryConfig
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 from builder.utils.util_dict import dict_sorted, combine_dict
@@ -43,13 +44,15 @@ class TagReplacer(Executer):
     # methods
     #
 
-    def execute(self, src: Story, tags: dict) -> ResultData:
+    def execute(self, src: Story, config: StoryConfig, tags: dict) -> ResultData:
         LOG.info('TAG_REPLACER: start exec')
         LOG.debug(f'-- src: {src}')
+        LOG.debug(f'-- config: {config}')
         LOG.debug(f'-- tags: {tags}')
         is_succeeded = True
         error = None
         tmp = self._exec_internal(src, dict_sorted(tags, True))
+        is_succeeded = self._config_data_replaced(config, dict_sorted(tags, True))
         return ResultData(
                 tmp,
                 is_succeeded,
@@ -61,7 +64,6 @@ class TagReplacer(Executer):
 
     def _exec_internal(self, src: Story, tags: dict) -> Story:
         tmp = []
-        LOG.debug(f'--(reverse)-- {tags}'),
         for child in assertion.is_instance(src, Story).children:
             if isinstance(child, (Chapter, Episode, Scene, Material)):
                 tmp.append(self._replaced_in_container(child, tags))
@@ -73,6 +75,20 @@ class TagReplacer(Executer):
                 *tmp,
                 title=string_replaced_by_tag(src.title, tags),
                 outline=string_replaced_by_tag(src.outline, tags))
+
+
+    def _config_data_replaced(self, config: StoryConfig, tags: dict) -> bool:
+        assertion.is_instance(config, StoryConfig)
+
+        is_succeeded = True
+
+        config.set_title(string_replaced_by_tag(config.title, tags))
+        config.set_copy(string_replaced_by_tag(config.copy, tags))
+        config.set_oneline(string_replaced_by_tag(config.oneline, tags))
+        config.set_outline(string_replaced_by_tag(config.outline, tags))
+
+        return is_succeeded
+
 
     def _replaced_in_container(self, src: (Chapter, Episode, Scene, Material),
             tags: dict) -> (Chapter, Episode, Scene):

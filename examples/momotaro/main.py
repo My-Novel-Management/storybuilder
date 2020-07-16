@@ -270,7 +270,7 @@ def chara_momotaro(w: World):
 
 def main(): # pragma: no cover
     w = World.create_world('桃太郎')
-    w.config.set_outline('桃から生まれた桃太郎が鬼退治をする')
+    w.config.set_outline('桃から生まれた$taroが鬼退治をする')
     w.db.set_from_asset(basic.ASSET)
     w.db.set_persons(PERSONS)
     w.db.set_stages(STAGES)

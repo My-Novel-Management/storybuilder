@@ -426,7 +426,7 @@ class Compiler(Executer):
             if len(data["sites"]) == 1:
                 tmp.append(f'【掲載サイト】\n本作は(data["sites"][0])のみに掲載しています\n')
             else:
-                sites = ",".join(data["sites"])
+                sites = "、".join(data["sites"])
                 tmp.append(f'【掲載サイト】\n本作は（{sites}）の各サイトに掲載しています\n')
         if data["note"]:
             tmp.append(f'【備考】\n{data["note"]}\n')
