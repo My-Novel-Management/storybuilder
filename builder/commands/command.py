@@ -63,6 +63,10 @@ class SCmd(Enum):
     PLOT_MOTIF = auto()
     PLOT_FORESHADOW = auto()
     PLOT_PAYOFF = auto()
+    PLOT_SETUP = auto()
+    PLOT_DEVELOP = auto()
+    PLOT_RESOLVE = auto()
+    PLOT_TURNPOINT = auto()
 
     #
     # meta
@@ -93,6 +97,7 @@ class SCmd(Enum):
                 cls.HEAD_CHAPTER, cls.HEAD_EPISODE, cls.HEAD_SCENE, cls.HEAD_MATERIAL,
                 cls.PLOT_NOTE, cls.PLOT_MOTIF,
                 cls.PLOT_FORESHADOW, cls.PLOT_PAYOFF,
+                cls.PLOT_SETUP, cls.PLOT_DEVELOP, cls.PLOT_RESOLVE, cls.PLOT_TURNPOINT,
                 cls.INFO_DATA, cls.INFO_CONTENT, cls.INFO_STORY,
                 cls.PUT_OBJECT,
                 cls.TAG_BR, cls.TAG_COMMENT, cls.TAG_HR, cls.TAG_SYMBOL,
@@ -133,7 +138,12 @@ class SCmd(Enum):
     @classmethod
     def get_plot_infos(cls) -> list:
         return [cls.PLOT_NOTE, cls.PLOT_MOTIF,
-                cls.PLOT_FORESHADOW, cls.PLOT_PAYOFF]
+                cls.PLOT_FORESHADOW, cls.PLOT_PAYOFF,
+                cls.PLOT_SETUP, cls.PLOT_DEVELOP, cls.PLOT_RESOLVE, cls.PLOT_TURNPOINT]
+
+    @classmethod
+    def get_plot_structs(cls) -> list:
+        return [cls.PLOT_SETUP, cls.PLOT_DEVELOP, cls.PLOT_RESOLVE, cls.PLOT_TURNPOINT]
 
     @classmethod
     def get_tags(cls) -> list:

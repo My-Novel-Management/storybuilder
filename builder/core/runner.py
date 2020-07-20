@@ -19,6 +19,7 @@ from builder.core.filter import Filter
 from builder.core.formatter import Formatter
 from builder.core.headerupdater import HeaderUpdater
 from builder.core.outputter import Outputter
+from builder.core.plotupdater import PlotUpdater
 from builder.core.reducer import Reducer
 from builder.core.sceneupdater import SceneUpdater
 from builder.core.serializer import Serializer
@@ -230,6 +231,14 @@ class Runner(Executer):
             return result
         tmp = assertion.is_instance(result.data, Story)
         LOG.info('... SUCCESS: SceneUpdater')
+
+        LOG.info('RUN: START: plot updater')
+        result = assertion.is_instance(PlotUpdater().execute(tmp), ResultData)
+        if not result.is_succeeded:
+            LOG.error('Failure in PlotUpdater!!')
+            return result
+        tmp = assertion.is_instance(result.data, Story)
+        LOG.info('... SUCCESS: PlotUpdater')
 
         return result
 

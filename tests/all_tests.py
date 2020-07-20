@@ -45,6 +45,7 @@ from tests.tools import test_converter
 from tests.tools import test_counter
 from tests.utils import test_assertion
 from tests.utils import test_dict
+from tests.utils import test_list
 from tests.utils import test_logger
 from tests.utils import test_math
 from tests.utils import test_name
@@ -93,6 +94,7 @@ def suite() -> unittest.TestSuite:
         # utility
         unittest.makeSuite(test_assertion.MethodsTest),
         unittest.makeSuite(test_dict.MethodsTest),
+        unittest.makeSuite(test_list.MethodsTest),
         unittest.makeSuite(test_logger.MyLoggerTest),
         unittest.makeSuite(test_math.MethodsTest),
         unittest.makeSuite(test_name.MethodsTest),

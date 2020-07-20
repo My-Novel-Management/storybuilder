@@ -20,6 +20,7 @@ from builder.datatypes.formattag import FormatTag
 from builder.datatypes.headerinfo import HeaderInfo
 from builder.datatypes.rawdata import RawData
 from builder.datatypes.resultdata import ResultData
+from builder.datatypes.plotinfo import PlotInfo
 from builder.datatypes.sceneinfo import SceneInfo
 from builder.objects.rubi import Rubi
 from builder.tools.checker import Checker
@@ -159,6 +160,8 @@ class Compiler(Executer):
                         head_info = self._get_headinfo(code)
                     elif isinstance(code.script[0], SceneInfo):
                         tmp.append(self._get_sceneinfo(code))
+                    elif isinstance(code.script[0], PlotInfo):
+                        continue
                     else:
                         tmp.append("".join(code.script))
                 elif code.cmd is SCmd.INFO_CONTENT:
@@ -288,6 +291,8 @@ class Compiler(Executer):
                     elif isinstance(code.script[0], SceneInfo):
                         # NOTE: 場所情報はカット
                         continue
+                    elif isinstance(code.script[0], PlotInfo):
+                        tmp.append(self._get_plotinfo(code))
                     else:
                         tmp.append("".join(code.script))
                 elif code.cmd is SCmd.INFO_CONTENT:
@@ -379,14 +384,23 @@ class Compiler(Executer):
 
     def _conv_from_plotinfo(self, code: SCode) -> str:
         tmp = ''
+        conv = Converter()
         if code.cmd is SCmd.PLOT_NOTE:
-            tmp = f'    * {Converter().to_description(code.script)}'
+            tmp = f'    * {conv.to_description(code.script)}'
         elif code.cmd is SCmd.PLOT_MOTIF:
-            tmp = f'[{"。".join(code.script)}][{code.option}]'
+            tmp = f'[{conv.to_description(code.script)}][{code.option}]'
         elif code.cmd is SCmd.PLOT_FORESHADOW:
-            tmp = f'\t@{code.option} <-- |{"".join(code.script)}'
+            tmp = f'\t@{code.option} <-- |{conv.to_description(code.script)}'
         elif code.cmd is SCmd.PLOT_PAYOFF:
-            tmp = f'\t\t@{code.option} --> |{"".join(code.script)}'
+            tmp = f'\t\t@{code.option} --> |{conv.to_description(code.script)}'
+        elif code.cmd is SCmd.PLOT_SETUP:
+            tmp = f'[{code.option}:SETUP] {conv.to_description(code.script)}'
+        elif code.cmd is SCmd.PLOT_DEVELOP:
+            tmp = f'[{code.option}:DEVELOP] {conv.to_description(code.script)}'
+        elif code.cmd is SCmd.PLOT_RESOLVE:
+            tmp = f'[{code.option}:RESOLVE] {conv.to_description(code.script)}'
+        elif code.cmd is SCmd.PLOT_TURNPOINT:
+            tmp = f'[{code.option}:TURNP] {conv.to_description(code.script)}'
         return tmp
 
     def _get_headinfo(self, code: SCode) -> str:
@@ -398,6 +412,22 @@ class Compiler(Executer):
         info = assertion.is_instance(
                 assertion.is_instance(code, SCode).script[0], HeaderInfo)
         return f'[{info.total_chars}c / {info.total_papers:.2f}p ({info.total_lines:.2f}ls)]'
+
+    def _get_plotinfo(self, code: SCode) -> str:
+        data = code.script[0].data
+        tmp = []
+        for val in data:
+            info = Converter().to_description(val.script)
+            if val.cmd is SCmd.PLOT_SETUP:
+                tmp.append(f'[SETUP] {info}')
+            elif val.cmd is SCmd.PLOT_DEVELOP:
+                tmp.append(f'[DEVELOP] {info}')
+            elif val.cmd is SCmd.PLOT_RESOLVE:
+                tmp.append(f'[RESOLVE] {info}')
+            elif val.cmd is SCmd.PLOT_TURNPOINT:
+                tmp.append(f'[TURNING POINT] {info}')
+        body = "\n".join(tmp)
+        return f'\n## プロット情報「{code.script[0].title}」\n\n{body}\n\n---\n'
 
     def _get_sceneinfo(self, code: SCode) -> str:
         data = assertion.is_instance(assertion.is_instance(code, SCode).script[0], SceneInfo)

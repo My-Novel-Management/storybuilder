@@ -60,6 +60,10 @@ class World(object):
         self.foreshadow = self._cmd.foreshadow
         self.payoff = self._cmd.payoff
         self.motif = self._cmd.motif
+        self.plot_setup = self._cmd.plot_setup
+        self.plot_develop = self._cmd.plot_develop
+        self.plot_resolve = self._cmd.plot_resolve
+        self.plot_turnpoint = self._cmd.plot_turnpoint
         self.writer_note = self._cmd.writer_note
         self.chara_note = self._cmd.character_note
         self.document = self._cmd.document

@@ -71,6 +71,7 @@ def sc_get_peach(w: World):
             w.cmd.change_camera('mam'),
             w.cmd.change_stage('on_river'),
             "これは桃太郎の物語だ",
+            w.plot_setup("昔、おじいさんとおばあさんがいた", "二人には子どもがない"),
             mam.be("あるところにおじいさんとおばあさんがいました", "&"),
             mam.explain("おじいさんは山へ芝刈りに、おばあさんは川へ洗濯に出かけました"),
             mam.wear("渋染の着物にほつれた草履", "ぼさぼさの白髪"),
@@ -125,6 +126,8 @@ def sc_voyage(w: World):
             taro.be(),
             taro.explain("$Sはすくすくと育ち、あっという間に大きく逞しく成長しました"),
             taro.do("ある日、村人から鬼の悪行を聞いた$Sは考えました"),
+            w.plot_turnpoint("鬼の話を聞く"),
+            w.plot_develop("$taroは鬼退治に出発する"),
             taro.think("――何とか鬼を退治して村に恩返しがしたい"),
             taro.explain("そこでおじいさんとおばあさんを前にして、鬼退治をしたいと言い出したのです"),
             mam.be(),
@@ -152,9 +155,11 @@ def sc_ally(w: World):
     taro = w.get('taro')
     dog, monkey, bird = w.get('dog'), w.get('monkey'), w.get('bird')
     return w.scene("家来",
+            w.plot_develop("$taroは道中で家来を得る"),
             w.tag.title('家来その１'),
             w.cmd.change_stage('field'),
             taro.come('$Sが道を歩いていると、', '&'),
+            w.plot_setup("犬が歩いてきた", about="犬の家来"),
             dog.come('向こうから$Sが歩いてきた'),
             dog.look('その$Sはなんともひどい有様で、そのうちに道端に倒れてしまった'),
             taro.talk('大丈夫ですか？'),
@@ -202,6 +207,7 @@ def sc_island(w: World):
     oni = w.get('oni')
     return w.scene("$on_Island",
             w.cmd.change_stage('on_Island'),
+            w.plot_resolve("$taroは鬼退治をした"),
             w.comment("$taroは鬼退治をする"),
             taro.come("$Sは家来と共に$on_Islandへとやってきた"),
             oni.be("酒とご馳走で祝勝会をしている"),

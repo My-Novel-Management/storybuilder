@@ -104,6 +104,18 @@ class StoryCmd(object):
     def motif(self, motif: str, *args) -> SCode:
         return SCode(None, SCmd.PLOT_MOTIF, args, motif)
 
+    def plot_setup(self, *args, about: str="main") -> SCode:
+        return SCode(None, SCmd.PLOT_SETUP, args, about)
+
+    def plot_develop(self, *args, about: str="main") -> SCode:
+        return SCode(None, SCmd.PLOT_DEVELOP, args, about)
+
+    def plot_resolve(self, *args, about: str="main") -> SCode:
+        return SCode(None, SCmd.PLOT_RESOLVE, args, about)
+
+    def plot_turnpoint(self, *args, about: str="main") -> SCode:
+        return SCode(None, SCmd.PLOT_TURNPOINT, args, about)
+
     #
     # method: for Story object
     #

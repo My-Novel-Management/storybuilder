@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.9-23] - 2020-07-20
+### Added
+- PlotUpdater
 ### Changed
 - TagReplacer: config data replaced
 
@@ -604,7 +608,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-22...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.5.9-23...HEAD
+[0.5.9-23]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-23
 [0.5.9-22]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-22
 [0.5.9-21]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-21
 [0.5.9-20]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-20
