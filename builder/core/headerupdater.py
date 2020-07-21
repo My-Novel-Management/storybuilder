@@ -131,9 +131,10 @@ class HeaderUpdater(Executer):
         count = Counter()
         total_lines = count.manupaper_rows_of(src, columns, True)
         lines = count.manupaper_rows_of(src, columns)
+        total = count.total_characters_of(src, isinstance(src, Material))
         return SCode(None, SCmd.INFO_DATA,
                 (HeaderInfo(
-                    count.total_characters_of(src),
+                    total,
                     total_lines,
                     count.manupaper_numbers_of(total_lines, rows),
                     count.description_characters_of(src),
