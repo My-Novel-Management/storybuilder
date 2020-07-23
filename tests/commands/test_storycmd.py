@@ -66,26 +66,6 @@ class StoryCmdTest(unittest.TestCase):
         validate_with_fail(self, 'scene', checker, data)
 
     #
-    # for Story object
-    #
-
-    def test_get(self):
-        from builder.objects.item import Item
-        db = Database()
-        db.append_item('apple', '林檎')
-        scmd = cmd.StoryCmd(db)
-        data = [
-                # (key, expect, exp_name)
-                (True, 'apple', Item, '林檎'),
-                ]
-        def checker(key, expect, exp_name):
-            tmp = scmd.get(key)
-            self.assertIsInstance(tmp, cmd.Writer)
-            self.assertIsInstance(tmp._src, expect)
-            self.assertEqual(tmp._src.name, exp_name)
-        validate_with_fail(self, 'get', checker, data)
-
-    #
     # for Scene control
     #
 
