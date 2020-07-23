@@ -11,7 +11,7 @@ __all__ = ('World',)
 
 from builder import VERSION_MSG, __DEFAULT_LOG_LEVEL__, __VERSION__, __TITLE__
 from builder.commands.optioncmd import OptionParser
-from builder.commands.scode import SCode
+from builder.commands.scode import SCode, SCmd
 from builder.commands.storycmd import StoryCmd
 from builder.commands.tagcmd import TagCmd
 from builder.containers.chapter import Chapter
@@ -23,7 +23,7 @@ from builder.datatypes.builderexception import BuilderError
 from builder.datatypes.database import Database
 from builder.datatypes.resultdata import ResultData
 from builder.datatypes.storyconfig import StoryConfig
-from builder.objects.writer import Writer
+from builder.objects.sobject import SObject
 from builder.utils import assertion
 from builder.utils.util_date import get_date_lastmodified
 from builder.utils.util_file import get_module_filename
@@ -33,6 +33,51 @@ from builder.utils.logger import MyLogger
 # logger
 LOG = MyLogger.get_logger(__name__)
 LOG.set_file_handler()
+
+
+class Writer(object):
+    ''' Writer Object class.
+    '''
+
+    def __init__(self, src: SObject):
+        self._src = assertion.is_instance(src, SObject)
+
+    #
+    # methods
+    #
+
+    def be(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.BE, args)
+
+    def come(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.COME, args)
+
+    def do(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.DO, args)
+
+    def explain(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.EXPLAIN, args)
+
+    def go(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.GO, args)
+
+    def hear(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.HEAR, args)
+
+    def look(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.LOOK, args)
+
+    def talk(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.TALK, args)
+
+    def think(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.THINK, args)
+
+    def voice(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.VOICE, args)
+
+    def wear(self, *args: str) -> SCode:
+        return SCode(self._src, SCmd.WEAR, args)
 
 
 class World(object):
@@ -67,7 +112,6 @@ class World(object):
         self.writer_note = self._cmd.writer_note
         self.chara_note = self._cmd.character_note
         self.document = self._cmd.document
-        self.get = self._cmd.get
         self.br = self._tag.br
         self.comment = self._tag.comment
         self.symbol = self._tag.symbol
@@ -113,6 +157,10 @@ class World(object):
     #
     # methods
     #
+
+    def get(self, key: str) -> Writer:
+        return Writer(self._db.get(key))
+
 
     def run(self, *args: (Chapter, Episode, Scene, SCode)) -> int: # pragma: no cover
         ''' Run the story builder.

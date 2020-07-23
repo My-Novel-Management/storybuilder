@@ -22,7 +22,6 @@ from builder.datatypes.materialtype import MaterialType
 from builder.objects.day import Day
 from builder.objects.sobject import SObject
 from builder.objects.time import Time
-from builder.objects.writer import Writer
 from builder.utils import assertion
 from builder.utils.logger import MyLogger
 
@@ -116,12 +115,6 @@ class StoryCmd(object):
     def plot_turnpoint(self, *args, about: str="main") -> SCode:
         return SCode(None, SCmd.PLOT_TURNPOINT, args, about)
 
-    #
-    # method: for Story object
-    #
-
-    def get(self, key: str) -> Writer:
-        return Writer(self._db.get(key))
 
     #
     # method: for Scene control
