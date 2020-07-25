@@ -58,6 +58,7 @@ class StoryConfig(object):
         self._caution = assertion.is_str('')
         self._note = assertion.is_str('')
         self._sites = assertion.is_listlike([])
+        self._taginfos = assertion.is_listlike([])
         self._modified = datetime.date.today()
         self._released = datetime.date(2020,1,1)
         # for compile
@@ -134,6 +135,10 @@ class StoryConfig(object):
     @property
     def sites(self) -> (list, tuple):
         return self._sites
+
+    @property
+    def taginfos(self) -> (list, tuple):
+        return self._taginfos
 
     @property
     def modified(self) -> datetime.date:
@@ -266,6 +271,12 @@ class StoryConfig(object):
 
     def set_sites(self, *args: str) -> None:
         self._sites = [assertion.is_str(val) for val in args]
+
+    def set_taginfos(self, *args: str) -> None:
+        if isinstance(args[0], (list, tuple)):
+            self._taginfos = args[0]
+        else:
+            self._taginfos = [v for v in args if isinstance(v, str)]
 
     def set_modified(self, *args: (datetime.date, int)) -> None:
         if isinstance(args[0], datetime.date):

@@ -258,6 +258,7 @@ class HeaderUpdater(Executer):
                     'caution': config.caution,
                     'note': config.note,
                     'sites': config.sites,
+                    'tags': config.taginfos,
                     'total_chars': Counter().description_characters_of(src),
                     'version': config.version,
                     'modified': config.modified,

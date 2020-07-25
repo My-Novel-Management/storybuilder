@@ -460,6 +460,9 @@ class Compiler(Executer):
                 tmp.append(f'【掲載サイト】\n本作は（{sites}）の各サイトに掲載しています\n')
         if data["note"]:
             tmp.append(f'【備考】\n{data["note"]}\n')
+        if data["tags"]:
+            _ = ", ".join(data["tags"])
+            tmp.append(f'【タグ】\n{_}\n')
         digit = -3
         chars = data["total_chars"]
         if chars > 1000:
