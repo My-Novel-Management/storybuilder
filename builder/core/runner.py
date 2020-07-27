@@ -347,9 +347,15 @@ class Runner(Executer):
 
         return result
 
+
     def _output_storyinfo(self, config: StoryConfig) -> None:
         version = config.version
-        print(f'>> version: {version}')
+        chars = config.desc_size
+        papers = config.desc_papers
+        totals = config.total_size
+        t_papers = config.total_papers
+        print(f'>> v{version} / {papers}p({chars}c) / {t_papers}p({totals}c)')
+
 
     def _analyze_and_output(self, src: Story, person_names: list, is_debug: bool) -> ResultData:
         # serialize and compile as text

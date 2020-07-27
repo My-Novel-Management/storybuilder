@@ -72,6 +72,15 @@ class HeaderUpdater(Executer):
         columns = config.columns
         rows = config.rows
         assertion.is_instance(src, Story)
+        count = Counter()
+
+        config.set_desc_size(count.description_characters_of(src))
+        config.set_desc_papers(count.manupaper_numbers_of(
+            count.manupaper_rows_of(src, columns), rows))
+        config.set_total_size(count.total_characters_of(src, True))
+        config.set_total_papers(count.manupaper_numbers_of(
+            count.manupaper_rows_of(src, columns, True), rows))
+
 
         tmp.append(self._collect_header_info(src, columns, rows))
         tmp.append(self._title_of(src))

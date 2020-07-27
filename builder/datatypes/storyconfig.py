@@ -45,6 +45,10 @@ class StoryConfig(object):
         self._genre = assertion.is_str('__genre__')
         self._target = assertion.is_str('__target_age__')
         self._size = assertion.is_str('__size__')
+        self._desc_size = assertion.is_int(0)
+        self._total_size = assertion.is_int(0)
+        self._desc_papers = assertion.is_int_or_float(0)
+        self._total_papers = assertion.is_int_or_float(0)
         # for story
         self._priority = assertion.is_int(__PRIORITY_DEFAULT__)
         self._start = assertion.is_int(0)
@@ -111,6 +115,22 @@ class StoryConfig(object):
     @property
     def size(self) -> str:
         return self._size
+
+    @property
+    def desc_size(self) -> int:
+        return self._desc_size
+
+    @property
+    def total_size(self) -> int:
+        return self._total_size
+
+    @property
+    def desc_papers(self) -> (int, float):
+        return self._desc_papers
+
+    @property
+    def total_papers(self) -> (int, float):
+        return self._total_papers
 
     #
     # property (story)
@@ -247,6 +267,18 @@ class StoryConfig(object):
 
     def set_size(self, size: str) -> None:
         self._size = assertion.is_str(size)
+
+    def set_desc_size(self, size: int) -> None:
+        self._desc_size = assertion.is_int(size)
+
+    def set_total_size(self, size: int) -> None:
+        self._total_size = assertion.is_int(size)
+
+    def set_desc_papers(self, papers: (int, float)) -> None:
+        self._desc_papers = assertion.is_int_or_float(papers)
+
+    def set_total_papers(self, papers: (int, float)) -> None:
+        self._total_papers = assertion.is_int_or_float(papers)
 
     #
     # methods (story)
