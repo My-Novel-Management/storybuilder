@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - StoryConfig: taginfos
+- Outputter: datetime print on last
 ### Changed
 - Counter: is_contain_material
 - Writer: into world.py

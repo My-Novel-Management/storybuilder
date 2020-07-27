@@ -8,6 +8,7 @@ from __future__ import annotations
 
 __all__ = ('Outputter',)
 
+import datetime
 import os
 from enum import Enum, auto
 from builder.core.executer import Executer
@@ -73,6 +74,7 @@ class Outputter(Executer):
         is_succeeded = True
         for line in assertion.is_instance(src, TextList).data:
             print(line, end='')
+        print(datetime.datetime.now())
         return is_succeeded
 
     def _out_to_file(self, src: TextList,
@@ -90,5 +92,6 @@ class Outputter(Executer):
         with open(fullpath, 'w') as f:
             for line in assertion.is_instance(src, TextList).data:
                 f.write(f"{line}")
+            f.write(f'{datetime.datetime.now()}')
         return is_succeeded
 
