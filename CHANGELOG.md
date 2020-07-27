@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Counter: is_contain_material
 - Writer: into world.py
+### Fixed
+- asset: basic rubi
 
 ## [0.5.9-23] - 2020-07-20
 ### Added
