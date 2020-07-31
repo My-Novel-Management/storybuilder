@@ -11,9 +11,9 @@ import sys
 
 
 MAJOR = 0
-MINOR = 5
-MICRO = 9
-FEATURE = 24
+MINOR = 6
+MICRO = 0
+FEATURE = 0
 
 #
 # Information
@@ -21,7 +21,7 @@ FEATURE = 24
 
 __TITLE__ = 'StoryBuilder'
 __LICENSE__ = 'MIT'
-__VERSION__ = f"{MAJOR}.{MINOR}.{MICRO}-{FEATURE}"
+__VERSION__ = f"{MAJOR}.{MINOR}.{MICRO}-{FEATURE}" if int(FEATURE) else f"{MAJOR}.{MINOR}.{MICRO}"
 __AUTHOR__ = __maintainer__ = 'N.T.Works'
 __EMAIL__ = 'nagisc007@yahoo.co.jp'
 __DESC__ = 'Story builder is a library for developing story contents.'
