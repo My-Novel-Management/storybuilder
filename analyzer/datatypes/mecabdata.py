@@ -9,7 +9,13 @@ from __future__ import annotations
 __all__ = ('MecabData',)
 
 
+from builder.utils.logger import MyLogger
 from builder.utils import assertion
+
+
+# logger
+LOG = MyLogger.get_logger(__name__)
+LOG.set_file_handler()
 
 
 class MecabData(object):
@@ -57,6 +63,8 @@ class MecabData(object):
         elif args[0] == 'EOS':
             return MecabData('EOS', '', '', '', '', '', '', '', '', '')
         else:
+            if len(args) > 11:
+                LOG.critical(f"Invalid mecab data: {args}")
             return MecabData(*args)
 
     #
