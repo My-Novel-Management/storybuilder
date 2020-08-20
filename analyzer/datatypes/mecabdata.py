@@ -44,6 +44,7 @@ class MecabData(object):
             basic_type: str,
             reading: str=None,
             pronounce: str=None,
+            options: str=None,
             ):
         self._word = assertion.is_str(word)
         self._wordclass = assertion.is_str(wordclass)
@@ -55,6 +56,9 @@ class MecabData(object):
         self._basic_type = assertion.is_str(basic_type)
         self._reading = assertion.is_str(reading) if reading else self._word
         self._pronounce = assertion.is_str(pronounce) if pronounce else self._word
+        self._options = options
+        if options:
+            LOG.critical(f"Unknown mecab arguments: {options}")
 
     @classmethod
     def conv(cls, *args) -> MecabData:
@@ -63,8 +67,6 @@ class MecabData(object):
         elif args[0] == 'EOS':
             return MecabData('EOS', '', '', '', '', '', '', '', '', '')
         else:
-            if len(args) > 11:
-                LOG.critical(f"Invalid mecab data: {args}")
             return MecabData(*args)
 
     #
