@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.1] - 2020-08-20
+### Fixed
+- Mecab arguments error
+
 ## [0.6.0] - 2020-07-31
 
 ## [0.5.9-24] - 2020-07-27
@@ -621,7 +625,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/nagisc007/storybuilder/releases/v0.6.1
 [0.6.0]: https://github.com/nagisc007/storybuilder/releases/v0.6.0
 [0.5.9-24]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-24
 [0.5.9-23]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-23
