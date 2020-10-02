@@ -116,6 +116,10 @@ class World(object):
         self.comment = self._tag.comment
         self.symbol = self._tag.symbol
         self._config.set_log_level(loglevel)
+        self.change_camera = self.cmd.change_camera
+        self.change_stage = self.cmd.change_stage
+        self.change_date = self.cmd.change_date
+        self.change_time = self.cmd.change_time
 
     #
     # static methods

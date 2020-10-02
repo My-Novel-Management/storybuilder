@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.2] - 2020-10-02
+### Changed
+- World: change command shorter
+
 ## [0.6.1] - 2020-08-20
 ### Fixed
 - Mecab arguments error
@@ -625,7 +629,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Example story as usage.
 - Output story as markdown.
 
-[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/nagisc007/storybuilder/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/nagisc007/storybuilder/releases/v0.6.2
 [0.6.1]: https://github.com/nagisc007/storybuilder/releases/v0.6.1
 [0.6.0]: https://github.com/nagisc007/storybuilder/releases/v0.6.0
 [0.5.9-24]: https://github.com/nagisc007/storybuilder/releases/v0.5.9-24

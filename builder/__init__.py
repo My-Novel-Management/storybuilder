@@ -12,7 +12,7 @@ import sys
 
 MAJOR = 0
 MINOR = 6
-MICRO = 1
+MICRO = 2
 FEATURE = 0
 
 #
